@@ -426,9 +426,12 @@
             <h2>50 Fragen • 3 Leben • 15 Sekunden<br>Wer überlebt?</h2>
             <input type="text" id="player-name-input" placeholder="Dein Name" maxlength="15">
             <div class="btn-group">
-                <button id="create-game-btn">🎮 Neues Spiel</button>
-                <button id="join-game-btn" class="secondary">🚪 Beitreten</button>
+                <button id="create-game-btn">👑 Neues Spiel erstellen</button>
+                <button id="join-game-btn" class="secondary">🚪 Als Spieler beitreten</button>
             </div>
+            <p style="color: #666; font-size: 0.8em; margin-top: 10px;">
+                👑 = Spielleiter (kann Spiel starten) &nbsp;|&nbsp; 🚪 = Mitspieler
+            </p>
             <p style="color: #888; font-size: 0.85em; margin-top: 15px;">
                 Reflexivverben • Verben mit Präpositionen<br>
                 Modalverben Präteritum • Akkusativ/Dativ
@@ -441,8 +444,13 @@
                 <h2>⏳ Warteraum</h2>
                 <p style="color: #aaa; margin-bottom: 15px;">Spieler warten auf Start...</p>
                 <div class="waiting-players" id="waiting-players"></div>
-                <button class="start-game-btn" id="start-game-btn">▶️ Spiel starten</button>
-                <p style="color: #888; font-size: 0.85em; margin-top: 15px;" id="host-info"></p>
+                <div id="host-controls" style="margin-top: 20px;">
+                    <button class="start-game-btn" id="start-game-btn">▶️ SPIEL STARTEN</button>
+                    <p style="color: #00b894; font-size: 0.9em; margin-top: 10px;">👑 Du bist der Spielleiter</p>
+                </div>
+                <div id="player-waiting" style="margin-top: 20px; display: none;">
+                    <p style="color: #fdcb6e;">⏳ Warte auf Spielleiter...</p>
+                </div>
             </div>
         </div>
         
@@ -722,15 +730,13 @@
                 `<div class="waiting-player">${p.name} ${p.isHost ? '👑' : ''}</div>`
             ).join("");
             
-            const hostInfo = document.getElementById("host-info");
-            const host = players.find(p => p.isHost);
-            if (host && host.id !== playerId) {
-                hostInfo.textContent = `${host.name} ist der Spielleiter`;
-                document.getElementById("start-game-btn").style.display = "none";
-            } else if (isHost) {
-                hostInfo.textContent = "Du bist der Spielleiter";
-                document.getElementById("start-game-btn").style.display = "block";
-                document.getElementById("start-game-btn").disabled = players.length < 1;
+            // Host-Controls anzeigen/verstecken
+            if (isHost) {
+                document.getElementById("host-controls").style.display = "block";
+                document.getElementById("player-waiting").style.display = "none";
+            } else {
+                document.getElementById("host-controls").style.display = "none";
+                document.getElementById("player-waiting").style.display = "block";
             }
         }
         
@@ -760,12 +766,22 @@
         }
         
         function startGameAsHost() {
-            if (!isHost) return;
+            console.log("Start game clicked, isHost:", isHost);
+            if (!isHost) {
+                alert("Nur der Spielleiter kann das Spiel starten!");
+                return;
+            }
             
+            // Spiel starten
             gameRef.update({
                 status: "playing",
                 currentQuestion: 0,
                 questionStartTime: Date.now()
+            }).then(() => {
+                console.log("Game started successfully!");
+            }).catch((error) => {
+                console.error("Error starting game:", error);
+                alert("Fehler beim Starten: " + error.message);
             });
         }
         
