@@ -105,6 +105,29 @@
             background: rgba(255,215,0,0.2);
             border-radius: 25px;
             border: 1px solid rgba(255,215,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .waiting-player .remove-btn {
+            background: rgba(255,0,0,0.3);
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: none;
+        }
+        
+        .waiting-player .remove-btn:hover {
+            background: rgba(255,0,0,0.6);
+        }
+        
+        .waiting-player.can-remove .remove-btn {
+            display: inline-block;
         }
         
         .start-game-btn {
@@ -121,6 +144,21 @@
         
         .start-game-btn:hover { transform: scale(1.05); }
         
+        .clear-all-btn {
+            font-size: 0.9em;
+            padding: 10px 20px;
+            border: 2px solid #e74c3c;
+            border-radius: 20px;
+            background: transparent;
+            color: #e74c3c;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        .clear-all-btn:hover {
+            background: rgba(231,76,60,0.2);
+        }
+        
         /* Game Screen */
         #game-screen { display: none; }
         
@@ -132,25 +170,27 @@
             padding: 12px 15px;
             background: rgba(255,255,255,0.1);
             border-radius: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
         }
         
         .player-info { display: flex; align-items: center; gap: 10px; }
         .player-name { font-weight: bold; color: #ffd700; font-size: 0.95em; }
         .lives { font-size: 1.3em; letter-spacing: 2px; }
         
-        .waiting-counter {
-            text-align: center;
-            padding: 8px 15px;
-            background: rgba(108,92,231,0.3);
-            border-radius: 20px;
-            font-size: 0.9em;
+        .timer-box { text-align: center; }
+        
+        .timer {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00cec9;
+            text-shadow: 0 0 20px rgba(0,206,201,0.5);
         }
         
-        .waiting-counter.all-done {
-            background: rgba(0,184,148,0.3);
-            color: #00b894;
+        .timer.warning { color: #fdcb6e; }
+        .timer.danger { color: #e74c3c; animation: timerPulse 0.5s infinite; }
+        
+        @keyframes timerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
         
         .progress-info { text-align: right; }
@@ -256,6 +296,12 @@
             color: #ff7675;
         }
         
+        .answer-status.timeout {
+            display: block;
+            background: rgba(253,203,110,0.3);
+            color: #fdcb6e;
+        }
+        
         /* Live Players */
         .live-players {
             background: rgba(255,255,255,0.05);
@@ -304,8 +350,7 @@
         
         .player-chip.dead { opacity: 0.4; text-decoration: line-through; }
         .player-chip.is-me { border: 2px solid #ffd700; background: rgba(255,215,0,0.2); }
-        .player-chip.answered { background: rgba(0,184,148,0.3); border: 1px solid #00b894; }
-        .player-chip.waiting { border: 1px dashed rgba(255,255,255,0.3); }
+        .player-chip.answered { border-color: #6c5ce7; }
         
         /* Game Over */
         #gameover-screen { display: none; text-align: center; padding: 30px 20px; }
@@ -413,7 +458,7 @@
         <!-- Login Screen -->
         <div id="login-screen">
             <div class="logo">🎯</div>
-            <h2>50 Fragen • 3 Leben<br>Wer überlebt?</h2>
+            <h2>50 Fragen • 3 Leben • 15 Sekunden<br>Wer überlebt?</h2>
             <input type="text" id="player-name-input" placeholder="Dein Name" maxlength="15">
             <div class="btn-group">
                 <button id="create-game-btn">👑 Neues Spiel erstellen</button>
@@ -437,6 +482,8 @@
                 <div id="host-controls" style="margin-top: 20px;">
                     <button class="start-game-btn" id="start-game-btn">▶️ SPIEL STARTEN</button>
                     <p style="color: #00b894; font-size: 0.9em; margin-top: 10px;">👑 Du bist der Spielleiter</p>
+                    <button class="clear-all-btn" id="clear-all-btn">🗑️ Alle Spieler entfernen</button>
+                    <p style="color: #888; font-size: 0.75em; margin-top: 5px;">Klick auf ❌ um einzelne Spieler zu entfernen</p>
                 </div>
                 <div id="player-waiting" style="margin-top: 20px; display: none;">
                     <p style="color: #fdcb6e;">⏳ Warte auf Spielleiter...</p>
@@ -451,8 +498,8 @@
                     <span class="player-name" id="display-name"></span>
                     <span class="lives" id="display-lives">❤️❤️❤️</span>
                 </div>
-                <div class="waiting-counter" id="waiting-counter">
-                    ⏳ 0/0 haben geantwortet
+                <div class="timer-box">
+                    <div class="timer" id="timer">15</div>
                 </div>
                 <div class="progress-info">
                     <div class="question-num" id="question-num">Frage 1/50</div>
@@ -597,6 +644,7 @@
         ];
         
         // Konstanten
+        const QUESTION_TIME = 15;
         const TOTAL_QUESTIONS = 50;
         const GAME_ID = "livebattle";
         
@@ -611,10 +659,9 @@
         let currentQuestionIndex = -1;
         let hasAnswered = false;
         let selectedAnswer = null;
+        let timerInterval = null;
         let gameRef = null;
         let playersRef = null;
-        let allPlayers = [];
-        let isEvaluating = false;
         
         // Verbindungsstatus
         database.ref(".info/connected").on("value", (snap) => {
@@ -632,6 +679,7 @@
         document.getElementById("create-game-btn").addEventListener("click", () => joinGame(true));
         document.getElementById("join-game-btn").addEventListener("click", () => joinGame(false));
         document.getElementById("start-game-btn").addEventListener("click", startGameAsHost);
+        document.getElementById("clear-all-btn").addEventListener("click", clearAllPlayers);
         document.getElementById("play-again-btn").addEventListener("click", resetToLobby);
         document.getElementById("watch-btn").addEventListener("click", () => {
             isWatching = true;
@@ -671,7 +719,7 @@
                 gameRef.update({
                     status: "lobby",
                     currentQuestion: -1,
-                    evaluating: false
+                    questionStartTime: null
                 });
             }
             
@@ -687,13 +735,20 @@
             playersRef.on("value", (snapshot) => {
                 const players = [];
                 snapshot.forEach((child) => {
-                    players.push({ id: child.key, ...child.val() });
+                    const data = child.val();
+                    // Filter out invalid entries
+                    if (data && data.name) {
+                        players.push({ id: child.key, ...data });
+                    } else {
+                        // Remove invalid entries
+                        if (isHost) {
+                            playersRef.child(child.key).remove();
+                        }
+                    }
                 });
                 
-                allPlayers = players;
                 updateLobbyPlayers(players);
                 updateGamePlayers(players);
-                checkAllAnswered(players);
             });
             
             // Spiel-Status Updates
@@ -705,15 +760,9 @@
                     document.getElementById("lobby-screen").style.display = "none";
                     document.getElementById("game-screen").style.display = "block";
                     
-                    if (game.currentQuestion !== currentQuestionIndex && !game.evaluating) {
+                    if (game.currentQuestion !== currentQuestionIndex) {
                         currentQuestionIndex = game.currentQuestion;
-                        isEvaluating = false;
-                        showSyncedQuestion();
-                    }
-                    
-                    if (game.evaluating && !isEvaluating) {
-                        isEvaluating = true;
-                        evaluateAnswer();
+                        showSyncedQuestion(game);
                     }
                 } else if (game.status === "finished") {
                     endGame();
@@ -723,10 +772,18 @@
         
         function updateLobbyPlayers(players) {
             const container = document.getElementById("waiting-players");
-            container.innerHTML = players.map(p => 
-                `<div class="waiting-player">${p.name} ${p.isHost ? '👑' : ''}</div>`
-            ).join("");
             
+            container.innerHTML = players.map(p => {
+                const canRemove = isHost && p.id !== playerId;
+                return `
+                    <div class="waiting-player ${canRemove ? 'can-remove' : ''}">
+                        <span>${p.name || 'Unbekannt'} ${p.isHost ? '👑' : ''}</span>
+                        <button class="remove-btn" onclick="removePlayer('${p.id}')" title="Entfernen">❌</button>
+                    </div>
+                `;
+            }).join("");
+            
+            // Host-Controls anzeigen/verstecken
             if (isHost) {
                 document.getElementById("host-controls").style.display = "block";
                 document.getElementById("player-waiting").style.display = "none";
@@ -736,21 +793,38 @@
             }
         }
         
+        // Global function for removing players
+        window.removePlayer = function(pid) {
+            if (!isHost) return;
+            if (confirm("Spieler entfernen?")) {
+                playersRef.child(pid).remove();
+            }
+        };
+        
+        function clearAllPlayers() {
+            if (!isHost) return;
+            if (confirm("ALLE Spieler entfernen? (außer dir)")) {
+                playersRef.once("value", (snapshot) => {
+                    snapshot.forEach((child) => {
+                        if (child.key !== playerId) {
+                            playersRef.child(child.key).remove();
+                        }
+                    });
+                });
+            }
+        }
+        
         function updateGamePlayers(players) {
             const grid = document.getElementById("players-grid");
-            const alivePlayers = players.filter(p => p.lives > 0);
-            const answeredCount = alivePlayers.filter(p => p.answered).length;
+            const survivors = players.filter(p => p.lives > 0);
             
-            document.getElementById("survivors").textContent = `👥 ${alivePlayers.length} dabei`;
+            document.getElementById("survivors").textContent = `👥 ${survivors.length} dabei`;
             
-            // Waiting counter
-            const counter = document.getElementById("waiting-counter");
-            counter.textContent = `⏳ ${answeredCount}/${alivePlayers.length} haben geantwortet`;
-            counter.className = answeredCount === alivePlayers.length && alivePlayers.length > 0
-                ? "waiting-counter all-done" 
-                : "waiting-counter";
-            
-            players.sort((a, b) => b.lives - a.lives);
+            players.sort((a, b) => {
+                if (a.lives === 0 && b.lives > 0) return 1;
+                if (a.lives > 0 && b.lives === 0) return -1;
+                return b.lives - a.lives;
+            });
             
             grid.innerHTML = "";
             players.forEach((player) => {
@@ -758,53 +832,39 @@
                 chip.className = "player-chip";
                 if (player.lives === 0) chip.classList.add("dead");
                 if (player.id === playerId) chip.classList.add("is-me");
-                if (player.answered && player.lives > 0) {
-                    chip.classList.add("answered");
-                } else if (player.lives > 0) {
-                    chip.classList.add("waiting");
-                }
+                if (player.answered) chip.classList.add("answered");
                 
-                const livesDisplay = player.lives > 0 ? "❤️".repeat(player.lives) : "💀";
-                const statusIcon = player.lives > 0 ? (player.answered ? "✓" : "⏳") : "";
+                const livesDisplay = player.lives > 0 
+                    ? "❤️".repeat(player.lives) 
+                    : "💀";
                 
-                chip.innerHTML = `<span>${player.name} ${statusIcon}</span><span>${livesDisplay}</span>`;
+                chip.innerHTML = `<span>${player.name || '?'}</span><span>${livesDisplay}</span>`;
                 grid.appendChild(chip);
             });
         }
         
-        function checkAllAnswered(players) {
-            if (isEvaluating) return;
-            
-            const alivePlayers = players.filter(p => p.lives > 0);
-            const allAnswered = alivePlayers.length > 0 && alivePlayers.every(p => p.answered);
-            
-            // Nur Host triggert die Auswertung
-            if (allAnswered && isHost && currentQuestionIndex >= 0) {
-                gameRef.update({ evaluating: true });
-            }
-        }
-        
         function startGameAsHost() {
-            if (!isHost) return;
+            if (!isHost) {
+                alert("Nur der Spielleiter kann das Spiel starten!");
+                return;
+            }
             
             gameRef.update({
                 status: "playing",
                 currentQuestion: 0,
-                evaluating: false
+                questionStartTime: Date.now()
             });
         }
         
-        function showSyncedQuestion() {
+        function showSyncedQuestion(game) {
             if (currentQuestionIndex >= TOTAL_QUESTIONS) {
                 gameRef.update({ status: "finished" });
                 return;
             }
             
-            // Reset
             hasAnswered = false;
             selectedAnswer = null;
             
-            // Reset answered status
             playersRef.child(playerId).update({ answered: false, lastAnswer: null });
             
             const q = allQuestions[currentQuestionIndex];
@@ -815,7 +875,6 @@
             document.getElementById("display-name").textContent = playerName;
             updateLivesDisplay();
             
-            // Antworten
             const answersDiv = document.getElementById("answers");
             answersDiv.innerHTML = "";
             
@@ -825,45 +884,69 @@
                 btn.className = "answer-btn";
                 btn.innerHTML = `<span class="letter">${letters[idx]}</span>${answer}`;
                 btn.dataset.index = idx;
-                btn.addEventListener("click", () => selectAnswer(btn, idx));
+                btn.addEventListener("click", () => selectAnswer(btn, idx, q.correct));
                 if (isWatching || lives === 0) btn.disabled = true;
                 answersDiv.appendChild(btn);
             });
             
-            // Status zurücksetzen
             const statusDiv = document.getElementById("answer-status");
             statusDiv.className = "answer-status";
             statusDiv.textContent = "";
+            
+            startTimer(game.questionStartTime);
         }
         
-        function selectAnswer(btn, answerIndex) {
+        function selectAnswer(btn, answerIndex, correctIndex) {
             if (hasAnswered || lives === 0) return;
             
             hasAnswered = true;
             selectedAnswer = answerIndex;
             
-            // Visual feedback
-            document.querySelectorAll(".answer-btn").forEach(b => b.classList.remove("selected"));
             btn.classList.add("selected");
             document.querySelectorAll(".answer-btn").forEach(b => b.disabled = true);
             
-            // In Firebase speichern
             playersRef.child(playerId).update({
                 answered: true,
                 lastAnswer: answerIndex
             });
             
-            // Status
             const statusDiv = document.getElementById("answer-status");
             statusDiv.className = "answer-status waiting";
-            statusDiv.textContent = "✓ Warte auf andere Spieler...";
+            statusDiv.textContent = "⏳ Warte auf Timer...";
+        }
+        
+        function startTimer(questionStartTime) {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            const timerEl = document.getElementById("timer");
+            
+            function updateTimer() {
+                const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+                const remaining = Math.max(0, QUESTION_TIME - elapsed);
+                
+                timerEl.textContent = remaining;
+                timerEl.className = "timer";
+                
+                if (remaining <= 3) {
+                    timerEl.classList.add("danger");
+                } else if (remaining <= 5) {
+                    timerEl.classList.add("warning");
+                }
+                
+                if (remaining === 0) {
+                    clearInterval(timerInterval);
+                    evaluateAnswer();
+                }
+            }
+            
+            updateTimer();
+            timerInterval = setInterval(updateTimer, 100);
         }
         
         function evaluateAnswer() {
             const q = allQuestions[currentQuestionIndex];
             const correctIndex = q.correct;
             
-            // Alle Buttons zeigen
             document.querySelectorAll(".answer-btn").forEach((btn, idx) => {
                 btn.disabled = true;
                 if (idx === correctIndex) {
@@ -873,20 +956,25 @@
             
             const statusDiv = document.getElementById("answer-status");
             
-            if (!hasAnswered && lives > 0) {
-                // Nicht geantwortet (sollte nicht passieren ohne Timer, aber sicherheitshalber)
-                statusDiv.className = "answer-status wrong";
-                statusDiv.textContent = "❌ Keine Antwort!";
+            if (!hasAnswered) {
+                if (lives > 0) {
+                    lives--;
+                    wrongAnswers++;
+                    playersRef.child(playerId).update({ lives: lives });
+                }
+                statusDiv.className = "answer-status timeout";
+                statusDiv.textContent = "⏰ Zeit abgelaufen! -1 Leben";
             } else if (selectedAnswer === correctIndex) {
                 correctAnswers++;
                 statusDiv.className = "answer-status correct";
                 statusDiv.textContent = "✅ Richtig!";
-            } else if (lives > 0) {
-                lives--;
-                playersRef.child(playerId).update({ lives: lives });
+            } else {
+                if (lives > 0) {
+                    lives--;
+                    playersRef.child(playerId).update({ lives: lives });
+                }
                 wrongAnswers++;
                 
-                // Falsche Antwort markieren
                 document.querySelectorAll(".answer-btn").forEach((btn, idx) => {
                     if (idx === selectedAnswer) {
                         btn.classList.add("wrong");
@@ -899,14 +987,12 @@
             
             updateLivesDisplay();
             
-            // Check ob ausgeschieden
             if (lives === 0 && !isWatching) {
                 setTimeout(() => {
                     document.getElementById("eliminated-overlay").style.display = "flex";
-                }, 1500);
+                }, 1000);
             }
             
-            // Nächste Frage nach 3 Sekunden
             if (isHost) {
                 setTimeout(() => {
                     const nextQ = currentQuestionIndex + 1;
@@ -915,7 +1001,7 @@
                     } else {
                         gameRef.update({
                             currentQuestion: nextQ,
-                            evaluating: false
+                            questionStartTime: Date.now()
                         });
                     }
                 }, 3000);
@@ -930,6 +1016,8 @@
         }
         
         function endGame() {
+            if (timerInterval) clearInterval(timerInterval);
+            
             document.getElementById("game-screen").style.display = "none";
             document.getElementById("eliminated-overlay").style.display = "none";
             document.getElementById("gameover-screen").style.display = "block";
@@ -948,12 +1036,11 @@
             document.getElementById("stat-wrong").textContent = wrongAnswers;
             document.getElementById("stat-lives").textContent = lives > 0 ? "❤️".repeat(lives) : "💀";
             
-            // Gewinner laden
             playersRef.once("value", (snapshot) => {
                 const winners = [];
                 snapshot.forEach((child) => {
                     const p = child.val();
-                    if (p.lives > 0) winners.push(p);
+                    if (p && p.lives > 0 && p.name) winners.push(p);
                 });
                 
                 const winnersContent = document.getElementById("winners-content");
@@ -970,7 +1057,6 @@
             currentQuestionIndex = -1;
             hasAnswered = false;
             isWatching = false;
-            isEvaluating = false;
             
             document.getElementById("gameover-screen").style.display = "none";
             document.getElementById("login-screen").style.display = "block";
