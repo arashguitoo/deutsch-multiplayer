@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Quick Fire: Konnektoren</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#f39c12 0%,#e74c3c 100%);min-height:100vh;color:#fff}
+        .container{max-width:900px;margin:0 auto;padding:15px}
+        h1{text-align:center;font-size:1.5em;margin-bottom:15px}
+        .screen{display:none}.screen.active{display:block}
+        
+        #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;gap:15px}
+        .logo{font-size:4em;margin-bottom:10px}
+        #login-screen h2{font-size:1.2em;color:#fff;text-align:center}
+        .difficulty-select{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;justify-content:center}
+        .diff-btn{padding:15px 25px;border:3px solid rgba(255,255,255,0.3);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;font-size:1em;font-weight:700;cursor:pointer;transition:all 0.3s}
+        .diff-btn:hover,.diff-btn.selected{transform:scale(1.05)}
+        .diff-btn.einfach{border-color:#00b894}.diff-btn.einfach.selected{background:#00b894}
+        .diff-btn.mittel{border-color:#fdcb6e}.diff-btn.mittel.selected{background:#e17055}
+        .diff-btn.schwer{border-color:#d63031}.diff-btn.schwer.selected{background:#d63031}
+        .input-group{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+        .input-group input{font-size:1.1em;padding:12px 20px;border:2px solid #fff;border-radius:25px;text-align:center;background:rgba(255,255,255,0.2);color:#fff}
+        .input-group input::placeholder{color:rgba(255,255,255,0.7)}
+        .input-group input.code-input{font-size:1.4em;letter-spacing:8px;text-transform:uppercase}
+        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:#fff;color:#e74c3c;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+        .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #fff;border-radius:25px;background:transparent;color:#fff;cursor:pointer;width:100%;max-width:300px}
+        .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.5)}
+        .error-msg{color:#2d3436;background:rgba(255,255,255,0.9);padding:8px 15px;border-radius:10px;font-size:0.9em;margin-top:10px}
+        
+        #lobby-screen{text-align:center}
+        .lobby-box{background:rgba(255,255,255,0.15);border-radius:20px;padding:25px;margin:20px 0}
+        .lobby-code{font-size:2.5em;color:#fff;letter-spacing:10px;margin:10px 0;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+        .diff-badge{display:inline-block;padding:8px 20px;border-radius:20px;font-weight:700;margin:10px 0}
+        .diff-badge.einfach{background:#00b894}.diff-badge.mittel{background:#e17055}.diff-badge.schwer{background:#d63031}
+        .waiting-players{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0}
+        .waiting-player{padding:10px 15px;background:rgba(255,255,255,0.2);border-radius:20px;border:1px solid rgba(255,255,255,0.3)}
+        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:#fff;color:#e74c3c;font-weight:700;cursor:pointer;margin:15px 0}
+        .start-game-btn:disabled{opacity:0.5;cursor:not-allowed}
+        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.5);border-radius:15px;background:transparent;color:#fff;cursor:pointer;margin:5px}
+        .small-btn.danger{border-color:#fff;color:#fff;background:rgba(255,0,0,0.3)}
+        
+        .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.15);border-radius:15px;flex-wrap:wrap;gap:10px}
+        .score-display{font-size:1.3em}
+        .timer{font-size:3em;font-weight:700;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+        .timer.warning{color:#fdcb6e}.timer.danger{color:#2d3436;animation:pulse 0.3s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+        .question-num{color:rgba(255,255,255,0.8)}
+        
+        .quiz-section{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.3);border-radius:20px;padding:20px;margin-bottom:15px}
+        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:0.85em;margin-bottom:12px}
+        .question{font-size:1.4em;margin-bottom:20px;line-height:1.5;text-align:center}
+        .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        @media(max-width:500px){.answers{grid-template-columns:1fr}}
+        .answer-btn{padding:18px;font-size:1.1em;border:3px solid rgba(255,255,255,0.4);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;transition:all 0.15s;font-weight:600}
+        .answer-btn:hover:not(:disabled){background:rgba(255,255,255,0.3);border-color:#fff;transform:scale(1.02)}
+        .answer-btn.selected{background:rgba(255,255,255,0.4);border-color:#fff}
+        .answer-btn.correct{background:rgba(0,184,148,0.8)!important;border-color:#00b894!important}
+        .answer-btn.wrong{background:rgba(45,52,54,0.8)!important;border-color:#2d3436!important}
+        .answer-btn:disabled{cursor:not-allowed}
+        
+        .leaderboard{background:rgba(255,255,255,0.1);border-radius:15px;padding:15px;margin-top:15px}
+        .leaderboard h3{font-size:1em;margin-bottom:10px}
+        .lb-row{display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.1);border-radius:8px;margin-bottom:5px}
+        .lb-row.me{background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.5)}
+        
+        #result-screen{text-align:center;padding:30px 20px}
+        .result-icon{font-size:5em;margin-bottom:15px}
+        .podium{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin:30px 0}
+        .podium-place{text-align:center;padding:15px;border-radius:15px 15px 0 0;color:#2d3436}
+        .podium-place.first{background:linear-gradient(135deg,#ffd700,#ff8c00);height:150px;order:2}
+        .podium-place.second{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);height:120px;order:1}
+        .podium-place.third{background:linear-gradient(135deg,#cd7f32,#a0522d);height:90px;order:3}
+        .podium-name{font-weight:700;font-size:1.1em}
+        .podium-score{font-size:0.9em;opacity:0.8}
+        .podium-medal{font-size:2em}
+        
+        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.5)}
+        .connection-status.connected{color:#00b894}
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connection-status">Verbinde...</div>
+    <div class="container">
+        <h1>🎯 Quick Fire: Konnektoren</h1>
+        
+        <div id="login-screen" class="screen active">
+            <div class="logo">🎯</div>
+            <h2>Blitzschnell!<br><small style="opacity:0.8">Nur 5 Sekunden pro Frage!</small></h2>
+            <div class="difficulty-select">
+                <button class="diff-btn einfach" data-diff="einfach">🟢 Einfach</button>
+                <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
+                <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="player-name" placeholder="Dein Name" maxlength="15">
+                <input type="text" id="game-code" class="code-input" placeholder="CODE" maxlength="4">
+            </div>
+            <button class="btn-primary" id="join-btn">🚪 Beitreten</button>
+            <div class="divider"><span>oder</span></div>
+            <button class="btn-secondary" id="create-btn">👑 Neues Spiel erstellen</button>
+            <div class="error-msg" id="error-msg" style="display:none"></div>
+        </div>
+        
+        <div id="lobby-screen" class="screen">
+            <div class="lobby-box">
+                <h2>⏳ Warteraum</h2>
+                <div class="lobby-code" id="lobby-code">CODE</div>
+                <div class="diff-badge" id="diff-badge">Einfach</div>
+                <p style="opacity:0.8;font-size:0.9em">⚡ 5 Sekunden • 20 Fragen • Schnelligkeit zählt!</p>
+                <div class="waiting-players" id="waiting-players"></div>
+                <div id="host-controls">
+                    <button class="start-game-btn" id="start-btn" disabled>▶️ START</button>
+                    <p style="opacity:0.8;font-size:0.85em">👑 Du bist der Spielleiter</p>
+                    <button class="small-btn danger" id="reset-btn">🔄 Zurücksetzen</button>
+                </div>
+                <div id="player-controls" style="display:none">
+                    <p style="opacity:0.8">⏳ Warte auf Spielleiter...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="score-display">⭐ <span id="my-score">0</span></div>
+                <div class="timer" id="timer">5</div>
+                <div class="question-num" id="question-num">1/20</div>
+            </div>
+            <div class="quiz-section">
+                <div class="category-badge" id="category"></div>
+                <div class="question" id="question"></div>
+                <div class="answers" id="answers"></div>
+            </div>
+            <div class="leaderboard">
+                <h3>🏆 Live-Rangliste</h3>
+                <div id="live-leaderboard"></div>
+            </div>
+        </div>
+        
+        <div id="result-screen" class="screen">
+            <div class="result-icon" id="result-icon">🏆</div>
+            <h2 id="result-title">Spiel beendet!</h2>
+            <div class="podium" id="podium"></div>
+            <button class="btn-primary" id="back-btn" style="color:#e74c3c">🏠 Zurück</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+    (function() {
+        var firebaseConfig = {
+            apiKey: "AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",
+            authDomain: "lern-deutsch-arash.firebaseapp.com",
+            databaseURL: "https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "lern-deutsch-arash"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+        
+        var questions = {
+            einfach: [
+                {cat:"dass",q:"Ich hoffe, ___ du kommst.",a:["dass","das","weil","denn"],c:0},
+                {cat:"dass",q:"Er sagt, ___ er müde ist.",a:["dass","das","weil","wenn"],c:0},
+                {cat:"dass",q:"Ich weiß, ___ du recht hast.",a:["dass","das","ob","wenn"],c:0},
+                {cat:"dass",q:"Sie glaubt, ___ es regnet.",a:["dass","das","weil","denn"],c:0},
+                {cat:"weil",q:"Ich bleibe, ___ ich krank bin.",a:["weil","dass","denn","trotzdem"],c:0},
+                {cat:"weil",q:"Er lernt, ___ er die Prüfung hat.",a:["weil","dass","denn","obwohl"],c:0},
+                {cat:"weil",q:"Sie weint, ___ sie traurig ist.",a:["weil","dass","denn","wenn"],c:0},
+                {cat:"denn",q:"Ich gehe nicht raus, ___ es regnet.",a:["denn","weil","dass","trotzdem"],c:0},
+                {cat:"denn",q:"Er ist müde, ___ er hat nicht geschlafen.",a:["denn","weil","dass","obwohl"],c:0},
+                {cat:"denn",q:"Sie lacht, ___ sie ist glücklich.",a:["denn","weil","dass","wenn"],c:0},
+                {cat:"wenn",q:"___ du Zeit hast, ruf mich an.",a:["Wenn","Wann","Als","Ob"],c:0},
+                {cat:"wenn",q:"___ es regnet, nehme ich einen Schirm.",a:["Wenn","Wann","Als","Weil"],c:0},
+                {cat:"wenn",q:"___ du kommst, bin ich froh.",a:["Wenn","Wann","Als","Dass"],c:0},
+                {cat:"trotzdem",q:"Es regnet. ___ gehe ich spazieren.",a:["Trotzdem","Weil","Dass","Denn"],c:0},
+                {cat:"trotzdem",q:"Er ist krank. ___ geht er arbeiten.",a:["Trotzdem","Weil","Dass","Wenn"],c:0},
+                {cat:"trotzdem",q:"Ich bin müde. ___ lerne ich weiter.",a:["Trotzdem","Weil","Denn","Dass"],c:0},
+                {cat:"dass",q:"Ich denke, ___ es richtig ist.",a:["dass","das","weil","denn"],c:0},
+                {cat:"weil",q:"Ich esse nichts, ___ ich keinen Hunger habe.",a:["weil","dass","denn","trotzdem"],c:0},
+                {cat:"wenn",q:"___ ich reich wäre, würde ich reisen.",a:["Wenn","Wann","Als","Weil"],c:0},
+                {cat:"denn",q:"Ich helfe dir, ___ du bist mein Freund.",a:["denn","weil","dass","wenn"],c:0}
+            ],
+            mittel: [
+                {cat:"obwohl",q:"___ er krank ist, geht er arbeiten.",a:["Obwohl","Weil","Wenn","Trotzdem"],c:0},
+                {cat:"obwohl",q:"Sie lacht, ___ sie traurig ist.",a:["obwohl","weil","wenn","denn"],c:0},
+                {cat:"obwohl",q:"___ es regnet, gehen wir raus.",a:["Obwohl","Weil","Wenn","Denn"],c:0},
+                {cat:"damit",q:"Ich lerne, ___ ich die Prüfung bestehe.",a:["damit","weil","dass","denn"],c:0},
+                {cat:"damit",q:"Er spart Geld, ___ er ein Auto kaufen kann.",a:["damit","weil","dass","denn"],c:0},
+                {cat:"damit",q:"Sie spricht langsam, ___ alle verstehen.",a:["damit","weil","dass","wenn"],c:0},
+                {cat:"als",q:"___ ich ein Kind war, spielte ich viel.",a:["Als","Wenn","Weil","Dass"],c:0},
+                {cat:"als",q:"___ er ankam, war es schon dunkel.",a:["Als","Wenn","Weil","Denn"],c:0},
+                {cat:"als",q:"___ wir uns trafen, regnete es.",a:["Als","Wenn","Weil","Dass"],c:0},
+                {cat:"als/wenn",q:"Immer ___ ich ihn sehe, lacht er. (wiederholt)",a:["wenn","als","weil","dass"],c:0},
+                {cat:"als/wenn",q:"___ ich gestern kam, war niemand da. (einmalig)",a:["Als","Wenn","Weil","Denn"],c:0},
+                {cat:"deshalb",q:"Ich bin müde. ___ gehe ich schlafen.",a:["Deshalb","Weil","Obwohl","Trotzdem"],c:0},
+                {cat:"deshalb",q:"Er hat Hunger. ___ isst er etwas.",a:["Deshalb","Weil","Obwohl","Damit"],c:0},
+                {cat:"bevor",q:"___ ich gehe, räume ich auf.",a:["Bevor","Nachdem","Weil","Wenn"],c:0},
+                {cat:"bevor",q:"Wasch dir die Hände, ___ du isst.",a:["bevor","nachdem","weil","wenn"],c:0},
+                {cat:"nachdem",q:"___ er gegessen hat, geht er spazieren.",a:["Nachdem","Bevor","Weil","Wenn"],c:0},
+                {cat:"nachdem",q:"___ sie aufgestanden ist, duscht sie.",a:["Nachdem","Bevor","Weil","Wenn"],c:0},
+                {cat:"während",q:"___ ich koche, hört er Musik.",a:["Während","Bevor","Nachdem","Weil"],c:0},
+                {cat:"während",q:"___ sie arbeitet, passt er auf die Kinder auf.",a:["Während","Bevor","Nachdem","Weil"],c:0},
+                {cat:"Mix",q:"Ich bleibe zu Hause, ___ ich bin krank.",a:["denn","weil","obwohl","trotzdem"],c:0}
+            ],
+            schwer: [
+                {cat:"sodass",q:"Er spricht laut, ___ alle ihn hören.",a:["sodass","damit","weil","obwohl"],c:0},
+                {cat:"sodass",q:"Es regnete stark, ___ wir nicht rausgehen konnten.",a:["sodass","damit","weil","obwohl"],c:0},
+                {cat:"falls",q:"___ du Probleme hast, ruf mich an.",a:["Falls","Wenn","Weil","Obwohl"],c:0},
+                {cat:"falls",q:"Nimm einen Schirm mit, ___ es regnet.",a:["falls","wenn","weil","obwohl"],c:0},
+                {cat:"sowohl...als auch",q:"Er spricht ___ Deutsch ___ Englisch.",a:["sowohl...als auch","entweder...oder","weder...noch","nicht nur...sondern auch"],c:0},
+                {cat:"weder...noch",q:"Sie trinkt ___ Kaffee ___ Tee.",a:["weder...noch","sowohl...als auch","entweder...oder","nicht nur"],c:0},
+                {cat:"entweder...oder",q:"___ du kommst mit, ___ du bleibst hier.",a:["Entweder...oder","Sowohl...als auch","Weder...noch","Nicht nur"],c:0},
+                {cat:"je...desto",q:"___ mehr ich lerne, ___ besser verstehe ich.",a:["Je...desto","Sowohl...als auch","Weder...noch","Entweder...oder"],c:0},
+                {cat:"je...desto",q:"___ älter er wird, ___ weiser wird er.",a:["Je...desto","Sowohl...als auch","Weder...noch","Entweder...oder"],c:0},
+                {cat:"statt...zu",q:"___ zu arbeiten, geht er spazieren.",a:["Statt","Ohne","Um","Anstatt dass"],c:0},
+                {cat:"ohne...zu",q:"Er ging, ___ sich zu verabschieden.",a:["ohne","statt","um","anstatt"],c:0},
+                {cat:"um...zu",q:"Ich lerne Deutsch, ___ in Deutschland zu arbeiten.",a:["um","ohne","statt","damit"],c:0},
+                {cat:"indem",q:"Man lernt eine Sprache, ___ man viel übt.",a:["indem","damit","sodass","weil"],c:0},
+                {cat:"obgleich",q:"___ es spät ist, arbeitet sie weiter.",a:["Obgleich","Weil","Wenn","Denn"],c:0},
+                {cat:"sofern",q:"___ nichts dazwischenkommt, bin ich um 8 da.",a:["Sofern","Weil","Obwohl","Damit"],c:0},
+                {cat:"zumal",q:"Er sollte Sport machen, ___ er übergewichtig ist.",a:["zumal","obwohl","damit","sodass"],c:0},
+                {cat:"anstatt dass",q:"___ er mir hilft, sitzt er nur da.",a:["Anstatt dass","Damit","Sodass","Weil"],c:0},
+                {cat:"als ob",q:"Er tut so, ___ er nichts wüsste.",a:["als ob","dass","weil","wenn"],c:0},
+                {cat:"kaum...da",q:"___ war er angekommen, ___ es zu regnen begann.",a:["Kaum...da","Je...desto","Sowohl...als auch","Weder...noch"],c:0},
+                {cat:"Mix",q:"___ sie müde war, machte sie ihre Hausaufgaben.",a:["Obwohl","Weil","Damit","Sodass"],c:0}
+            ]
+        };
+        
+        var gameCode, playerId, playerName, isHost = false, difficulty = 'einfach';
+        var currentQ = -1, myScore = 0, answered = false, timerInt = null;
+        var gameRef, playersRef, allPlayers = [], gameQuestions = [];
+        
+        db.ref(".info/connected").on("value", function(s) {
+            var el = document.getElementById("connection-status");
+            el.textContent = s.val() ? "🟢 Online" : "🔴 Offline";
+            el.className = "connection-status " + (s.val() ? "connected" : "disconnected");
+        });
+        
+        document.querySelectorAll('.diff-btn').forEach(function(btn) {
+            btn.onclick = function() {
+                document.querySelectorAll('.diff-btn').forEach(function(b) { b.classList.remove('selected'); });
+                btn.classList.add('selected');
+                difficulty = btn.dataset.diff;
+            };
+        });
+        document.querySelector('.diff-btn.einfach').classList.add('selected');
+        
+        function genCode() {
+            var c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            var code = "";
+            for (var i = 0; i < 4; i++) code += c[Math.floor(Math.random() * c.length)];
+            return code;
+        }
+        
+        function showError(m) {
+            var el = document.getElementById("error-msg");
+            el.textContent = m;
+            el.style.display = "block";
+            setTimeout(function() { el.style.display = "none"; }, 3000);
+        }
+        
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+            document.getElementById(id).classList.add('active');
+        }
+        
+        function shuffle(arr) {
+            for (var i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
+            }
+            return arr;
+        }
+        
+        document.getElementById("create-btn").onclick = function() {
+            playerName = document.getElementById("player-name").value.trim();
+            if (!playerName) { showError("Name eingeben!"); return; }
+            
+            gameCode = genCode();
+            playerId = "host_" + Date.now();
+            isHost = true;
+            gameQuestions = shuffle(questions[difficulty].slice()).slice(0, 20);
+            
+            gameRef = db.ref("quickfire/" + gameCode);
+            playersRef = db.ref("quickfire/" + gameCode + "/players");
+            
+            gameRef.remove().then(function() {
+                return gameRef.set({
+                    status: "lobby",
+                    difficulty: difficulty,
+                    currentQuestion: -1,
+                    questionStart: null,
+                    questions: gameQuestions,
+                    host: playerId
+                });
+            }).then(function() {
+                return playersRef.child(playerId).set({
+                    name: playerName,
+                    score: 0,
+                    isHost: true,
+                    answered: false
+                });
+            }).then(function() {
+                playersRef.child(playerId).onDisconnect().remove();
+                showLobby();
+                setupListeners();
+            });
+        };
+        
+        document.getElementById("join-btn").onclick = function() {
+            playerName = document.getElementById("player-name").value.trim();
+            gameCode = document.getElementById("game-code").value.trim().toUpperCase();
+            
+            if (!playerName) { showError("Name eingeben!"); return; }
+            if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
+            
+            playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+            isHost = false;
+            
+            gameRef = db.ref("quickfire/" + gameCode);
+            playersRef = db.ref("quickfire/" + gameCode + "/players");
+            
+            gameRef.once("value").then(function(s) {
+                if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject(); }
+                if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject(); }
+                
+                difficulty = s.val().difficulty;
+                gameQuestions = s.val().questions;
+                
+                return playersRef.child(playerId).set({
+                    name: playerName,
+                    score: 0,
+                    isHost: false,
+                    answered: false
+                });
+            }).then(function() {
+                playersRef.child(playerId).onDisconnect().remove();
+                showLobby();
+                setupListeners();
+            }).catch(function() {});
+        };
+        
+        document.getElementById("game-code").onkeypress = function(e) { 
+            if (e.key === "Enter") document.getElementById("join-btn").click(); 
+        };
+        
+        function showLobby() {
+            showScreen("lobby-screen");
+            document.getElementById("lobby-code").textContent = gameCode;
+            
+            var badge = document.getElementById("diff-badge");
+            badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            badge.className = "diff-badge " + difficulty;
+            
+            document.getElementById("host-controls").style.display = isHost ? "block" : "none";
+            document.getElementById("player-controls").style.display = isHost ? "none" : "block";
+        }
+        
+        function setupListeners() {
+            playersRef.on("value", function(snap) {
+                var players = [];
+                snap.forEach(function(c) {
+                    var d = c.val();
+                    if (d && d.name) {
+                        d.id = c.key;
+                        players.push(d);
+                    }
+                });
+                allPlayers = players;
+                updateLobbyPlayers(players);
+                updateLeaderboard();
+            });
+            
+            gameRef.on("value", function(snap) {
+                var game = snap.val();
+                if (!game) { backToHome(); return; }
+                
+                if (game.status === "playing") {
+                    showScreen("game-screen");
+                    if (game.currentQuestion !== currentQ) {
+                        currentQ = game.currentQuestion;
+                        answered = false;
+                        showQuestion(game.questionStart);
+                    }
+                } else if (game.status === "finished") {
+                    showResults();
+                }
+            });
+        }
+        
+        function updateLobbyPlayers(players) {
+            var w = document.getElementById("waiting-players");
+            if (players.length === 0) {
+                w.innerHTML = '<p style="opacity:0.6">Warte auf Spieler...</p>';
+            } else {
+                w.innerHTML = players.map(function(p) {
+                    return '<div class="waiting-player"><span>' + p.name + (p.isHost ? ' 👑' : '') + '</span></div>';
+                }).join("");
+            }
+            document.getElementById("start-btn").disabled = players.filter(function(p) { return !p.isHost; }).length === 0;
+        }
+        
+        function updateLeaderboard() {
+            var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+            document.getElementById("live-leaderboard").innerHTML = sorted.map(function(p) {
+                return '<div class="lb-row ' + (p.id === playerId ? 'me' : '') + '">' +
+                    '<span>' + p.name + '</span>' +
+                    '<span>⭐ ' + p.score + '</span>' +
+                '</div>';
+            }).join("");
+        }
+        
+        document.getElementById("start-btn").onclick = function() {
+            if (!isHost) return;
+            playersRef.once("value", function(s) {
+                s.forEach(function(c) { playersRef.child(c.key).update({ answered: false, score: 0 }); });
+                gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
+            });
+        };
+        
+        document.getElementById("reset-btn").onclick = function() {
+            if (!confirm("Zurücksetzen?")) return;
+            gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
+            playersRef.once("value", function(s) {
+                s.forEach(function(c) { playersRef.child(c.key).update({ score: 0, answered: false }); });
+            });
+            myScore = 0;
+            currentQ = -1;
+            showScreen("lobby-screen");
+        };
+        
+        function showQuestion(startTime) {
+            if (currentQ >= gameQuestions.length) {
+                gameRef.update({ status: "finished" });
+                return;
+            }
+            
+            var q = gameQuestions[currentQ];
+            document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameQuestions.length;
+            document.getElementById("category").textContent = q.cat;
+            document.getElementById("question").textContent = q.q;
+            document.getElementById("my-score").textContent = myScore;
+            
+            var idx = [0, 1, 2, 3];
+            shuffle(idx);
+            
+            var ans = document.getElementById("answers");
+            ans.innerHTML = "";
+            idx.forEach(function(origIdx) {
+                var btn = document.createElement("button");
+                btn.className = "answer-btn";
+                btn.textContent = q.a[origIdx];
+                btn.setAttribute("data-orig-idx", origIdx);
+                btn.onclick = function() { selectAnswer(btn, origIdx); };
+                ans.appendChild(btn);
+            });
+            
+            startTimer(startTime);
+        }
+        
+        function selectAnswer(btn, idx) {
+            if (answered) return;
+            answered = true;
+            
+            var q = gameQuestions[currentQ];
+            var isCorrect = idx === q.c;
+            
+            document.querySelectorAll(".answer-btn").forEach(function(b) {
+                b.disabled = true;
+                if (parseInt(b.getAttribute("data-orig-idx")) === q.c) b.classList.add("correct");
+            });
+            
+            if (isCorrect) {
+                var remaining = parseInt(document.getElementById("timer").textContent);
+                var points = Math.max(1, remaining);
+                myScore += points;
+                document.getElementById("my-score").textContent = myScore;
+                playersRef.child(playerId).update({ score: myScore, answered: true });
+            } else {
+                btn.classList.add("wrong");
+                playersRef.child(playerId).update({ answered: true });
+            }
+        }
+        
+        function startTimer(startTime) {
+            if (timerInt) clearInterval(timerInt);
+            var el = document.getElementById("timer");
+            
+            function tick() {
+                var rem = Math.max(0, 5 - Math.floor((Date.now() - startTime) / 1000));
+                el.textContent = rem;
+                el.className = "timer" + (rem <= 1 ? " danger" : rem <= 2 ? " warning" : "");
+                
+                if (rem === 0) {
+                    clearInterval(timerInt);
+                    if (!answered) {
+                        answered = true;
+                        var q = gameQuestions[currentQ];
+                        document.querySelectorAll(".answer-btn").forEach(function(b) {
+                            b.disabled = true;
+                            if (parseInt(b.getAttribute("data-orig-idx")) === q.c) b.classList.add("correct");
+                        });
+                        playersRef.child(playerId).update({ answered: true });
+                    }
+                    
+                    if (isHost) {
+                        setTimeout(function() {
+                            if (currentQ + 1 >= gameQuestions.length) {
+                                gameRef.update({ status: "finished" });
+                            } else {
+                                playersRef.once("value", function(s) {
+                                    s.forEach(function(c) { playersRef.child(c.key).update({ answered: false }); });
+                                    gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
+                                });
+                            }
+                        }, 1500);
+                    }
+                }
+            }
+            tick();
+            timerInt = setInterval(tick, 100);
+        }
+        
+        function showResults() {
+            if (timerInt) clearInterval(timerInt);
+            showScreen("result-screen");
+            
+            var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+            var myRank = sorted.findIndex(function(p) { return p.id === playerId; }) + 1;
+            
+            document.getElementById("result-icon").textContent = myRank === 1 ? "🥇" : myRank === 2 ? "🥈" : myRank === 3 ? "🥉" : "🏁";
+            document.getElementById("result-title").textContent = myRank === 1 ? "Du hast gewonnen!" : "Platz " + myRank + "!";
+            
+            var podium = document.getElementById("podium");
+            podium.innerHTML = "";
+            
+            for (var i = 0; i < Math.min(3, sorted.length); i++) {
+                var p = sorted[i];
+                var place = document.createElement("div");
+                place.className = "podium-place " + (i === 0 ? 'first' : i === 1 ? 'second' : 'third');
+                place.innerHTML = '<div class="podium-medal">' + (i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉') + '</div>' +
+                    '<div class="podium-name">' + p.name + '</div>' +
+                    '<div class="podium-score">⭐ ' + p.score + '</div>';
+                podium.appendChild(place);
+            }
+        }
+        
+        document.getElementById("back-btn").onclick = backToHome;
+        
+        function backToHome() {
+            if (timerInt) clearInterval(timerInt);
+            if (gameRef) gameRef.off();
+            if (playersRef) {
+                playersRef.off();
+                if (playerId) playersRef.child(playerId).remove();
+            }
+            gameCode = null;
+            playerId = null;
+            isHost = false;
+            myScore = 0;
+            currentQ = -1;
+            showScreen("login-screen");
+            document.getElementById("game-code").value = "";
+        }
+    })();
+    </script>
+    <script data-goatcounter="https://aguitoo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

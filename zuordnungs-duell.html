@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧩 Zuordnungs-Duell</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#6c5ce7 0%,#a29bfe 100%);min-height:100vh;color:#fff}
+        .container{max-width:900px;margin:0 auto;padding:15px}
+        h1{text-align:center;font-size:1.5em;margin-bottom:15px}
+        .screen{display:none}.screen.active{display:block}
+        
+        #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;gap:15px}
+        .logo{font-size:4em;margin-bottom:10px}
+        #login-screen h2{font-size:1.2em;color:#ffd700;text-align:center}
+        .difficulty-select{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;justify-content:center}
+        .diff-btn{padding:15px 25px;border:3px solid rgba(255,255,255,0.3);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;font-size:1em;font-weight:700;cursor:pointer;transition:all 0.3s}
+        .diff-btn:hover,.diff-btn.selected{transform:scale(1.05)}
+        .diff-btn.einfach{border-color:#00b894}.diff-btn.einfach.selected{background:#00b894}
+        .diff-btn.mittel{border-color:#fdcb6e}.diff-btn.mittel.selected{background:#e17055}
+        .diff-btn.schwer{border-color:#d63031}.diff-btn.schwer.selected{background:#d63031}
+        .input-group{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+        .input-group input,.input-group select{font-size:1.1em;padding:12px 20px;border:2px solid #ffd700;border-radius:25px;text-align:center;background:rgba(255,255,255,0.1);color:#fff}
+        .input-group select{background:rgba(255,255,255,0.1)}
+        .input-group select option{background:#6c5ce7;color:#fff}
+        .input-group input::placeholder{color:rgba(255,255,255,0.5)}
+        .input-group input.code-input{font-size:1.4em;letter-spacing:8px;text-transform:uppercase}
+        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+        .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #ffd700;border-radius:25px;background:transparent;color:#ffd700;cursor:pointer;width:100%;max-width:300px}
+        .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.3)}
+        .error-msg{color:#ff6b6b;font-size:0.9em;margin-top:10px}
+        
+        #lobby-screen{text-align:center}
+        .lobby-box{background:rgba(255,255,255,0.1);border-radius:20px;padding:25px;margin:20px 0}
+        .lobby-code{font-size:2.5em;color:#ffd700;letter-spacing:10px;margin:10px 0}
+        .diff-badge{display:inline-block;padding:8px 20px;border-radius:20px;font-weight:700;margin:10px 0}
+        .diff-badge.einfach{background:#00b894}.diff-badge.mittel{background:#e17055}.diff-badge.schwer{background:#d63031}
+        
+        .teams-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:20px 0}
+        @media(max-width:500px){.teams-grid{grid-template-columns:1fr}}
+        .team-box{background:rgba(255,255,255,0.05);border-radius:15px;padding:15px;border:2px solid rgba(255,255,255,0.1)}
+        .team-box h3{margin-bottom:10px}
+        .team-box.mond{border-color:#9c88ff}.team-box.sonne{border-color:#ffb142}.team-box.stern{border-color:#ff6b81}.team-box.ozean{border-color:#22a6b3}
+        .team-players{min-height:40px;display:flex;flex-wrap:wrap;gap:5px}
+        .team-player{padding:5px 10px;background:rgba(255,255,255,0.1);border-radius:10px;font-size:0.85em}
+        
+        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;font-weight:700;cursor:pointer;margin:15px 0}
+        .start-game-btn:disabled{opacity:0.5;cursor:not-allowed}
+        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.3);border-radius:15px;background:transparent;color:#aaa;cursor:pointer;margin:5px}
+        .small-btn.danger{border-color:#e74c3c;color:#e74c3c}
+        
+        .scoreboard{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}
+        @media(max-width:600px){.scoreboard{grid-template-columns:1fr 1fr}}
+        .team-score{padding:12px;border-radius:12px;text-align:center}
+        .team-score.mond{background:rgba(156,136,255,0.3);border:2px solid #9c88ff}
+        .team-score.sonne{background:rgba(255,177,66,0.3);border:2px solid #ffb142}
+        .team-score.stern{background:rgba(255,107,129,0.3);border:2px solid #ff6b81}
+        .team-score.ozean{background:rgba(34,166,179,0.3);border:2px solid #22a6b3}
+        .team-score .emoji{font-size:1.5em}.team-score .points{font-size:1.3em;font-weight:700}
+        
+        .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.1);border-radius:15px;flex-wrap:wrap;gap:10px}
+        .timer{font-size:2em;font-weight:700;color:#00cec9}.timer.warning{color:#fdcb6e}.timer.danger{color:#e74c3c;animation:pulse 0.5s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+        
+        .quiz-section{background:rgba(255,255,255,0.05);border:2px solid rgba(255,215,0,0.3);border-radius:20px;padding:20px;margin-bottom:15px}
+        .instruction{font-size:1em;margin-bottom:15px;text-align:center;color:#ffd700}
+        
+        .matching-container{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+        @media(max-width:500px){.matching-container{grid-template-columns:1fr;gap:10px}}
+        .matching-column{display:flex;flex-direction:column;gap:8px}
+        .matching-column h4{text-align:center;margin-bottom:8px;font-size:0.9em;opacity:0.8}
+        .match-item{padding:12px 15px;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.2);border-radius:10px;cursor:pointer;transition:all 0.2s;font-size:0.95em;text-align:center}
+        .match-item:hover:not(.matched):not(.disabled){background:rgba(255,255,255,0.2);border-color:#ffd700}
+        .match-item.selected{background:rgba(255,215,0,0.3);border-color:#ffd700}
+        .match-item.matched{background:rgba(0,184,148,0.4);border-color:#00b894;cursor:default}
+        .match-item.wrong{background:rgba(214,48,49,0.4);border-color:#d63031;animation:shake 0.3s}
+        .match-item.disabled{opacity:0.5;cursor:not-allowed}
+        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+        
+        .answer-status{text-align:center;padding:12px;margin-top:15px;border-radius:10px;font-weight:700}
+        .answer-status.hidden{display:none!important}
+        .answer-status.correct{background:rgba(0,184,148,0.3);color:#55efc4}
+        .answer-status.wrong{background:rgba(214,48,49,0.3);color:#ff7675}
+        .answer-status.timeout{background:rgba(253,203,110,0.3);color:#fdcb6e}
+        
+        #gameover-screen{text-align:center;padding:30px 20px}
+        .result-icon{font-size:5em;margin-bottom:15px}
+        .final-scores{background:rgba(255,255,255,0.1);border-radius:15px;padding:20px;margin-bottom:20px}
+        .final-team{display:flex;justify-content:space-between;align-items:center;padding:12px;margin-bottom:8px;border-radius:10px}
+        .final-team.winner{background:rgba(255,215,0,0.2);border:2px solid #ffd700}
+        
+        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.5)}
+        .connection-status.connected{color:#00b894}
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connection-status">Verbinde...</div>
+    <div class="container">
+        <h1>🧩 Zuordnungs-Duell</h1>
+        
+        <div id="login-screen" class="screen active">
+            <div class="logo">🧩</div>
+            <h2>Verbinde die Paare!<br><small style="color:#aaa">4 Teams • 10 Runden</small></h2>
+            <div class="difficulty-select">
+                <button class="diff-btn einfach" data-diff="einfach">🟢 Einfach</button>
+                <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
+                <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="player-name" placeholder="Dein Name" maxlength="15">
+                <select id="team-select">
+                    <option value="">-- Team wählen --</option>
+                    <option value="mond">🌙 Expedition Mond</option>
+                    <option value="sonne">☀️ Expedition Sonne</option>
+                    <option value="stern">⭐ Expedition Stern</option>
+                    <option value="ozean">🌊 Expedition Ozean</option>
+                </select>
+                <input type="text" id="game-code" class="code-input" placeholder="CODE" maxlength="4">
+            </div>
+            <button class="btn-primary" id="join-btn">🚪 Beitreten</button>
+            <div class="divider"><span>oder</span></div>
+            <button class="btn-secondary" id="create-btn">👑 Neues Spiel erstellen</button>
+            <div class="error-msg" id="error-msg"></div>
+        </div>
+        
+        <div id="lobby-screen" class="screen">
+            <div class="lobby-box">
+                <h2>⏳ Warteraum</h2>
+                <div class="lobby-code" id="lobby-code">CODE</div>
+                <div class="diff-badge" id="diff-badge">Einfach</div>
+                <div class="teams-grid">
+                    <div class="team-box mond"><h3>🌙 Mond</h3><div class="team-players" id="team-mond"></div></div>
+                    <div class="team-box sonne"><h3>☀️ Sonne</h3><div class="team-players" id="team-sonne"></div></div>
+                    <div class="team-box stern"><h3>⭐ Stern</h3><div class="team-players" id="team-stern"></div></div>
+                    <div class="team-box ozean"><h3>🌊 Ozean</h3><div class="team-players" id="team-ozean"></div></div>
+                </div>
+                <div id="host-controls">
+                    <button class="start-game-btn" id="start-btn" disabled>▶️ START</button>
+                    <p style="color:#00b894;font-size:0.85em">👑 Du bist der Spielleiter</p>
+                    <button class="small-btn danger" id="reset-btn">🔄 Zurücksetzen</button>
+                </div>
+                <div id="player-controls" style="display:none">
+                    <p style="color:#fdcb6e">⏳ Warte auf Spielleiter...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-screen" class="screen">
+            <div class="scoreboard">
+                <div class="team-score mond"><div class="emoji">🌙</div><div class="points" id="score-mond">0</div></div>
+                <div class="team-score sonne"><div class="emoji">☀️</div><div class="points" id="score-sonne">0</div></div>
+                <div class="team-score stern"><div class="emoji">⭐</div><div class="points" id="score-stern">0</div></div>
+                <div class="team-score ozean"><div class="emoji">🌊</div><div class="points" id="score-ozean">0</div></div>
+            </div>
+            <div class="game-header">
+                <div id="question-num">1/10</div>
+                <div class="timer" id="timer">30</div>
+                <div id="my-team"></div>
+            </div>
+            <div class="quiz-section">
+                <div class="instruction">Verbinde die passenden Paare! (4 Paare)</div>
+                <div class="matching-container">
+                    <div class="matching-column">
+                        <h4>🇩🇪 Deutsch</h4>
+                        <div id="left-column"></div>
+                    </div>
+                    <div class="matching-column">
+                        <h4>📝 Bedeutung</h4>
+                        <div id="right-column"></div>
+                    </div>
+                </div>
+                <div class="answer-status hidden" id="answer-status"></div>
+            </div>
+        </div>
+        
+        <div id="gameover-screen" class="screen">
+            <div class="result-icon" id="result-icon">🏆</div>
+            <h2 id="result-title">Spiel beendet!</h2>
+            <div class="final-scores" id="final-scores"></div>
+            <button class="btn-primary" id="back-btn">🏠 Zurück</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+    (function() {
+        var firebaseConfig = {
+            apiKey: "AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",
+            authDomain: "lern-deutsch-arash.firebaseapp.com",
+            databaseURL: "https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "lern-deutsch-arash"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+        
+        var matchingSets = {
+            einfach: [
+                {pairs:[["der Arbeitnehmer","Person, die arbeitet"],["das Gehalt","Geld für Arbeit"],["die Überstunden","mehr arbeiten"],["der Urlaub","freie Tage"]]},
+                {pairs:[["der Chef","Leiter der Firma"],["der Kollege","Person, die mit mir arbeitet"],["das Büro","Arbeitsplatz im Gebäude"],["die Pause","kurze Erholung"]]},
+                {pairs:[["kündigen","Arbeit beenden"],["bewerben","Job suchen"],["einstellen","neuen Mitarbeiter nehmen"],["arbeiten","Job machen"]]},
+                {pairs:[["ich muss","Notwendigkeit"],["ich kann","Fähigkeit"],["ich darf","Erlaubnis"],["ich will","Wunsch"]]},
+                {pairs:[["weil","Grund (Verb am Ende)"],["denn","Grund (Verb Position 2)"],["dass","Nebensatz"],["wenn","Bedingung"]]},
+                {pairs:[["mir","Dativ von ich"],["dir","Dativ von du"],["ihm","Dativ von er"],["ihr","Dativ von sie"]]},
+                {pairs:[["trotzdem","obwohl + Hauptsatz"],["deshalb","weil + Hauptsatz"],["aber","Gegensatz"],["und","Verbindung"]]},
+                {pairs:[["der Lebenslauf","Dokument mit Erfahrung"],["das Zeugnis","Dokument von Schule"],["die Bewerbung","Brief für Job"],["das Foto","Bild von Person"]]},
+                {pairs:[["pünktlich","zur richtigen Zeit"],["zuverlässig","man kann vertrauen"],["freundlich","nett zu anderen"],["fleißig","arbeitet viel"]]},
+                {pairs:[["Teilzeit","weniger Stunden"],["Vollzeit","normale Stunden"],["Praktikum","Arbeit zum Lernen"],["Ausbildung","Beruf lernen"]]}
+            ],
+            mittel: [
+                {pairs:[["ich sollte","Ratschlag"],["ich könnte","Möglichkeit"],["ich würde","Wunsch/höflich"],["ich müsste","starker Ratschlag"]]},
+                {pairs:[["wäre","Konjunktiv von sein"],["hätte","Konjunktiv von haben"],["würde","Konjunktiv-Hilfsverb"],["könnte","Konjunktiv von können"]]},
+                {pairs:[["sich freuen auf","Vorfreude"],["sich freuen über","aktuelle Freude"],["sich ärgern über","negatives Gefühl"],["sich interessieren für","Interesse haben"]]},
+                {pairs:[["obwohl","Gegensatz (Nebensatz)"],["trotzdem","Gegensatz (Hauptsatz)"],["deshalb","Folge (Hauptsatz)"],["damit","Zweck (Nebensatz)"]]},
+                {pairs:[["als","einmal in Vergangenheit"],["wenn","wiederholt/Zukunft"],["nachdem","danach"],["bevor","davor"]]},
+                {pairs:[["sich bewerben um","Job suchen"],["sich kümmern um","sorgen für"],["denken an","im Kopf haben"],["warten auf","Zeit verbringen bis"]]},
+                {pairs:[["konnte","Präteritum können"],["musste","Präteritum müssen"],["durfte","Präteritum dürfen"],["wollte","Präteritum wollen"]]},
+                {pairs:[["das Vorstellungsgespräch","Interview für Job"],["die Probezeit","Test am Anfang"],["der Arbeitsvertrag","Dokument über Arbeit"],["die Kündigung","Arbeit beenden"]]},
+                {pairs:[["darauf","auf + das"],["daran","an + das"],["darüber","über + das"],["dafür","für + das"]]},
+                {pairs:[["je...desto","Vergleich steigern"],["sowohl...als auch","beides"],["weder...noch","keines von beiden"],["entweder...oder","Alternative"]]}
+            ],
+            schwer: [
+                {pairs:[["wäre gekommen","irreale Vergangenheit"],["hätte gemacht","irreale Verg. mit haben"],["wäre geblieben","irreale Verg. mit sein"],["hätte gekonnt","Modalverb Verg."]]},
+                {pairs:[["indem","Art und Weise"],["sodass","Folge"],["sofern","Bedingung"],["zumal","zusätzlicher Grund"]]},
+                {pairs:[["ohne...zu","Negation + Infinitiv"],["statt...zu","Alternative + Infinitiv"],["um...zu","Zweck + Infinitiv"],["anstatt dass","Alternative + Nebensatz"]]},
+                {pairs:[["als ob","wie wenn (irreal)"],["obgleich","= obwohl (gehoben)"],["wohingegen","Kontrast"],["insofern als","in dem Maße wie"]]},
+                {pairs:[["sich an jdn wenden","Hilfe suchen bei"],["sich auf etw einlassen","akzeptieren"],["sich mit etw abfinden","akzeptieren müssen"],["sich um etw bemühen","versuchen zu bekommen"]]},
+                {pairs:[["hätte...sollen","verpasste Pflicht"],["hätte...können","verpasste Möglichkeit"],["hätte...müssen","verpasste Notwendigkeit"],["hätte...dürfen","verpasste Erlaubnis"]]},
+                {pairs:[["worauf","auf was"],["woran","an was"],["worüber","über was"],["wofür","für was"]]},
+                {pairs:[["die Gehaltserhöhung","mehr Geld bekommen"],["die Beförderung","höhere Position"],["die Fortbildung","Weiterlernen im Job"],["die Versetzung","andere Abteilung"]]},
+                {pairs:[["kaum...da","sofort danach"],["nicht nur...sondern auch","zusätzlich"],["zwar...aber","einschränkend"],["einerseits...andererseits","zwei Seiten"]]},
+                {pairs:[["Es wäre nett, wenn","höfliche Bitte"],["Ich hätte gern","höflicher Wunsch"],["Könnten Sie","höfliche Frage"],["Würden Sie","höfliche Aufforderung"]]}
+            ]
+        };
+        
+        var teamEmoji = {mond:"🌙",sonne:"☀️",stern:"⭐",ozean:"🌊"};
+        
+        var gameCode, playerId, playerName, playerTeam, isHost = false, difficulty = 'einfach';
+        var currentQ = -1, timerInt = null;
+        var gameRef, playersRef, scoresRef, allPlayers = [], teamScores = {mond:0,sonne:0,stern:0,ozean:0};
+        var gameSets = [], selectedLeft = null, matchedPairs = 0, roundComplete = false;
+        
+        function hideStatus() {
+            var st = document.getElementById("answer-status");
+            st.className = "answer-status hidden";
+            st.textContent = "";
+        }
+        
+        db.ref(".info/connected").on("value", function(s) {
+            var el = document.getElementById("connection-status");
+            el.textContent = s.val() ? "🟢 Online" : "🔴 Offline";
+            el.className = "connection-status " + (s.val() ? "connected" : "disconnected");
+        });
+        
+        document.querySelectorAll('.diff-btn').forEach(function(btn) {
+            btn.onclick = function() {
+                document.querySelectorAll('.diff-btn').forEach(function(b) { b.classList.remove('selected'); });
+                btn.classList.add('selected');
+                difficulty = btn.dataset.diff;
+            };
+        });
+        document.querySelector('.diff-btn.einfach').classList.add('selected');
+        
+        function genCode() {
+            var c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            var code = "";
+            for (var i = 0; i < 4; i++) code += c[Math.floor(Math.random() * c.length)];
+            return code;
+        }
+        
+        function showError(m) {
+            document.getElementById("error-msg").textContent = m;
+            setTimeout(function() { document.getElementById("error-msg").textContent = ""; }, 3000);
+        }
+        
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+            document.getElementById(id).classList.add('active');
+        }
+        
+        function shuffle(arr) {
+            for (var i = arr.length - 1; i > 0; i--) {
+                var j = Math.floor(Math.random() * (i + 1));
+                var temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
+            }
+            return arr;
+        }
+        
+        document.getElementById("create-btn").onclick = function() {
+            playerName = document.getElementById("player-name").value.trim();
+            playerTeam = document.getElementById("team-select").value;
+            if (!playerName) { showError("Name eingeben!"); return; }
+            if (!playerTeam) { showError("Team wählen!"); return; }
+            
+            gameCode = genCode();
+            playerId = "host_" + Date.now();
+            isHost = true;
+            gameSets = shuffle(matchingSets[difficulty].slice()).slice(0, 10);
+            
+            gameRef = db.ref("zuordnung/" + gameCode);
+            playersRef = db.ref("zuordnung/" + gameCode + "/players");
+            scoresRef = db.ref("zuordnung/" + gameCode + "/scores");
+            
+            gameRef.remove().then(function() {
+                return gameRef.set({
+                    status: "lobby",
+                    difficulty: difficulty,
+                    currentQuestion: -1,
+                    questionStart: null,
+                    sets: gameSets,
+                    host: playerId
+                });
+            }).then(function() { return scoresRef.set({mond:0,sonne:0,stern:0,ozean:0}); })
+            .then(function() {
+                return playersRef.child(playerId).set({
+                    name: playerName,
+                    team: playerTeam,
+                    isHost: true
+                });
+            }).then(function() {
+                playersRef.child(playerId).onDisconnect().remove();
+                showLobby();
+                setupListeners();
+            });
+        };
+        
+        document.getElementById("join-btn").onclick = function() {
+            playerName = document.getElementById("player-name").value.trim();
+            playerTeam = document.getElementById("team-select").value;
+            gameCode = document.getElementById("game-code").value.trim().toUpperCase();
+            
+            if (!playerName) { showError("Name eingeben!"); return; }
+            if (!playerTeam) { showError("Team wählen!"); return; }
+            if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
+            
+            playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+            isHost = false;
+            
+            gameRef = db.ref("zuordnung/" + gameCode);
+            playersRef = db.ref("zuordnung/" + gameCode + "/players");
+            scoresRef = db.ref("zuordnung/" + gameCode + "/scores");
+            
+            gameRef.once("value").then(function(s) {
+                if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject(); }
+                if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject(); }
+                
+                difficulty = s.val().difficulty;
+                gameSets = s.val().sets;
+                
+                return playersRef.child(playerId).set({
+                    name: playerName,
+                    team: playerTeam,
+                    isHost: false
+                });
+            }).then(function() {
+                playersRef.child(playerId).onDisconnect().remove();
+                showLobby();
+                setupListeners();
+            }).catch(function() {});
+        };
+        
+        document.getElementById("game-code").onkeypress = function(e) { 
+            if (e.key === "Enter") document.getElementById("join-btn").click(); 
+        };
+        
+        function showLobby() {
+            showScreen("lobby-screen");
+            document.getElementById("lobby-code").textContent = gameCode;
+            
+            var badge = document.getElementById("diff-badge");
+            badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            badge.className = "diff-badge " + difficulty;
+            
+            document.getElementById("host-controls").style.display = isHost ? "block" : "none";
+            document.getElementById("player-controls").style.display = isHost ? "none" : "block";
+        }
+        
+        function setupListeners() {
+            playersRef.on("value", function(snap) {
+                var players = [];
+                snap.forEach(function(c) {
+                    var d = c.val();
+                    if (d && d.name) {
+                        d.id = c.key;
+                        players.push(d);
+                    }
+                });
+                allPlayers = players;
+                updatePlayers(players);
+            });
+            
+            scoresRef.on("value", function(snap) {
+                var s = snap.val();
+                if (s) { teamScores = s; updateScores(); }
+            });
+            
+            gameRef.on("value", function(snap) {
+                var game = snap.val();
+                if (!game) { backToHome(); return; }
+                
+                if (game.status === "playing") {
+                    showScreen("game-screen");
+                    if (game.currentQuestion !== currentQ) {
+                        hideStatus();
+                        currentQ = game.currentQuestion;
+                        selectedLeft = null;
+                        matchedPairs = 0;
+                        roundComplete = false;
+                        showMatching(game.questionStart);
+                    }
+                } else if (game.status === "finished") {
+                    endGame();
+                }
+            });
+        }
+        
+        function updatePlayers(players) {
+            ["mond","sonne","stern","ozean"].forEach(function(t) {
+                var teamPlayers = players.filter(function(p) { return p.team === t; });
+                document.getElementById("team-" + t).innerHTML = 
+                    teamPlayers.length > 0 ? teamPlayers.map(function(p) {
+                        return '<div class="team-player">' + p.name + (p.isHost ? ' 👑' : '') + '</div>';
+                    }).join("") : '<span style="color:#666;font-size:0.8em">Leer</span>';
+            });
+            document.getElementById("start-btn").disabled = players.filter(function(p) { return !p.isHost; }).length === 0;
+        }
+        
+        function updateScores() {
+            ["mond","sonne","stern","ozean"].forEach(function(t) {
+                document.getElementById("score-" + t).textContent = teamScores[t] || 0;
+            });
+        }
+        
+        document.getElementById("start-btn").onclick = function() {
+            if (!isHost) return;
+            gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
+        };
+        
+        document.getElementById("reset-btn").onclick = function() {
+            if (!confirm("Zurücksetzen?")) return;
+            gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
+            scoresRef.set({mond:0,sonne:0,stern:0,ozean:0});
+            currentQ = -1;
+            hideStatus();
+            showScreen("lobby-screen");
+        };
+        
+        function showMatching(startTime) {
+            if (currentQ >= gameSets.length) {
+                gameRef.update({ status: "finished" });
+                return;
+            }
+            
+            var set = gameSets[currentQ];
+            document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameSets.length;
+            document.getElementById("my-team").textContent = teamEmoji[playerTeam];
+            
+            var leftItems = set.pairs.map(function(p, i) { return {text: p[0], idx: i}; });
+            var rightItems = set.pairs.map(function(p, i) { return {text: p[1], idx: i}; });
+            
+            shuffle(leftItems);
+            shuffle(rightItems);
+            
+            var leftCol = document.getElementById("left-column");
+            var rightCol = document.getElementById("right-column");
+            leftCol.innerHTML = "";
+            rightCol.innerHTML = "";
+            
+            leftItems.forEach(function(item) {
+                var div = document.createElement("div");
+                div.className = "match-item";
+                div.textContent = item.text;
+                div.setAttribute("data-idx", item.idx);
+                div.setAttribute("data-side", "left");
+                div.onclick = function() { selectItem(div); };
+                leftCol.appendChild(div);
+            });
+            
+            rightItems.forEach(function(item) {
+                var div = document.createElement("div");
+                div.className = "match-item";
+                div.textContent = item.text;
+                div.setAttribute("data-idx", item.idx);
+                div.setAttribute("data-side", "right");
+                div.onclick = function() { selectItem(div); };
+                rightCol.appendChild(div);
+            });
+            
+            startTimer(startTime);
+        }
+        
+        function selectItem(el) {
+            if (el.classList.contains("matched") || el.classList.contains("disabled") || roundComplete) return;
+            
+            var side = el.getAttribute("data-side");
+            var idx = parseInt(el.getAttribute("data-idx"));
+            
+            if (side === "left") {
+                document.querySelectorAll('#left-column .match-item').forEach(function(item) {
+                    item.classList.remove("selected");
+                });
+                el.classList.add("selected");
+                selectedLeft = {el: el, idx: idx};
+            } else if (selectedLeft) {
+                if (selectedLeft.idx === idx) {
+                    selectedLeft.el.classList.remove("selected");
+                    selectedLeft.el.classList.add("matched");
+                    el.classList.add("matched");
+                    matchedPairs++;
+                    
+                    if (matchedPairs === 4) {
+                        roundComplete = true;
+                        var st = document.getElementById("answer-status");
+                        st.className = "answer-status correct";
+                        st.textContent = "✅ Alle richtig! +1 für " + teamEmoji[playerTeam];
+                        scoresRef.child(playerTeam).transaction(function(v) { return (v || 0) + 1; });
+                    }
+                } else {
+                    selectedLeft.el.classList.add("wrong");
+                    el.classList.add("wrong");
+                    var leftEl = selectedLeft.el;
+                    setTimeout(function() {
+                        leftEl.classList.remove("wrong", "selected");
+                        el.classList.remove("wrong");
+                    }, 500);
+                }
+                selectedLeft = null;
+            }
+        }
+        
+        function startTimer(startTime) {
+            if (timerInt) clearInterval(timerInt);
+            var el = document.getElementById("timer");
+            
+            function tick() {
+                var rem = Math.max(0, 30 - Math.floor((Date.now() - startTime) / 1000));
+                el.textContent = rem;
+                el.className = "timer" + (rem <= 5 ? " danger" : rem <= 10 ? " warning" : "");
+                
+                if (rem === 0) {
+                    clearInterval(timerInt);
+                    
+                    if (!roundComplete) {
+                        var st = document.getElementById("answer-status");
+                        st.className = "answer-status timeout";
+                        st.textContent = "⏰ Zeit abgelaufen!";
+                        
+                        document.querySelectorAll('.match-item').forEach(function(item) {
+                            item.classList.add("disabled");
+                        });
+                    }
+                    
+                    if (isHost) {
+                        setTimeout(function() {
+                            if (currentQ + 1 >= gameSets.length) {
+                                gameRef.update({ status: "finished" });
+                            } else {
+                                gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
+                            }
+                        }, 3000);
+                    }
+                }
+            }
+            tick();
+            timerInt = setInterval(tick, 200);
+        }
+        
+        function endGame() {
+            if (timerInt) clearInterval(timerInt);
+            showScreen("gameover-screen");
+            
+            var sorted = Object.entries(teamScores).sort(function(a, b) { return b[1] - a[1]; });
+            var winner = sorted[0];
+            
+            document.getElementById("result-icon").textContent = teamEmoji[winner[0]];
+            document.getElementById("result-title").textContent = teamEmoji[winner[0]] + " gewinnt mit " + winner[1] + " Punkten!";
+            
+            document.getElementById("final-scores").innerHTML = sorted.map(function(t, i) {
+                return '<div class="final-team ' + (i === 0 ? 'winner' : '') + '">' +
+                    '<span>' + teamEmoji[t[0]] + ' ' + t[0].charAt(0).toUpperCase() + t[0].slice(1) + '</span>' +
+                    '<span style="font-size:1.3em;font-weight:700">' + t[1] + '</span>' +
+                '</div>';
+            }).join("");
+        }
+        
+        document.getElementById("back-btn").onclick = backToHome;
+        
+        function backToHome() {
+            if (timerInt) clearInterval(timerInt);
+            if (gameRef) gameRef.off();
+            if (playersRef) {
+                playersRef.off();
+                if (playerId) playersRef.child(playerId).remove();
+            }
+            if (scoresRef) scoresRef.off();
+            gameCode = null;
+            playerId = null;
+            isHost = false;
+            currentQ = -1;
+            teamScores = {mond:0,sonne:0,stern:0,ozean:0};
+            hideStatus();
+            showScreen("login-screen");
+            document.getElementById("game-code").value = "";
+            document.getElementById("team-select").value = "";
+        }
+    })();
+    </script>
+    <script data-goatcounter="https://aguitoo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📝 Partizip Perfekt Challenge</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#0984e3 0%,#74b9ff 100%);min-height:100vh;color:#fff}
+        .container{max-width:900px;margin:0 auto;padding:15px}
+        h1{text-align:center;font-size:1.5em;margin-bottom:15px}
+        .screen{display:none}.screen.active{display:block}
+        
+        #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;gap:15px}
+        .logo{font-size:4em;margin-bottom:10px}
+        #login-screen h2{font-size:1.2em;color:#fff;text-align:center}
+        .difficulty-select{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;justify-content:center}
+        .diff-btn{padding:15px 25px;border:3px solid rgba(255,255,255,0.3);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;font-size:1em;font-weight:700;cursor:pointer;transition:all 0.3s}
+        .diff-btn:hover,.diff-btn.selected{transform:scale(1.05)}
+        .diff-btn.einfach{border-color:#00b894}.diff-btn.einfach.selected{background:#00b894}
+        .diff-btn.mittel{border-color:#fdcb6e}.diff-btn.mittel.selected{background:#e17055}
+        .diff-btn.schwer{border-color:#d63031}.diff-btn.schwer.selected{background:#d63031}
+        .input-group{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+        .input-group input{font-size:1.1em;padding:12px 20px;border:2px solid #fff;border-radius:25px;text-align:center;background:rgba(255,255,255,0.2);color:#fff}
+        .input-group input::placeholder{color:rgba(255,255,255,0.7)}
+        .input-group input.code-input{font-size:1.4em;letter-spacing:8px;text-transform:uppercase}
+        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:#fff;color:#0984e3;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+        .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #fff;border-radius:25px;background:transparent;color:#fff;cursor:pointer;width:100%;max-width:300px}
+        .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.5)}
+        .error-msg{color:#2d3436;background:rgba(255,255,255,0.9);padding:8px 15px;border-radius:10px;font-size:0.9em;margin-top:10px;display:none}
+        
+        #lobby-screen{text-align:center}
+        .lobby-box{background:rgba(255,255,255,0.15);border-radius:20px;padding:25px;margin:20px 0}
+        .lobby-code{font-size:2.5em;color:#fff;letter-spacing:10px;margin:10px 0;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+        .diff-badge{display:inline-block;padding:8px 20px;border-radius:20px;font-weight:700;margin:10px 0}
+        .diff-badge.einfach{background:#00b894}.diff-badge.mittel{background:#e17055}.diff-badge.schwer{background:#d63031}
+        .waiting-players{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0}
+        .waiting-player{padding:10px 15px;background:rgba(255,255,255,0.2);border-radius:20px;border:1px solid rgba(255,255,255,0.3)}
+        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:#fff;color:#0984e3;font-weight:700;cursor:pointer;margin:15px 0}
+        .start-game-btn:disabled{opacity:0.5;cursor:not-allowed}
+        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.5);border-radius:15px;background:transparent;color:#fff;cursor:pointer;margin:5px}
+        .small-btn.danger{background:rgba(255,0,0,0.3)}
+        
+        .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.15);border-radius:15px;flex-wrap:wrap;gap:10px}
+        .score-display{font-size:1.3em}
+        .timer{font-size:2.5em;font-weight:700;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+        .timer.warning{color:#fdcb6e}.timer.danger{color:#d63031;animation:pulse 0.3s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+        
+        .quiz-section{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.3);border-radius:20px;padding:20px;margin-bottom:15px}
+        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:0.85em;margin-bottom:12px}
+        .verb-display{font-size:2em;margin-bottom:10px;text-align:center;color:#ffd700;font-weight:700}
+        .question{font-size:1.2em;margin-bottom:20px;line-height:1.5;text-align:center;opacity:0.9}
+        .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        @media(max-width:500px){.answers{grid-template-columns:1fr}}
+        .answer-btn{padding:18px;font-size:1.1em;border:3px solid rgba(255,255,255,0.4);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;transition:all 0.15s;font-weight:600}
+        .answer-btn:hover:not(:disabled){background:rgba(255,255,255,0.3);border-color:#fff}
+        .answer-btn.correct{background:rgba(0,184,148,0.8)!important;border-color:#00b894!important}
+        .answer-btn.wrong{background:rgba(214,48,49,0.8)!important;border-color:#d63031!important}
+        .answer-btn:disabled{cursor:not-allowed}
+        
+        .leaderboard{background:rgba(255,255,255,0.1);border-radius:15px;padding:15px;margin-top:15px}
+        .leaderboard h3{font-size:1em;margin-bottom:10px}
+        .lb-row{display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.1);border-radius:8px;margin-bottom:5px}
+        .lb-row.me{background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.5)}
+        
+        #result-screen{text-align:center;padding:30px 20px}
+        .result-icon{font-size:5em;margin-bottom:15px}
+        .podium{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin:30px 0}
+        .podium-place{text-align:center;padding:15px;border-radius:15px 15px 0 0;color:#2d3436}
+        .podium-place.first{background:linear-gradient(135deg,#ffd700,#ff8c00);height:150px;order:2}
+        .podium-place.second{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);height:120px;order:1}
+        .podium-place.third{background:linear-gradient(135deg,#cd7f32,#a0522d);height:90px;order:3}
+        .podium-name{font-weight:700;font-size:1.1em}
+        .podium-score{font-size:0.9em;opacity:0.8}
+        .podium-medal{font-size:2em}
+        
+        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.3)}
+        .connection-status.connected{color:#55efc4}
+        
+        .info-box{background:rgba(255,255,255,0.1);border-radius:10px;padding:10px;margin-top:10px;font-size:0.85em;text-align:left}
+        .info-box h4{color:#ffd700;margin-bottom:5px}
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connection-status">Verbinde...</div>
+    <div class="container">
+        <h1>📝 Partizip Perfekt Challenge</h1>
+        
+        <div id="login-screen" class="screen active">
+            <div class="logo">📝</div>
+            <h2>Wie heißt das Partizip II?<br><small style="opacity:0.8">machen → gemacht</small></h2>
+            <div class="difficulty-select">
+                <button class="diff-btn einfach selected" data-diff="einfach">🟢 Einfach</button>
+                <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
+                <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="player-name" placeholder="Dein Name" maxlength="15">
+                <input type="text" id="game-code" class="code-input" placeholder="CODE" maxlength="4">
+            </div>
+            <button class="btn-primary" id="join-btn">🚪 Beitreten</button>
+            <div class="divider"><span>oder</span></div>
+            <button class="btn-secondary" id="create-btn">👑 Neues Spiel erstellen</button>
+            <div class="error-msg" id="error-msg"></div>
+            <div class="info-box">
+                <h4>💡 Partizip II Regeln:</h4>
+                <p>• Regelmäßig: ge- + Stamm + -t (machen → gemacht)<br>
+                • Unregelmäßig: ge- + Stamm + -en (fahren → gefahren)<br>
+                • Trennbar: Präfix + ge- + ... (aufmachen → aufgemacht)<br>
+                • -ieren: kein ge- (studieren → studiert)</p>
+            </div>
+        </div>
+        
+        <div id="lobby-screen" class="screen">
+            <div class="lobby-box">
+                <h2>⏳ Warteraum</h2>
+                <div class="lobby-code" id="lobby-code">CODE</div>
+                <div class="diff-badge einfach" id="diff-badge">Einfach</div>
+                <p style="opacity:0.8;font-size:0.9em">⏱️ 10 Sekunden • 20 Verben</p>
+                <div class="waiting-players" id="waiting-players"></div>
+                <div id="host-controls">
+                    <button class="start-game-btn" id="start-btn" disabled>▶️ START</button>
+                    <p style="opacity:0.8;font-size:0.85em">👑 Du bist der Spielleiter</p>
+                    <button class="small-btn danger" id="reset-btn">🔄 Zurücksetzen</button>
+                </div>
+                <div id="player-controls" style="display:none">
+                    <p style="opacity:0.8">⏳ Warte auf Spielleiter...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="score-display">⭐ <span id="my-score">0</span></div>
+                <div class="timer" id="timer">10</div>
+                <div id="question-num">1/20</div>
+            </div>
+            <div class="quiz-section">
+                <div class="category-badge" id="category"></div>
+                <div class="verb-display" id="verb"></div>
+                <div class="question" id="question">Wie heißt das Partizip II?</div>
+                <div class="answers" id="answers"></div>
+            </div>
+            <div class="leaderboard">
+                <h3>🏆 Live-Rangliste</h3>
+                <div id="live-leaderboard"></div>
+            </div>
+        </div>
+        
+        <div id="result-screen" class="screen">
+            <div class="result-icon" id="result-icon">🏆</div>
+            <h2 id="result-title">Spiel beendet!</h2>
+            <div class="podium" id="podium"></div>
+            <button class="btn-primary" id="back-btn">🏠 Zurück</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+    var db, gameRef, playersRef;
+    var gameCode, playerId, playerName, isHost, difficulty;
+    var currentQ, myScore, answered, timerInt;
+    var allPlayers, gameQuestions;
+    
+    var questions = {
+        einfach: [
+            {cat:"regelmäßig",v:"machen",a:["gemacht","gemachen","gemakt","macht"],c:0},
+            {cat:"regelmäßig",v:"spielen",a:["gespielt","gespielen","gespielt","spielt"],c:0},
+            {cat:"regelmäßig",v:"lernen",a:["gelernt","gelearnt","lernt","gelornen"],c:0},
+            {cat:"regelmäßig",v:"kaufen",a:["gekauft","gekaufen","kauft","gekauft"],c:0},
+            {cat:"regelmäßig",v:"hören",a:["gehört","gehören","hört","gehorchen"],c:0},
+            {cat:"regelmäßig",v:"wohnen",a:["gewohnt","gewohnen","wohnt","gewöhnen"],c:0},
+            {cat:"regelmäßig",v:"arbeiten",a:["gearbeitet","gearbeiten","arbeitet","gearbeit"],c:0},
+            {cat:"regelmäßig",v:"kochen",a:["gekocht","gekochen","kocht","gekochte"],c:0},
+            {cat:"regelmäßig",v:"suchen",a:["gesucht","gesuchen","sucht","gesuchte"],c:0},
+            {cat:"regelmäßig",v:"fragen",a:["gefragt","gefragen","fragt","gefragte"],c:0},
+            {cat:"sein/haben",v:"sein",a:["gewesen","gesein","geseint","gesaint"],c:0},
+            {cat:"sein/haben",v:"haben",a:["gehabt","gehabt","gehabt","gehabt"],c:0},
+            {cat:"unregelmäßig",v:"gehen",a:["gegangen","gegeht","gegangt","gegehrt"],c:0},
+            {cat:"unregelmäßig",v:"kommen",a:["gekommen","gekommt","gekammt","gekomment"],c:0},
+            {cat:"unregelmäßig",v:"sehen",a:["gesehen","geseht","gesah","gesehn"],c:0},
+            {cat:"unregelmäßig",v:"essen",a:["gegessen","geesst","geess","geessen"],c:0},
+            {cat:"unregelmäßig",v:"trinken",a:["getrunken","getrinkt","getrunkt","getrinken"],c:0},
+            {cat:"unregelmäßig",v:"schlafen",a:["geschlafen","geschlaft","geschlaf","geschlaffen"],c:0},
+            {cat:"unregelmäßig",v:"lesen",a:["gelesen","gelest","geles","gelesennt"],c:0},
+            {cat:"unregelmäßig",v:"schreiben",a:["geschrieben","geschreibt","geschrib","geschriben"],c:0}
+        ],
+        mittel: [
+            {cat:"unregelmäßig",v:"fahren",a:["gefahren","gefahrt","gefährt","gefahrten"],c:0},
+            {cat:"unregelmäßig",v:"fliegen",a:["geflogen","gefliegt","geflieg","geflohen"],c:0},
+            {cat:"unregelmäßig",v:"nehmen",a:["genommen","genommt","genehmt","genomment"],c:0},
+            {cat:"unregelmäßig",v:"sprechen",a:["gesprochen","gesprecht","gesprächt","gesprachten"],c:0},
+            {cat:"unregelmäßig",v:"finden",a:["gefunden","gefindet","gefand","gefindent"],c:0},
+            {cat:"unregelmäßig",v:"geben",a:["gegeben","gegebt","gegab","gegebt"],c:0},
+            {cat:"unregelmäßig",v:"helfen",a:["geholfen","gehilft","gehalf","gehelften"],c:0},
+            {cat:"unregelmäßig",v:"tragen",a:["getragen","geträgt","getrug","getragten"],c:0},
+            {cat:"unregelmäßig",v:"waschen",a:["gewaschen","gewäscht","gewusch","gewascht"],c:0},
+            {cat:"unregelmäßig",v:"laufen",a:["gelaufen","geläuft","gelauf","gelauften"],c:0},
+            {cat:"trennbar",v:"aufmachen",a:["aufgemacht","geaufmacht","aufgemachen","gemachtauf"],c:0},
+            {cat:"trennbar",v:"anfangen",a:["angefangen","geanfangen","anfanggegen","gefangenan"],c:0},
+            {cat:"trennbar",v:"einkaufen",a:["eingekauft","geeinkauft","einkaufgekauft","gekauftein"],c:0},
+            {cat:"trennbar",v:"aufstehen",a:["aufgestanden","geaufstehen","aufgesteht","gestandenauf"],c:0},
+            {cat:"trennbar",v:"anrufen",a:["angerufen","geanrufen","anrufgerufen","gerufenauf"],c:0},
+            {cat:"-ieren",v:"studieren",a:["studiert","gestudiert","studieret","studierent"],c:0},
+            {cat:"-ieren",v:"telefonieren",a:["telefoniert","getelefoniert","telefonieret","telefoneret"],c:0},
+            {cat:"-ieren",v:"fotografieren",a:["fotografiert","gefotografiert","fotografieret","fotographiert"],c:0},
+            {cat:"unregelmäßig",v:"vergessen",a:["vergessen","gevergessen","vergisst","vergessent"],c:0},
+            {cat:"unregelmäßig",v:"verstehen",a:["verstanden","geverstehen","versteht","verstandent"],c:0}
+        ],
+        schwer: [
+            {cat:"untrennbar",v:"bekommen",a:["bekommen","gebekommen","bekommt","bekammt"],c:0},
+            {cat:"untrennbar",v:"erklären",a:["erklärt","geerklärt","erklärte","erklärent"],c:0},
+            {cat:"untrennbar",v:"entscheiden",a:["entschieden","geentschieden","entscheidet","entschedent"],c:0},
+            {cat:"untrennbar",v:"beginnen",a:["begonnen","gebegonnen","beginnt","begannt"],c:0},
+            {cat:"untrennbar",v:"empfehlen",a:["empfohlen","geempfohlen","empfehlt","empfahlt"],c:0},
+            {cat:"untrennbar",v:"gefallen",a:["gefallen","gegefallen","gefallt","gefielent"],c:0},
+            {cat:"untrennbar",v:"verlieren",a:["verloren","geverloren","verliert","verlieret"],c:0},
+            {cat:"untrennbar",v:"gewinnen",a:["gewonnen","gegewonnen","gewinnt","gewannt"],c:0},
+            {cat:"Mischverb",v:"bringen",a:["gebracht","gebringt","bringte","gebrungen"],c:0},
+            {cat:"Mischverb",v:"denken",a:["gedacht","gedenkt","denkte","gedunken"],c:0},
+            {cat:"Mischverb",v:"kennen",a:["gekannt","gekennt","kennte","gekunnt"],c:0},
+            {cat:"Mischverb",v:"nennen",a:["genannt","genennt","nennte","genunnt"],c:0},
+            {cat:"Mischverb",v:"wissen",a:["gewusst","gewisst","wisste","gewissen"],c:0},
+            {cat:"trennbar+unreg.",v:"einladen",a:["eingeladen","geeinladen","einladet","geladenein"],c:0},
+            {cat:"trennbar+unreg.",v:"fernsehen",a:["ferngesehen","gefersehen","fernseht","gesehenfer"],c:0},
+            {cat:"trennbar+unreg.",v:"mitnehmen",a:["mitgenommen","gemitnehmen","mitnimmt","genommenmi"],c:0},
+            {cat:"Modalverben",v:"können",a:["gekonnt","gekunnt","könnte","gekannt"],c:0},
+            {cat:"Modalverben",v:"müssen",a:["gemusst","gemüsst","müsste","gemussten"],c:0},
+            {cat:"Modalverben",v:"wollen",a:["gewollt","gewillt","wollte","gewallten"],c:0},
+            {cat:"Besondere",v:"werden",a:["geworden","gewerdet","würde","gewerden"],c:0}
+        ]
+    };
+    
+    function init() {
+        isHost = false;
+        difficulty = 'einfach';
+        currentQ = -1;
+        myScore = 0;
+        answered = false;
+        timerInt = null;
+        allPlayers = [];
+        gameQuestions = [];
+        
+        firebase.initializeApp({
+            apiKey: "AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",
+            authDomain: "lern-deutsch-arash.firebaseapp.com",
+            databaseURL: "https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "lern-deutsch-arash"
+        });
+        db = firebase.database();
+        
+        db.ref(".info/connected").on("value", function(s) {
+            var el = document.getElementById("connection-status");
+            if (s.val()) {
+                el.textContent = "🟢 Online";
+                el.className = "connection-status connected";
+            } else {
+                el.textContent = "🔴 Offline";
+                el.className = "connection-status";
+            }
+        });
+        
+        setupButtons();
+    }
+    
+    function setupButtons() {
+        var diffBtns = document.querySelectorAll('.diff-btn');
+        for (var i = 0; i < diffBtns.length; i++) {
+            diffBtns[i].onclick = function() {
+                for (var j = 0; j < diffBtns.length; j++) {
+                    diffBtns[j].classList.remove('selected');
+                }
+                this.classList.add('selected');
+                difficulty = this.getAttribute('data-diff');
+            };
+        }
+        
+        document.getElementById("create-btn").onclick = createGame;
+        document.getElementById("join-btn").onclick = joinGame;
+        document.getElementById("start-btn").onclick = startGame;
+        document.getElementById("reset-btn").onclick = resetGame;
+        document.getElementById("back-btn").onclick = backToHome;
+        
+        document.getElementById("game-code").onkeypress = function(e) {
+            if (e.key === "Enter") joinGame();
+        };
+    }
+    
+    function genCode() {
+        var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        var code = "";
+        for (var i = 0; i < 4; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+    }
+    
+    function showError(msg) {
+        var el = document.getElementById("error-msg");
+        el.textContent = msg;
+        el.style.display = "block";
+        setTimeout(function() { el.style.display = "none"; }, 3000);
+    }
+    
+    function showScreen(id) {
+        var screens = document.querySelectorAll('.screen');
+        for (var i = 0; i < screens.length; i++) {
+            screens[i].classList.remove('active');
+        }
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function shuffle(arr) {
+        var newArr = arr.slice();
+        for (var i = newArr.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = newArr[i];
+            newArr[i] = newArr[j];
+            newArr[j] = temp;
+        }
+        return newArr;
+    }
+    
+    function createGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        if (!playerName) { showError("Name eingeben!"); return; }
+        
+        gameCode = genCode();
+        playerId = "host_" + Date.now();
+        isHost = true;
+        gameQuestions = shuffle(questions[difficulty]).slice(0, 20);
+        
+        gameRef = db.ref("partizip2/" + gameCode);
+        playersRef = db.ref("partizip2/" + gameCode + "/players");
+        
+        gameRef.remove().then(function() {
+            return gameRef.set({
+                status: "lobby",
+                difficulty: difficulty,
+                currentQuestion: -1,
+                questionStart: null,
+                questions: gameQuestions,
+                host: playerId
+            });
+        }).then(function() {
+            return playersRef.child(playerId).set({
+                name: playerName,
+                score: 0,
+                isHost: true,
+                answered: false
+            });
+        }).then(function() {
+            playersRef.child(playerId).onDisconnect().remove();
+            showLobby();
+            setupListeners();
+        });
+    }
+    
+    function joinGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        gameCode = document.getElementById("game-code").value.trim().toUpperCase();
+        
+        if (!playerName) { showError("Name eingeben!"); return; }
+        if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
+        
+        playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+        isHost = false;
+        
+        gameRef = db.ref("partizip2/" + gameCode);
+        playersRef = db.ref("partizip2/" + gameCode + "/players");
+        
+        gameRef.once("value").then(function(s) {
+            if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject("not found"); }
+            if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject("running"); }
+            
+            difficulty = s.val().difficulty;
+            gameQuestions = s.val().questions;
+            
+            return playersRef.child(playerId).set({
+                name: playerName,
+                score: 0,
+                isHost: false,
+                answered: false
+            });
+        }).then(function() {
+            playersRef.child(playerId).onDisconnect().remove();
+            showLobby();
+            setupListeners();
+        }).catch(function(e) { console.log(e); });
+    }
+    
+    function showLobby() {
+        showScreen("lobby-screen");
+        document.getElementById("lobby-code").textContent = gameCode;
+        
+        var badge = document.getElementById("diff-badge");
+        badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+        badge.className = "diff-badge " + difficulty;
+        
+        document.getElementById("host-controls").style.display = isHost ? "block" : "none";
+        document.getElementById("player-controls").style.display = isHost ? "none" : "block";
+    }
+    
+    function setupListeners() {
+        playersRef.on("value", function(snap) {
+            var players = [];
+            snap.forEach(function(c) {
+                var d = c.val();
+                if (d && d.name) {
+                    d.id = c.key;
+                    players.push(d);
+                }
+            });
+            allPlayers = players;
+            updateLobbyPlayers();
+            updateLeaderboard();
+        });
+        
+        gameRef.on("value", function(snap) {
+            var game = snap.val();
+            if (!game) { backToHome(); return; }
+            
+            if (game.status === "playing") {
+                showScreen("game-screen");
+                if (game.currentQuestion !== currentQ) {
+                    currentQ = game.currentQuestion;
+                    answered = false;
+                    showQuestion(game.questionStart);
+                }
+            } else if (game.status === "finished") {
+                showResults();
+            }
+        });
+    }
+    
+    function updateLobbyPlayers() {
+        var w = document.getElementById("waiting-players");
+        if (allPlayers.length === 0) {
+            w.innerHTML = '<p style="opacity:0.6">Warte auf Spieler...</p>';
+        } else {
+            var html = "";
+            for (var i = 0; i < allPlayers.length; i++) {
+                var p = allPlayers[i];
+                html += '<div class="waiting-player">' + p.name + (p.isHost ? ' 👑' : '') + '</div>';
+            }
+            w.innerHTML = html;
+        }
+        
+        var nonHostCount = 0;
+        for (var i = 0; i < allPlayers.length; i++) {
+            if (!allPlayers[i].isHost) nonHostCount++;
+        }
+        document.getElementById("start-btn").disabled = nonHostCount === 0;
+    }
+    
+    function updateLeaderboard() {
+        var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+        var html = "";
+        for (var i = 0; i < sorted.length; i++) {
+            var p = sorted[i];
+            var isMe = p.id === playerId ? ' me' : '';
+            html += '<div class="lb-row' + isMe + '"><span>' + p.name + '</span><span>⭐ ' + p.score + '</span></div>';
+        }
+        document.getElementById("live-leaderboard").innerHTML = html;
+    }
+    
+    function startGame() {
+        if (!isHost) return;
+        playersRef.once("value", function(s) {
+            s.forEach(function(c) {
+                playersRef.child(c.key).update({ answered: false, score: 0 });
+            });
+            gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
+        });
+    }
+    
+    function resetGame() {
+        if (!confirm("Zurücksetzen?")) return;
+        gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
+        playersRef.once("value", function(s) {
+            s.forEach(function(c) {
+                playersRef.child(c.key).update({ score: 0, answered: false });
+            });
+        });
+        myScore = 0;
+        currentQ = -1;
+        showScreen("lobby-screen");
+    }
+    
+    function showQuestion(startTime) {
+        if (currentQ >= gameQuestions.length) {
+            gameRef.update({ status: "finished" });
+            return;
+        }
+        
+        var q = gameQuestions[currentQ];
+        document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameQuestions.length;
+        document.getElementById("category").textContent = q.cat;
+        document.getElementById("verb").textContent = q.v;
+        document.getElementById("my-score").textContent = myScore;
+        
+        var idx = shuffle([0, 1, 2, 3]);
+        var ans = document.getElementById("answers");
+        ans.innerHTML = "";
+        
+        for (var i = 0; i < idx.length; i++) {
+            var origIdx = idx[i];
+            var btn = document.createElement("button");
+            btn.className = "answer-btn";
+            btn.textContent = q.a[origIdx];
+            btn.setAttribute("data-idx", origIdx);
+            btn.onclick = (function(b, oi) {
+                return function() { selectAnswer(b, oi); };
+            })(btn, origIdx);
+            ans.appendChild(btn);
+        }
+        
+        startTimer(startTime);
+    }
+    
+    function selectAnswer(btn, idx) {
+        if (answered) return;
+        answered = true;
+        
+        var q = gameQuestions[currentQ];
+        var isCorrect = idx === q.c;
+        
+        var btns = document.querySelectorAll(".answer-btn");
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].disabled = true;
+            if (parseInt(btns[i].getAttribute("data-idx")) === q.c) {
+                btns[i].classList.add("correct");
+            }
+        }
+        
+        if (isCorrect) {
+            var remaining = parseInt(document.getElementById("timer").textContent);
+            var points = Math.max(1, remaining);
+            myScore += points;
+            document.getElementById("my-score").textContent = myScore;
+            playersRef.child(playerId).update({ score: myScore, answered: true });
+        } else {
+            btn.classList.add("wrong");
+            playersRef.child(playerId).update({ answered: true });
+        }
+    }
+    
+    function startTimer(startTime) {
+        if (timerInt) clearInterval(timerInt);
+        var el = document.getElementById("timer");
+        
+        function tick() {
+            var elapsed = Math.floor((Date.now() - startTime) / 1000);
+            var rem = Math.max(0, 10 - elapsed);
+            el.textContent = rem;
+            
+            if (rem <= 3) {
+                el.className = "timer danger";
+            } else if (rem <= 5) {
+                el.className = "timer warning";
+            } else {
+                el.className = "timer";
+            }
+            
+            if (rem === 0) {
+                clearInterval(timerInt);
+                if (!answered) {
+                    answered = true;
+                    var q = gameQuestions[currentQ];
+                    var btns = document.querySelectorAll(".answer-btn");
+                    for (var i = 0; i < btns.length; i++) {
+                        btns[i].disabled = true;
+                        if (parseInt(btns[i].getAttribute("data-idx")) === q.c) {
+                            btns[i].classList.add("correct");
+                        }
+                    }
+                    playersRef.child(playerId).update({ answered: true });
+                }
+                
+                if (isHost) {
+                    setTimeout(function() {
+                        if (currentQ + 1 >= gameQuestions.length) {
+                            gameRef.update({ status: "finished" });
+                        } else {
+                            playersRef.once("value", function(s) {
+                                s.forEach(function(c) {
+                                    playersRef.child(c.key).update({ answered: false });
+                                });
+                                gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
+                            });
+                        }
+                    }, 2000);
+                }
+            }
+        }
+        tick();
+        timerInt = setInterval(tick, 100);
+    }
+    
+    function showResults() {
+        if (timerInt) clearInterval(timerInt);
+        showScreen("result-screen");
+        
+        var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+        var myRank = -1;
+        for (var i = 0; i < sorted.length; i++) {
+            if (sorted[i].id === playerId) { myRank = i + 1; break; }
+        }
+        
+        var icon = myRank === 1 ? "🥇" : myRank === 2 ? "🥈" : myRank === 3 ? "🥉" : "🏁";
+        document.getElementById("result-icon").textContent = icon;
+        document.getElementById("result-title").textContent = myRank === 1 ? "Du hast gewonnen!" : "Platz " + myRank + "!";
+        
+        var podium = document.getElementById("podium");
+        podium.innerHTML = "";
+        
+        var medals = ["🥇", "🥈", "🥉"];
+        var classes = ["first", "second", "third"];
+        
+        for (var i = 0; i < Math.min(3, sorted.length); i++) {
+            var p = sorted[i];
+            var place = document.createElement("div");
+            place.className = "podium-place " + classes[i];
+            place.innerHTML = '<div class="podium-medal">' + medals[i] + '</div>' +
+                '<div class="podium-name">' + p.name + '</div>' +
+                '<div class="podium-score">⭐ ' + p.score + '</div>';
+            podium.appendChild(place);
+        }
+    }
+    
+    function backToHome() {
+        if (timerInt) clearInterval(timerInt);
+        if (gameRef) gameRef.off();
+        if (playersRef) {
+            playersRef.off();
+            if (playerId) playersRef.child(playerId).remove();
+        }
+        gameCode = null;
+        playerId = null;
+        isHost = false;
+        myScore = 0;
+        currentQ = -1;
+        showScreen("login-screen");
+        document.getElementById("game-code").value = "";
+    }
+    
+    window.onload = init;
+    </script>
+    <script data-goatcounter="https://aguitoo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

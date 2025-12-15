@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔀 Wortsalat-Battle</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#ff6b6b 0%,#feca57 100%);min-height:100vh;color:#fff}
+        .container{max-width:900px;margin:0 auto;padding:15px}
+        h1{text-align:center;font-size:1.5em;margin-bottom:15px}
+        .screen{display:none}.screen.active{display:block}
+        
+        #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;gap:15px}
+        .logo{font-size:4em;margin-bottom:10px}
+        #login-screen h2{font-size:1.2em;color:#2d3436;text-align:center}
+        .difficulty-select{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;justify-content:center}
+        .diff-btn{padding:15px 25px;border:3px solid rgba(0,0,0,0.2);border-radius:15px;background:rgba(255,255,255,0.2);color:#2d3436;font-size:1em;font-weight:700;cursor:pointer;transition:all 0.3s}
+        .diff-btn:hover,.diff-btn.selected{transform:scale(1.05)}
+        .diff-btn.einfach{border-color:#00b894}.diff-btn.einfach.selected{background:#00b894;color:#fff}
+        .diff-btn.mittel{border-color:#e17055}.diff-btn.mittel.selected{background:#e17055;color:#fff}
+        .diff-btn.schwer{border-color:#d63031}.diff-btn.schwer.selected{background:#d63031;color:#fff}
+        .input-group{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+        .input-group input,.input-group select{font-size:1.1em;padding:12px 20px;border:2px solid #2d3436;border-radius:25px;text-align:center;background:rgba(255,255,255,0.9);color:#2d3436}
+        .input-group input.code-input{font-size:1.4em;letter-spacing:8px;text-transform:uppercase}
+        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:#2d3436;color:#fff;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+        .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #2d3436;border-radius:25px;background:transparent;color:#2d3436;cursor:pointer;width:100%;max-width:300px}
+        .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(0,0,0,0.3)}
+        .error-msg{color:#d63031;font-size:0.9em;margin-top:10px}
+        
+        #lobby-screen{text-align:center}
+        .lobby-box{background:rgba(255,255,255,0.2);border-radius:20px;padding:25px;margin:20px 0}
+        .lobby-code{font-size:2.5em;color:#2d3436;letter-spacing:10px;margin:10px 0}
+        .diff-badge{display:inline-block;padding:8px 20px;border-radius:20px;font-weight:700;margin:10px 0;color:#fff}
+        .diff-badge.einfach{background:#00b894}.diff-badge.mittel{background:#e17055}.diff-badge.schwer{background:#d63031}
+        
+        .teams-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:20px 0}
+        @media(max-width:500px){.teams-grid{grid-template-columns:1fr}}
+        .team-box{background:rgba(255,255,255,0.15);border-radius:15px;padding:15px;border:3px solid rgba(0,0,0,0.1)}
+        .team-box h3{margin-bottom:10px}
+        .team-box.mond{border-color:#9c88ff}.team-box.sonne{border-color:#ffb142}.team-box.stern{border-color:#ff6b81}.team-box.ozean{border-color:#22a6b3}
+        .team-players{min-height:40px;display:flex;flex-wrap:wrap;gap:5px}
+        .team-player{padding:5px 10px;background:rgba(0,0,0,0.1);border-radius:10px;font-size:0.85em;color:#2d3436}
+        
+        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:#2d3436;color:#fff;font-weight:700;cursor:pointer;margin:15px 0}
+        .start-game-btn:disabled{opacity:0.5;cursor:not-allowed}
+        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(0,0,0,0.3);border-radius:15px;background:transparent;color:#2d3436;cursor:pointer;margin:5px}
+        .small-btn.danger{border-color:#d63031;color:#d63031}
+        
+        .scoreboard{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}
+        @media(max-width:600px){.scoreboard{grid-template-columns:1fr 1fr}}
+        .team-score{padding:12px;border-radius:12px;text-align:center;color:#fff}
+        .team-score.mond{background:rgba(156,136,255,0.8)}.team-score.sonne{background:rgba(255,177,66,0.8)}
+        .team-score.stern{background:rgba(255,107,129,0.8)}.team-score.ozean{background:rgba(34,166,179,0.8)}
+        .team-score .emoji{font-size:1.5em}.team-score .points{font-size:1.3em;font-weight:700}
+        
+        .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.2);border-radius:15px;flex-wrap:wrap;gap:10px}
+        .timer{font-size:2em;font-weight:700;color:#2d3436}.timer.warning{color:#e17055}.timer.danger{color:#d63031;animation:pulse 0.5s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+        
+        .quiz-section{background:rgba(255,255,255,0.15);border:2px solid rgba(0,0,0,0.1);border-radius:20px;padding:20px;margin-bottom:15px}
+        .instruction{font-size:1em;color:#2d3436;margin-bottom:15px;font-weight:600}
+        
+        .sentence-area{min-height:60px;padding:15px;border:3px dashed rgba(0,0,0,0.3);border-radius:15px;margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;background:rgba(255,255,255,0.3)}
+        .word-bank{display:flex;flex-wrap:wrap;gap:8px;padding:15px;background:rgba(0,0,0,0.1);border-radius:15px}
+        .word-chip{padding:10px 18px;background:#2d3436;color:#fff;border-radius:25px;cursor:pointer;font-size:1em;font-weight:600;transition:all 0.2s}
+        .word-chip:hover{transform:scale(1.05)}
+        .word-chip.in-sentence{background:#00b894}
+        .word-chip.used{opacity:0.3;cursor:not-allowed}
+        
+        .answer-status{text-align:center;padding:12px;margin-top:15px;border-radius:10px;font-weight:700}
+        .answer-status.hidden{display:none!important}
+        .answer-status.waiting{background:rgba(108,92,231,0.3);color:#6c5ce7}
+        .answer-status.correct{background:rgba(0,184,148,0.3);color:#00b894}
+        .answer-status.wrong{background:rgba(214,48,49,0.3);color:#d63031}
+        
+        #gameover-screen{text-align:center;padding:30px 20px}
+        .result-icon{font-size:5em;margin-bottom:15px}
+        .final-scores{background:rgba(255,255,255,0.2);border-radius:15px;padding:20px;margin-bottom:20px}
+        .final-team{display:flex;justify-content:space-between;align-items:center;padding:12px;margin-bottom:8px;border-radius:10px;color:#2d3436}
+        .final-team.winner{background:rgba(255,215,0,0.4);border:2px solid #ffd700}
+        
+        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.5);color:#fff}
+        .connection-status.connected{color:#00b894}
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connection-status">Verbinde...</div>
+    <div class="container">
+        <h1>🔀 Wortsalat-Battle</h1>
+        
+        <div id="login-screen" class="screen active">
+            <div class="logo">🔀</div>
+            <h2>Ordne die Wörter!<br><small style="color:#666">4 Teams kämpfen um den Sieg</small></h2>
+            <div class="difficulty-select">
+                <button class="diff-btn einfach" data-diff="einfach">🟢 Einfach</button>
+                <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
+                <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="player-name" placeholder="Dein Name" maxlength="15">
+                <select id="team-select">
+                    <option value="">-- Team wählen --</option>
+                    <option value="mond">🌙 Expedition Mond</option>
+                    <option value="sonne">☀️ Expedition Sonne</option>
+                    <option value="stern">⭐ Expedition Stern</option>
+                    <option value="ozean">🌊 Expedition Ozean</option>
+                </select>
+                <input type="text" id="game-code" class="code-input" placeholder="CODE" maxlength="4">
+            </div>
+            <button class="btn-primary" id="join-btn">🚪 Beitreten</button>
+            <div class="divider"><span>oder</span></div>
+            <button class="btn-secondary" id="create-btn">👑 Neues Spiel erstellen</button>
+            <div class="error-msg" id="error-msg"></div>
+        </div>
+        
+        <div id="lobby-screen" class="screen">
+            <div class="lobby-box">
+                <h2>⏳ Warteraum</h2>
+                <div class="lobby-code" id="lobby-code">CODE</div>
+                <div class="diff-badge" id="diff-badge">Einfach</div>
+                <div class="teams-grid">
+                    <div class="team-box mond"><h3>🌙 Mond</h3><div class="team-players" id="team-mond"></div></div>
+                    <div class="team-box sonne"><h3>☀️ Sonne</h3><div class="team-players" id="team-sonne"></div></div>
+                    <div class="team-box stern"><h3>⭐ Stern</h3><div class="team-players" id="team-stern"></div></div>
+                    <div class="team-box ozean"><h3>🌊 Ozean</h3><div class="team-players" id="team-ozean"></div></div>
+                </div>
+                <div id="host-controls">
+                    <button class="start-game-btn" id="start-btn" disabled>▶️ START</button>
+                    <p style="color:#2d3436;font-size:0.85em">👑 Du bist der Spielleiter</p>
+                    <button class="small-btn danger" id="reset-btn">🔄 Zurücksetzen</button>
+                </div>
+                <div id="player-controls" style="display:none">
+                    <p style="color:#2d3436">⏳ Warte auf Spielleiter...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-screen" class="screen">
+            <div class="scoreboard">
+                <div class="team-score mond"><div class="emoji">🌙</div><div class="points" id="score-mond">0</div></div>
+                <div class="team-score sonne"><div class="emoji">☀️</div><div class="points" id="score-sonne">0</div></div>
+                <div class="team-score stern"><div class="emoji">⭐</div><div class="points" id="score-stern">0</div></div>
+                <div class="team-score ozean"><div class="emoji">🌊</div><div class="points" id="score-ozean">0</div></div>
+            </div>
+            <div class="game-header">
+                <div id="question-num">1/15</div>
+                <div class="timer" id="timer">20</div>
+                <div id="my-team"></div>
+            </div>
+            <div class="quiz-section">
+                <div class="instruction">Ordne die Wörter zum richtigen Satz:</div>
+                <div class="sentence-area" id="sentence-area"></div>
+                <div class="word-bank" id="word-bank"></div>
+                <button class="btn-primary" id="submit-btn" style="margin-top:15px;width:100%">✓ Antwort senden</button>
+                <div class="answer-status hidden" id="answer-status"></div>
+            </div>
+        </div>
+        
+        <div id="gameover-screen" class="screen">
+            <div class="result-icon" id="result-icon">🏆</div>
+            <h2 id="result-title" style="color:#2d3436">Spiel beendet!</h2>
+            <div class="final-scores" id="final-scores"></div>
+            <button class="btn-primary" id="back-btn">🏠 Zurück</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        firebase.initializeApp({
+            apiKey: "AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",
+            authDomain: "lern-deutsch-arash.firebaseapp.com",
+            databaseURL: "https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "lern-deutsch-arash"
+        });
+        const db = firebase.database();
+        
+        const sentences = {
+            einfach: [
+                {words:["Ich","arbeite","in","einem","Büro"],answer:"Ich arbeite in einem Büro"},
+                {words:["Mein","Chef","ist","sehr","nett"],answer:"Mein Chef ist sehr nett"},
+                {words:["Die","Arbeit","beginnt","um","acht","Uhr"],answer:"Die Arbeit beginnt um acht Uhr"},
+                {words:["Wenn","du","Hilfe","brauchst","frag","mich"],answer:"Wenn du Hilfe brauchst frag mich"},
+                {words:["Ich","gebe","dir","das","Buch"],answer:"Ich gebe dir das Buch"},
+                {words:["Er","zeigt","uns","die","Fotos"],answer:"Er zeigt uns die Fotos"},
+                {words:["Sie","schenkt","ihm","eine","Uhr"],answer:"Sie schenkt ihm eine Uhr"},
+                {words:["Wir","kaufen","den","Kindern","Eis"],answer:"Wir kaufen den Kindern Eis"},
+                {words:["Tom","bringt","ihr","den","Kuchen"],answer:"Tom bringt ihr den Kuchen"},
+                {words:["Ich","kaufe","meiner","Mutter","Blumen"],answer:"Ich kaufe meiner Mutter Blumen"},
+                {words:["Wenn","ich","krank","bin","bleibe","ich","zu","Hause"],answer:"Wenn ich krank bin bleibe ich zu Hause"},
+                {words:["Wenn","er","kommt","sag","mir","Bescheid"],answer:"Wenn er kommt sag mir Bescheid"},
+                {words:["Er","gibt","mir","das","Geld"],answer:"Er gibt mir das Geld"},
+                {words:["Sie","zeigt","dir","den","Weg"],answer:"Sie zeigt dir den Weg"},
+                {words:["Wir","schreiben","euch","eine","Nachricht"],answer:"Wir schreiben euch eine Nachricht"}
+            ],
+            mittel: [
+                {words:["Wir","könnten","ins","Kino","gehen"],answer:"Wir könnten ins Kino gehen"},
+                {words:["Du","solltest","mehr","schlafen"],answer:"Du solltest mehr schlafen"},
+                {words:["Ich","würde","lieber","Pizza","essen"],answer:"Ich würde lieber Pizza essen"},
+                {words:["Sie","könnten","zusammen","lernen"],answer:"Sie könnten zusammen lernen"},
+                {words:["Er","sollte","den","Arzt","besuchen"],answer:"Er sollte den Arzt besuchen"},
+                {words:["Die","Eltern","schenken","dem","Paar","eine","Reise"],answer:"Die Eltern schenken dem Paar eine Reise"},
+                {words:["Der","Bruder","kauft","der","Braut","einen","Ring"],answer:"Der Bruder kauft der Braut einen Ring"},
+                {words:["Ich","zeige","dir","meine","Liebe"],answer:"Ich zeige dir meine Liebe"},
+                {words:["Die","Gäste","bringen","dem","Paar","Geschenke"],answer:"Die Gäste bringen dem Paar Geschenke"},
+                {words:["Die","Großmutter","gibt","Lisa","ihren","Schmuck"],answer:"Die Großmutter gibt Lisa ihren Schmuck"},
+                {words:["Wir","würden","gern","mitkommen"],answer:"Wir würden gern mitkommen"},
+                {words:["Ihr","könntet","zu","Fuß","gehen"],answer:"Ihr könntet zu Fuß gehen"},
+                {words:["Du","solltest","einen","Tisch","reservieren"],answer:"Du solltest einen Tisch reservieren"},
+                {words:["Wir","schreiben","den","Gästen","Dankeskarten"],answer:"Wir schreiben den Gästen Dankeskarten"},
+                {words:["Der","Koch","bereitet","allen","ein","Menü","vor"],answer:"Der Koch bereitet allen ein Menü vor"}
+            ],
+            schwer: [
+                {words:["Könnten","Sie","bitte","helfen"],answer:"Könnten Sie bitte helfen"},
+                {words:["Ich","würde","gern","früher","beginnen"],answer:"Ich würde gern früher beginnen"},
+                {words:["Das","wäre","sehr","nett"],answer:"Das wäre sehr nett"},
+                {words:["Ich","hätte","eine","Frage"],answer:"Ich hätte eine Frage"},
+                {words:["Wir","wären","gern","dabei","gewesen"],answer:"Wir wären gern dabei gewesen"},
+                {words:["Das","hätte","ich","nicht","gedacht"],answer:"Das hätte ich nicht gedacht"},
+                {words:["Könntest","du","bitte","warten"],answer:"Könntest du bitte warten"},
+                {words:["Ich","wäre","gern","früher","gekommen"],answer:"Ich wäre gern früher gekommen"},
+                {words:["Das","hätte","nicht","passieren","sollen"],answer:"Das hätte nicht passieren sollen"},
+                {words:["Wenn","Sie","Fragen","haben","können","Sie","mich","anrufen"],answer:"Wenn Sie Fragen haben können Sie mich anrufen"},
+                {words:["Es","tut","mir","leid","dass","ich","zu","spät","komme"],answer:"Es tut mir leid dass ich zu spät komme"},
+                {words:["Ich","bedanke","mich","für","Ihre","Hilfe"],answer:"Ich bedanke mich für Ihre Hilfe"},
+                {words:["Würden","Sie","so","freundlich","sein","mir","zu","helfen"],answer:"Würden Sie so freundlich sein mir zu helfen"},
+                {words:["Nachdem","er","die","E-Mail","geschrieben","hat","ruft","er","an"],answer:"Nachdem er die E-Mail geschrieben hat ruft er an"},
+                {words:["Bevor","sie","nach","Hause","geht","schließt","sie","alle","Fenster"],answer:"Bevor sie nach Hause geht schließt sie alle Fenster"}
+            ]
+        };
+        
+        const teamEmoji = {mond:"🌙",sonne:"☀️",stern:"⭐",ozean:"🌊"};
+        
+        let gameCode, playerId, playerName, playerTeam, isHost = false, difficulty = 'einfach';
+        let currentQ = -1, answered = false, timerInt = null;
+        let gameRef, playersRef, scoresRef, allPlayers = [], teamScores = {mond:0,sonne:0,stern:0,ozean:0};
+        let gameSentences = [], selectedWords = [];
+        
+        function hideStatus() {
+            const st = document.getElementById("answer-status");
+            st.className = "answer-status hidden";
+            st.textContent = "";
+        }
+        
+        db.ref(".info/connected").on("value", s => {
+            const el = document.getElementById("connection-status");
+            el.textContent = s.val() ? "🟢 Online" : "🔴 Offline";
+            el.className = "connection-status " + (s.val() ? "connected" : "disconnected");
+        });
+        
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                difficulty = btn.dataset.diff;
+            };
+        });
+        document.querySelector('.diff-btn.einfach').classList.add('selected');
+        
+        function genCode() {
+            const c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+            return Array(4).fill(0).map(() => c[Math.floor(Math.random() * c.length)]).join('');
+        }
+        
+        function showError(m) {
+            document.getElementById("error-msg").textContent = m;
+            setTimeout(() => document.getElementById("error-msg").textContent = "", 3000);
+        }
+        
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+        
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+        
+        document.getElementById("create-btn").onclick = function() {
+            playerName = document.getElementById("player-name").value.trim();
+            playerTeam = document.getElementById("team-select").value;
+            if (!playerName) { showError("Name eingeben!"); return; }
+            if (!playerTeam) { showError("Team wählen!"); return; }
+            
+            gameCode = genCode();
+            playerId = "host_" + Date.now();
+            isHost = true;
+            gameSentences = shuffle([...sentences[difficulty]]).slice(0, 15);
+            
+            gameRef = db.ref("wortsalat/" + gameCode);
+            playersRef = db.ref("wortsalat/" + gameCode + "/players");
+            scoresRef = db.ref("wortsalat/" + gameCode + "/scores");
+            
+            gameRef.remove().then(() => {
+                return gameRef.set({
+                    status: "lobby",
+                    difficulty: difficulty,
+                    currentQuestion: -1,
+                    questionStart: null,
+                    sentences: gameSentences,
+                    host: playerId
+                });
+            }).then(() => scoresRef.set({mond:0,sonne:0,stern:0,ozean:0}))
+            .then(() => {
+                return playersRef.child(playerId).set({
+                    name: playerName,
+                    team: playerTeam,
+                    isHost: true,
+                    answered: false
+                });
+            }).then(() => {
+                playersRef.child(playerId).onDisconnect().remove();
+                showLobby();
+                setupListeners();
+            });
+        };
+        
+        document.getElementById("join-btn").onclick = function() {
+            playerName = document.getElementById("player-name").value.trim();
+            playerTeam = document.getElementById("team-select").value;
+            gameCode = document.getElementById("game-code").value.trim().toUpperCase();
+            
+            if (!playerName) { showError("Name eingeben!"); return; }
+            if (!playerTeam) { showError("Team wählen!"); return; }
+            if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
+            
+            playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+            isHost = false;
+            
+            gameRef = db.ref("wortsalat/" + gameCode);
+            playersRef = db.ref("wortsalat/" + gameCode + "/players");
+            scoresRef = db.ref("wortsalat/" + gameCode + "/scores");
+            
+            gameRef.once("value").then(s => {
+                if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject(); }
+                if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject(); }
+                
+                difficulty = s.val().difficulty;
+                gameSentences = s.val().sentences;
+                
+                return playersRef.child(playerId).set({
+                    name: playerName,
+                    team: playerTeam,
+                    isHost: false,
+                    answered: false
+                });
+            }).then(() => {
+                playersRef.child(playerId).onDisconnect().remove();
+                showLobby();
+                setupListeners();
+            }).catch(() => {});
+        };
+        
+        document.getElementById("game-code").onkeypress = e => { if (e.key === "Enter") document.getElementById("join-btn").click(); };
+        
+        function showLobby() {
+            showScreen("lobby-screen");
+            document.getElementById("lobby-code").textContent = gameCode;
+            
+            const badge = document.getElementById("diff-badge");
+            badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            badge.className = "diff-badge " + difficulty;
+            
+            document.getElementById("host-controls").style.display = isHost ? "block" : "none";
+            document.getElementById("player-controls").style.display = isHost ? "none" : "block";
+        }
+        
+        function setupListeners() {
+            playersRef.on("value", snap => {
+                const players = [];
+                snap.forEach(c => {
+                    const d = c.val();
+                    if (d && d.name) players.push({ id: c.key, ...d });
+                });
+                allPlayers = players;
+                updatePlayers(players);
+            });
+            
+            scoresRef.on("value", snap => {
+                const s = snap.val();
+                if (s) { teamScores = s; updateScores(); }
+            });
+            
+            gameRef.on("value", snap => {
+                const game = snap.val();
+                if (!game) { backToHome(); return; }
+                
+                if (game.status === "playing") {
+                    showScreen("game-screen");
+                    if (game.currentQuestion !== currentQ) {
+                        hideStatus();
+                        currentQ = game.currentQuestion;
+                        answered = false;
+                        showQuestion(game.questionStart);
+                    }
+                } else if (game.status === "finished") {
+                    endGame();
+                }
+            });
+        }
+        
+        function updatePlayers(players) {
+            ["mond","sonne","stern","ozean"].forEach(t => {
+                document.getElementById("team-" + t).innerHTML = 
+                    players.filter(p => p.team === t).map(p => 
+                        `<div class="team-player">${p.name}${p.isHost ? ' 👑' : ''}</div>`
+                    ).join("") || '<span style="color:#666;font-size:0.8em">Leer</span>';
+            });
+            document.getElementById("start-btn").disabled = players.filter(p => !p.isHost).length === 0;
+        }
+        
+        function updateScores() {
+            ["mond","sonne","stern","ozean"].forEach(t => {
+                document.getElementById("score-" + t).textContent = teamScores[t] || 0;
+            });
+        }
+        
+        document.getElementById("start-btn").onclick = function() {
+            if (!isHost) return;
+            playersRef.once("value", s => {
+                s.forEach(c => playersRef.child(c.key).update({ answered: false }));
+                gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
+            });
+        };
+        
+        document.getElementById("reset-btn").onclick = function() {
+            if (!confirm("Zurücksetzen?")) return;
+            gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
+            scoresRef.set({mond:0,sonne:0,stern:0,ozean:0});
+            playersRef.once("value", s => s.forEach(c => playersRef.child(c.key).update({ answered: false })));
+            currentQ = -1;
+            hideStatus();
+            showScreen("lobby-screen");
+        };
+        
+        function showQuestion(startTime) {
+            if (currentQ >= gameSentences.length) {
+                gameRef.update({ status: "finished" });
+                return;
+            }
+            
+            answered = false;
+            selectedWords = [];
+            playersRef.child(playerId).update({ answered: false });
+            
+            const sentence = gameSentences[currentQ];
+            document.getElementById("question-num").textContent = `${currentQ + 1}/${gameSentences.length}`;
+            document.getElementById("my-team").textContent = teamEmoji[playerTeam];
+            
+            // Shuffle words
+            const shuffledWords = shuffle([...sentence.words]);
+            
+            const sentenceArea = document.getElementById("sentence-area");
+            const wordBank = document.getElementById("word-bank");
+            
+            sentenceArea.innerHTML = "";
+            wordBank.innerHTML = "";
+            
+            shuffledWords.forEach((word, idx) => {
+                const chip = document.createElement("span");
+                chip.className = "word-chip";
+                chip.textContent = word;
+                chip.dataset.idx = idx;
+                chip.dataset.word = word;
+                chip.onclick = () => toggleWord(chip);
+                wordBank.appendChild(chip);
+            });
+            
+            document.getElementById("submit-btn").disabled = false;
+            startTimer(startTime);
+        }
+        
+        function toggleWord(chip) {
+            if (answered) return;
+            
+            const word = chip.dataset.word;
+            
+            if (chip.classList.contains("used")) {
+                // Remove from sentence
+                chip.classList.remove("used");
+                selectedWords = selectedWords.filter(w => w !== word);
+            } else {
+                // Add to sentence
+                chip.classList.add("used");
+                selectedWords.push(word);
+            }
+            
+            renderSentence();
+        }
+        
+        function renderSentence() {
+            const area = document.getElementById("sentence-area");
+            area.innerHTML = selectedWords.map(w => 
+                `<span class="word-chip in-sentence" onclick="removeWord('${w}')">${w}</span>`
+            ).join("");
+        }
+        
+        window.removeWord = function(word) {
+            if (answered) return;
+            selectedWords = selectedWords.filter(w => w !== word);
+            
+            document.querySelectorAll("#word-bank .word-chip").forEach(chip => {
+                if (chip.dataset.word === word) {
+                    chip.classList.remove("used");
+                }
+            });
+            
+            renderSentence();
+        };
+        
+        document.getElementById("submit-btn").onclick = function() {
+            if (answered) return;
+            answered = true;
+            
+            const sentence = gameSentences[currentQ];
+            const userAnswer = selectedWords.join(" ");
+            const isCorrect = userAnswer === sentence.answer;
+            
+            const st = document.getElementById("answer-status");
+            document.getElementById("submit-btn").disabled = true;
+            
+            if (isCorrect) {
+                st.className = "answer-status correct";
+                st.textContent = "✅ Richtig! +1 für " + teamEmoji[playerTeam];
+                scoresRef.child(playerTeam).transaction(v => (v || 0) + 1);
+            } else {
+                st.className = "answer-status wrong";
+                st.textContent = "❌ Falsch! Richtig: " + sentence.answer;
+            }
+            
+            playersRef.child(playerId).update({ answered: true });
+        };
+        
+        function startTimer(startTime) {
+            if (timerInt) clearInterval(timerInt);
+            const el = document.getElementById("timer");
+            
+            function tick() {
+                const rem = Math.max(0, 20 - Math.floor((Date.now() - startTime) / 1000));
+                el.textContent = rem;
+                el.className = "timer" + (rem <= 5 ? " danger" : rem <= 10 ? " warning" : "");
+                
+                if (rem === 0) {
+                    clearInterval(timerInt);
+                    
+                    if (!answered) {
+                        answered = true;
+                        const sentence = gameSentences[currentQ];
+                        const st = document.getElementById("answer-status");
+                        st.className = "answer-status wrong";
+                        st.textContent = "⏰ Zeit! Richtig: " + sentence.answer;
+                        document.getElementById("submit-btn").disabled = true;
+                        playersRef.child(playerId).update({ answered: true });
+                    }
+                    
+                    if (isHost) {
+                        setTimeout(() => {
+                            playersRef.once("value", s => {
+                                s.forEach(c => playersRef.child(c.key).update({ answered: false }));
+                                if (currentQ + 1 >= gameSentences.length) {
+                                    gameRef.update({ status: "finished" });
+                                } else {
+                                    gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
+                                }
+                            });
+                        }, 3000);
+                    }
+                }
+            }
+            tick();
+            timerInt = setInterval(tick, 200);
+        }
+        
+        function endGame() {
+            if (timerInt) clearInterval(timerInt);
+            showScreen("gameover-screen");
+            
+            const sorted = Object.entries(teamScores).sort((a, b) => b[1] - a[1]);
+            const winner = sorted[0];
+            
+            document.getElementById("result-icon").textContent = teamEmoji[winner[0]];
+            document.getElementById("result-title").textContent = `${teamEmoji[winner[0]]} gewinnt mit ${winner[1]} Punkten!`;
+            
+            document.getElementById("final-scores").innerHTML = sorted.map((t, i) => 
+                `<div class="final-team ${i === 0 ? 'winner' : ''}">
+                    <span>${teamEmoji[t[0]]} ${t[0].charAt(0).toUpperCase() + t[0].slice(1)}</span>
+                    <span style="font-size:1.3em;font-weight:700">${t[1]}</span>
+                </div>`
+            ).join("");
+        }
+        
+        document.getElementById("back-btn").onclick = backToHome;
+        
+        function backToHome() {
+            if (timerInt) clearInterval(timerInt);
+            if (gameRef) gameRef.off();
+            if (playersRef) {
+                playersRef.off();
+                if (playerId) playersRef.child(playerId).remove();
+            }
+            if (scoresRef) scoresRef.off();
+            gameCode = playerId = null;
+            isHost = false;
+            currentQ = -1;
+            teamScores = {mond:0,sonne:0,stern:0,ozean:0};
+            hideStatus();
+            showScreen("login-screen");
+            document.getElementById("game-code").value = "";
+            document.getElementById("team-select").value = "";
+        }
+    });
+    </script>
+    <script data-goatcounter="https://aguitoo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
