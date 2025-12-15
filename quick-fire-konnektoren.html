@@ -28,7 +28,7 @@
         .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #fff;border-radius:25px;background:transparent;color:#fff;cursor:pointer;width:100%;max-width:300px}
         .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
         .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.5)}
-        .error-msg{color:#2d3436;background:rgba(255,255,255,0.9);padding:8px 15px;border-radius:10px;font-size:0.9em;margin-top:10px}
+        .error-msg{color:#2d3436;background:rgba(255,255,255,0.9);padding:8px 15px;border-radius:10px;font-size:0.9em;margin-top:10px;display:none}
         
         #lobby-screen{text-align:center}
         .lobby-box{background:rgba(255,255,255,0.15);border-radius:20px;padding:25px;margin:20px 0}
@@ -90,7 +90,7 @@
             <div class="logo">🎯</div>
             <h2>Blitzschnell!<br><small style="opacity:0.8">Nur 5 Sekunden pro Frage!</small></h2>
             <div class="difficulty-select">
-                <button class="diff-btn einfach" data-diff="einfach">🟢 Einfach</button>
+                <button class="diff-btn einfach selected" data-diff="einfach">🟢 Einfach</button>
                 <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
                 <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
             </div>
@@ -101,14 +101,14 @@
             <button class="btn-primary" id="join-btn">🚪 Beitreten</button>
             <div class="divider"><span>oder</span></div>
             <button class="btn-secondary" id="create-btn">👑 Neues Spiel erstellen</button>
-            <div class="error-msg" id="error-msg" style="display:none"></div>
+            <div class="error-msg" id="error-msg"></div>
         </div>
         
         <div id="lobby-screen" class="screen">
             <div class="lobby-box">
                 <h2>⏳ Warteraum</h2>
                 <div class="lobby-code" id="lobby-code">CODE</div>
-                <div class="diff-badge" id="diff-badge">Einfach</div>
+                <div class="diff-badge einfach" id="diff-badge">Einfach</div>
                 <p style="opacity:0.8;font-size:0.9em">⚡ 5 Sekunden • 20 Fragen • Schnelligkeit zählt!</p>
                 <div class="waiting-players" id="waiting-players"></div>
                 <div id="host-controls">
@@ -150,422 +150,494 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
-    (function() {
-        var firebaseConfig = {
+    var db, gameRef, playersRef;
+    var gameCode, playerId, playerName, isHost, difficulty;
+    var currentQ, myScore, answered, timerInt;
+    var allPlayers, gameQuestions;
+    
+    var questions = {
+        einfach: [
+            {cat:"dass",q:"Ich hoffe, ___ du kommst.",a:["dass","das","weil","denn"],c:0},
+            {cat:"dass",q:"Er sagt, ___ er müde ist.",a:["dass","das","weil","wenn"],c:0},
+            {cat:"dass",q:"Ich weiß, ___ du recht hast.",a:["dass","das","ob","wenn"],c:0},
+            {cat:"dass",q:"Sie glaubt, ___ es regnet.",a:["dass","das","weil","denn"],c:0},
+            {cat:"weil",q:"Ich bleibe, ___ ich krank bin.",a:["weil","dass","denn","trotzdem"],c:0},
+            {cat:"weil",q:"Er lernt, ___ er die Prüfung hat.",a:["weil","dass","denn","obwohl"],c:0},
+            {cat:"weil",q:"Sie weint, ___ sie traurig ist.",a:["weil","dass","denn","wenn"],c:0},
+            {cat:"denn",q:"Ich gehe nicht raus, ___ es regnet.",a:["denn","weil","dass","trotzdem"],c:0},
+            {cat:"denn",q:"Er ist müde, ___ er hat nicht geschlafen.",a:["denn","weil","dass","obwohl"],c:0},
+            {cat:"denn",q:"Sie lacht, ___ sie ist glücklich.",a:["denn","weil","dass","wenn"],c:0},
+            {cat:"wenn",q:"___ du Zeit hast, ruf mich an.",a:["Wenn","Wann","Als","Ob"],c:0},
+            {cat:"wenn",q:"___ es regnet, nehme ich einen Schirm.",a:["Wenn","Wann","Als","Weil"],c:0},
+            {cat:"wenn",q:"___ du kommst, bin ich froh.",a:["Wenn","Wann","Als","Dass"],c:0},
+            {cat:"trotzdem",q:"Es regnet. ___ gehe ich spazieren.",a:["Trotzdem","Weil","Dass","Denn"],c:0},
+            {cat:"trotzdem",q:"Er ist krank. ___ geht er arbeiten.",a:["Trotzdem","Weil","Dass","Wenn"],c:0},
+            {cat:"trotzdem",q:"Ich bin müde. ___ lerne ich weiter.",a:["Trotzdem","Weil","Denn","Dass"],c:0},
+            {cat:"dass",q:"Ich denke, ___ es richtig ist.",a:["dass","das","weil","denn"],c:0},
+            {cat:"weil",q:"Ich esse nichts, ___ ich keinen Hunger habe.",a:["weil","dass","denn","trotzdem"],c:0},
+            {cat:"wenn",q:"___ ich reich wäre, würde ich reisen.",a:["Wenn","Wann","Als","Weil"],c:0},
+            {cat:"denn",q:"Ich helfe dir, ___ du bist mein Freund.",a:["denn","weil","dass","wenn"],c:0}
+        ],
+        mittel: [
+            {cat:"obwohl",q:"___ er krank ist, geht er arbeiten.",a:["Obwohl","Weil","Wenn","Trotzdem"],c:0},
+            {cat:"obwohl",q:"Sie lacht, ___ sie traurig ist.",a:["obwohl","weil","wenn","denn"],c:0},
+            {cat:"obwohl",q:"___ es regnet, gehen wir raus.",a:["Obwohl","Weil","Wenn","Denn"],c:0},
+            {cat:"damit",q:"Ich lerne, ___ ich die Prüfung bestehe.",a:["damit","weil","dass","denn"],c:0},
+            {cat:"damit",q:"Er spart Geld, ___ er ein Auto kaufen kann.",a:["damit","weil","dass","denn"],c:0},
+            {cat:"damit",q:"Sie spricht langsam, ___ alle verstehen.",a:["damit","weil","dass","wenn"],c:0},
+            {cat:"als",q:"___ ich ein Kind war, spielte ich viel.",a:["Als","Wenn","Weil","Dass"],c:0},
+            {cat:"als",q:"___ er ankam, war es schon dunkel.",a:["Als","Wenn","Weil","Denn"],c:0},
+            {cat:"als",q:"___ wir uns trafen, regnete es.",a:["Als","Wenn","Weil","Dass"],c:0},
+            {cat:"als/wenn",q:"Immer ___ ich ihn sehe, lacht er.",a:["wenn","als","weil","dass"],c:0},
+            {cat:"als/wenn",q:"___ ich gestern kam, war niemand da.",a:["Als","Wenn","Weil","Denn"],c:0},
+            {cat:"deshalb",q:"Ich bin müde. ___ gehe ich schlafen.",a:["Deshalb","Weil","Obwohl","Trotzdem"],c:0},
+            {cat:"deshalb",q:"Er hat Hunger. ___ isst er etwas.",a:["Deshalb","Weil","Obwohl","Damit"],c:0},
+            {cat:"bevor",q:"___ ich gehe, räume ich auf.",a:["Bevor","Nachdem","Weil","Wenn"],c:0},
+            {cat:"bevor",q:"Wasch dir die Hände, ___ du isst.",a:["bevor","nachdem","weil","wenn"],c:0},
+            {cat:"nachdem",q:"___ er gegessen hat, geht er spazieren.",a:["Nachdem","Bevor","Weil","Wenn"],c:0},
+            {cat:"nachdem",q:"___ sie aufgestanden ist, duscht sie.",a:["Nachdem","Bevor","Weil","Wenn"],c:0},
+            {cat:"während",q:"___ ich koche, hört er Musik.",a:["Während","Bevor","Nachdem","Weil"],c:0},
+            {cat:"während",q:"___ sie arbeitet, passt er auf die Kinder auf.",a:["Während","Bevor","Nachdem","Weil"],c:0},
+            {cat:"Mix",q:"Ich bleibe zu Hause, ___ ich bin krank.",a:["denn","weil","obwohl","trotzdem"],c:0}
+        ],
+        schwer: [
+            {cat:"sodass",q:"Er spricht laut, ___ alle ihn hören.",a:["sodass","damit","weil","obwohl"],c:0},
+            {cat:"sodass",q:"Es regnete stark, ___ wir nicht rausgehen konnten.",a:["sodass","damit","weil","obwohl"],c:0},
+            {cat:"falls",q:"___ du Probleme hast, ruf mich an.",a:["Falls","Wenn","Weil","Obwohl"],c:0},
+            {cat:"falls",q:"Nimm einen Schirm mit, ___ es regnet.",a:["falls","wenn","weil","obwohl"],c:0},
+            {cat:"sowohl",q:"Er spricht ___ Deutsch ___ Englisch.",a:["sowohl...als auch","entweder...oder","weder...noch","nicht nur"],c:0},
+            {cat:"weder",q:"Sie trinkt ___ Kaffee ___ Tee.",a:["weder...noch","sowohl...als auch","entweder...oder","nicht nur"],c:0},
+            {cat:"entweder",q:"___ du kommst mit, ___ du bleibst hier.",a:["Entweder...oder","Sowohl...als auch","Weder...noch","Nicht nur"],c:0},
+            {cat:"je...desto",q:"___ mehr ich lerne, ___ besser verstehe ich.",a:["Je...desto","Sowohl...als auch","Weder...noch","Entweder...oder"],c:0},
+            {cat:"je...desto",q:"___ älter er wird, ___ weiser wird er.",a:["Je...desto","Sowohl...als auch","Weder...noch","Entweder...oder"],c:0},
+            {cat:"statt",q:"___ zu arbeiten, geht er spazieren.",a:["Statt","Ohne","Um","Anstatt dass"],c:0},
+            {cat:"ohne",q:"Er ging, ___ sich zu verabschieden.",a:["ohne","statt","um","anstatt"],c:0},
+            {cat:"um...zu",q:"Ich lerne Deutsch, ___ in Deutschland zu arbeiten.",a:["um","ohne","statt","damit"],c:0},
+            {cat:"indem",q:"Man lernt eine Sprache, ___ man viel übt.",a:["indem","damit","sodass","weil"],c:0},
+            {cat:"obgleich",q:"___ es spät ist, arbeitet sie weiter.",a:["Obgleich","Weil","Wenn","Denn"],c:0},
+            {cat:"sofern",q:"___ nichts dazwischenkommt, bin ich um 8 da.",a:["Sofern","Weil","Obwohl","Damit"],c:0},
+            {cat:"zumal",q:"Er sollte Sport machen, ___ er übergewichtig ist.",a:["zumal","obwohl","damit","sodass"],c:0},
+            {cat:"anstatt",q:"___ er mir hilft, sitzt er nur da.",a:["Anstatt dass","Damit","Sodass","Weil"],c:0},
+            {cat:"als ob",q:"Er tut so, ___ er nichts wüsste.",a:["als ob","dass","weil","wenn"],c:0},
+            {cat:"kaum",q:"___ war er angekommen, ___ es zu regnen begann.",a:["Kaum...da","Je...desto","Sowohl...als","Weder...noch"],c:0},
+            {cat:"Mix",q:"___ sie müde war, machte sie ihre Hausaufgaben.",a:["Obwohl","Weil","Damit","Sodass"],c:0}
+        ]
+    };
+    
+    function init() {
+        isHost = false;
+        difficulty = 'einfach';
+        currentQ = -1;
+        myScore = 0;
+        answered = false;
+        timerInt = null;
+        allPlayers = [];
+        gameQuestions = [];
+        
+        firebase.initializeApp({
             apiKey: "AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",
             authDomain: "lern-deutsch-arash.firebaseapp.com",
             databaseURL: "https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "lern-deutsch-arash"
-        };
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
-        
-        var questions = {
-            einfach: [
-                {cat:"dass",q:"Ich hoffe, ___ du kommst.",a:["dass","das","weil","denn"],c:0},
-                {cat:"dass",q:"Er sagt, ___ er müde ist.",a:["dass","das","weil","wenn"],c:0},
-                {cat:"dass",q:"Ich weiß, ___ du recht hast.",a:["dass","das","ob","wenn"],c:0},
-                {cat:"dass",q:"Sie glaubt, ___ es regnet.",a:["dass","das","weil","denn"],c:0},
-                {cat:"weil",q:"Ich bleibe, ___ ich krank bin.",a:["weil","dass","denn","trotzdem"],c:0},
-                {cat:"weil",q:"Er lernt, ___ er die Prüfung hat.",a:["weil","dass","denn","obwohl"],c:0},
-                {cat:"weil",q:"Sie weint, ___ sie traurig ist.",a:["weil","dass","denn","wenn"],c:0},
-                {cat:"denn",q:"Ich gehe nicht raus, ___ es regnet.",a:["denn","weil","dass","trotzdem"],c:0},
-                {cat:"denn",q:"Er ist müde, ___ er hat nicht geschlafen.",a:["denn","weil","dass","obwohl"],c:0},
-                {cat:"denn",q:"Sie lacht, ___ sie ist glücklich.",a:["denn","weil","dass","wenn"],c:0},
-                {cat:"wenn",q:"___ du Zeit hast, ruf mich an.",a:["Wenn","Wann","Als","Ob"],c:0},
-                {cat:"wenn",q:"___ es regnet, nehme ich einen Schirm.",a:["Wenn","Wann","Als","Weil"],c:0},
-                {cat:"wenn",q:"___ du kommst, bin ich froh.",a:["Wenn","Wann","Als","Dass"],c:0},
-                {cat:"trotzdem",q:"Es regnet. ___ gehe ich spazieren.",a:["Trotzdem","Weil","Dass","Denn"],c:0},
-                {cat:"trotzdem",q:"Er ist krank. ___ geht er arbeiten.",a:["Trotzdem","Weil","Dass","Wenn"],c:0},
-                {cat:"trotzdem",q:"Ich bin müde. ___ lerne ich weiter.",a:["Trotzdem","Weil","Denn","Dass"],c:0},
-                {cat:"dass",q:"Ich denke, ___ es richtig ist.",a:["dass","das","weil","denn"],c:0},
-                {cat:"weil",q:"Ich esse nichts, ___ ich keinen Hunger habe.",a:["weil","dass","denn","trotzdem"],c:0},
-                {cat:"wenn",q:"___ ich reich wäre, würde ich reisen.",a:["Wenn","Wann","Als","Weil"],c:0},
-                {cat:"denn",q:"Ich helfe dir, ___ du bist mein Freund.",a:["denn","weil","dass","wenn"],c:0}
-            ],
-            mittel: [
-                {cat:"obwohl",q:"___ er krank ist, geht er arbeiten.",a:["Obwohl","Weil","Wenn","Trotzdem"],c:0},
-                {cat:"obwohl",q:"Sie lacht, ___ sie traurig ist.",a:["obwohl","weil","wenn","denn"],c:0},
-                {cat:"obwohl",q:"___ es regnet, gehen wir raus.",a:["Obwohl","Weil","Wenn","Denn"],c:0},
-                {cat:"damit",q:"Ich lerne, ___ ich die Prüfung bestehe.",a:["damit","weil","dass","denn"],c:0},
-                {cat:"damit",q:"Er spart Geld, ___ er ein Auto kaufen kann.",a:["damit","weil","dass","denn"],c:0},
-                {cat:"damit",q:"Sie spricht langsam, ___ alle verstehen.",a:["damit","weil","dass","wenn"],c:0},
-                {cat:"als",q:"___ ich ein Kind war, spielte ich viel.",a:["Als","Wenn","Weil","Dass"],c:0},
-                {cat:"als",q:"___ er ankam, war es schon dunkel.",a:["Als","Wenn","Weil","Denn"],c:0},
-                {cat:"als",q:"___ wir uns trafen, regnete es.",a:["Als","Wenn","Weil","Dass"],c:0},
-                {cat:"als/wenn",q:"Immer ___ ich ihn sehe, lacht er. (wiederholt)",a:["wenn","als","weil","dass"],c:0},
-                {cat:"als/wenn",q:"___ ich gestern kam, war niemand da. (einmalig)",a:["Als","Wenn","Weil","Denn"],c:0},
-                {cat:"deshalb",q:"Ich bin müde. ___ gehe ich schlafen.",a:["Deshalb","Weil","Obwohl","Trotzdem"],c:0},
-                {cat:"deshalb",q:"Er hat Hunger. ___ isst er etwas.",a:["Deshalb","Weil","Obwohl","Damit"],c:0},
-                {cat:"bevor",q:"___ ich gehe, räume ich auf.",a:["Bevor","Nachdem","Weil","Wenn"],c:0},
-                {cat:"bevor",q:"Wasch dir die Hände, ___ du isst.",a:["bevor","nachdem","weil","wenn"],c:0},
-                {cat:"nachdem",q:"___ er gegessen hat, geht er spazieren.",a:["Nachdem","Bevor","Weil","Wenn"],c:0},
-                {cat:"nachdem",q:"___ sie aufgestanden ist, duscht sie.",a:["Nachdem","Bevor","Weil","Wenn"],c:0},
-                {cat:"während",q:"___ ich koche, hört er Musik.",a:["Während","Bevor","Nachdem","Weil"],c:0},
-                {cat:"während",q:"___ sie arbeitet, passt er auf die Kinder auf.",a:["Während","Bevor","Nachdem","Weil"],c:0},
-                {cat:"Mix",q:"Ich bleibe zu Hause, ___ ich bin krank.",a:["denn","weil","obwohl","trotzdem"],c:0}
-            ],
-            schwer: [
-                {cat:"sodass",q:"Er spricht laut, ___ alle ihn hören.",a:["sodass","damit","weil","obwohl"],c:0},
-                {cat:"sodass",q:"Es regnete stark, ___ wir nicht rausgehen konnten.",a:["sodass","damit","weil","obwohl"],c:0},
-                {cat:"falls",q:"___ du Probleme hast, ruf mich an.",a:["Falls","Wenn","Weil","Obwohl"],c:0},
-                {cat:"falls",q:"Nimm einen Schirm mit, ___ es regnet.",a:["falls","wenn","weil","obwohl"],c:0},
-                {cat:"sowohl...als auch",q:"Er spricht ___ Deutsch ___ Englisch.",a:["sowohl...als auch","entweder...oder","weder...noch","nicht nur...sondern auch"],c:0},
-                {cat:"weder...noch",q:"Sie trinkt ___ Kaffee ___ Tee.",a:["weder...noch","sowohl...als auch","entweder...oder","nicht nur"],c:0},
-                {cat:"entweder...oder",q:"___ du kommst mit, ___ du bleibst hier.",a:["Entweder...oder","Sowohl...als auch","Weder...noch","Nicht nur"],c:0},
-                {cat:"je...desto",q:"___ mehr ich lerne, ___ besser verstehe ich.",a:["Je...desto","Sowohl...als auch","Weder...noch","Entweder...oder"],c:0},
-                {cat:"je...desto",q:"___ älter er wird, ___ weiser wird er.",a:["Je...desto","Sowohl...als auch","Weder...noch","Entweder...oder"],c:0},
-                {cat:"statt...zu",q:"___ zu arbeiten, geht er spazieren.",a:["Statt","Ohne","Um","Anstatt dass"],c:0},
-                {cat:"ohne...zu",q:"Er ging, ___ sich zu verabschieden.",a:["ohne","statt","um","anstatt"],c:0},
-                {cat:"um...zu",q:"Ich lerne Deutsch, ___ in Deutschland zu arbeiten.",a:["um","ohne","statt","damit"],c:0},
-                {cat:"indem",q:"Man lernt eine Sprache, ___ man viel übt.",a:["indem","damit","sodass","weil"],c:0},
-                {cat:"obgleich",q:"___ es spät ist, arbeitet sie weiter.",a:["Obgleich","Weil","Wenn","Denn"],c:0},
-                {cat:"sofern",q:"___ nichts dazwischenkommt, bin ich um 8 da.",a:["Sofern","Weil","Obwohl","Damit"],c:0},
-                {cat:"zumal",q:"Er sollte Sport machen, ___ er übergewichtig ist.",a:["zumal","obwohl","damit","sodass"],c:0},
-                {cat:"anstatt dass",q:"___ er mir hilft, sitzt er nur da.",a:["Anstatt dass","Damit","Sodass","Weil"],c:0},
-                {cat:"als ob",q:"Er tut so, ___ er nichts wüsste.",a:["als ob","dass","weil","wenn"],c:0},
-                {cat:"kaum...da",q:"___ war er angekommen, ___ es zu regnen begann.",a:["Kaum...da","Je...desto","Sowohl...als auch","Weder...noch"],c:0},
-                {cat:"Mix",q:"___ sie müde war, machte sie ihre Hausaufgaben.",a:["Obwohl","Weil","Damit","Sodass"],c:0}
-            ]
-        };
-        
-        var gameCode, playerId, playerName, isHost = false, difficulty = 'einfach';
-        var currentQ = -1, myScore = 0, answered = false, timerInt = null;
-        var gameRef, playersRef, allPlayers = [], gameQuestions = [];
+        });
+        db = firebase.database();
         
         db.ref(".info/connected").on("value", function(s) {
             var el = document.getElementById("connection-status");
-            el.textContent = s.val() ? "🟢 Online" : "🔴 Offline";
-            el.className = "connection-status " + (s.val() ? "connected" : "disconnected");
+            if (s.val()) {
+                el.textContent = "🟢 Online";
+                el.className = "connection-status connected";
+            } else {
+                el.textContent = "🔴 Offline";
+                el.className = "connection-status";
+            }
         });
         
-        document.querySelectorAll('.diff-btn').forEach(function(btn) {
-            btn.onclick = function() {
-                document.querySelectorAll('.diff-btn').forEach(function(b) { b.classList.remove('selected'); });
-                btn.classList.add('selected');
-                difficulty = btn.dataset.diff;
+        setupButtons();
+    }
+    
+    function setupButtons() {
+        var diffBtns = document.querySelectorAll('.diff-btn');
+        for (var i = 0; i < diffBtns.length; i++) {
+            diffBtns[i].onclick = function() {
+                for (var j = 0; j < diffBtns.length; j++) {
+                    diffBtns[j].classList.remove('selected');
+                }
+                this.classList.add('selected');
+                difficulty = this.getAttribute('data-diff');
             };
-        });
-        document.querySelector('.diff-btn.einfach').classList.add('selected');
-        
-        function genCode() {
-            var c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-            var code = "";
-            for (var i = 0; i < 4; i++) code += c[Math.floor(Math.random() * c.length)];
-            return code;
         }
         
-        function showError(m) {
-            var el = document.getElementById("error-msg");
-            el.textContent = m;
-            el.style.display = "block";
-            setTimeout(function() { el.style.display = "none"; }, 3000);
-        }
-        
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
-            document.getElementById(id).classList.add('active');
-        }
-        
-        function shuffle(arr) {
-            for (var i = arr.length - 1; i > 0; i--) {
-                var j = Math.floor(Math.random() * (i + 1));
-                var temp = arr[i]; arr[i] = arr[j]; arr[j] = temp;
-            }
-            return arr;
-        }
-        
-        document.getElementById("create-btn").onclick = function() {
-            playerName = document.getElementById("player-name").value.trim();
-            if (!playerName) { showError("Name eingeben!"); return; }
-            
-            gameCode = genCode();
-            playerId = "host_" + Date.now();
-            isHost = true;
-            gameQuestions = shuffle(questions[difficulty].slice()).slice(0, 20);
-            
-            gameRef = db.ref("quickfire/" + gameCode);
-            playersRef = db.ref("quickfire/" + gameCode + "/players");
-            
-            gameRef.remove().then(function() {
-                return gameRef.set({
-                    status: "lobby",
-                    difficulty: difficulty,
-                    currentQuestion: -1,
-                    questionStart: null,
-                    questions: gameQuestions,
-                    host: playerId
-                });
-            }).then(function() {
-                return playersRef.child(playerId).set({
-                    name: playerName,
-                    score: 0,
-                    isHost: true,
-                    answered: false
-                });
-            }).then(function() {
-                playersRef.child(playerId).onDisconnect().remove();
-                showLobby();
-                setupListeners();
-            });
-        };
-        
-        document.getElementById("join-btn").onclick = function() {
-            playerName = document.getElementById("player-name").value.trim();
-            gameCode = document.getElementById("game-code").value.trim().toUpperCase();
-            
-            if (!playerName) { showError("Name eingeben!"); return; }
-            if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
-            
-            playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
-            isHost = false;
-            
-            gameRef = db.ref("quickfire/" + gameCode);
-            playersRef = db.ref("quickfire/" + gameCode + "/players");
-            
-            gameRef.once("value").then(function(s) {
-                if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject(); }
-                if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject(); }
-                
-                difficulty = s.val().difficulty;
-                gameQuestions = s.val().questions;
-                
-                return playersRef.child(playerId).set({
-                    name: playerName,
-                    score: 0,
-                    isHost: false,
-                    answered: false
-                });
-            }).then(function() {
-                playersRef.child(playerId).onDisconnect().remove();
-                showLobby();
-                setupListeners();
-            }).catch(function() {});
-        };
-        
-        document.getElementById("game-code").onkeypress = function(e) { 
-            if (e.key === "Enter") document.getElementById("join-btn").click(); 
-        };
-        
-        function showLobby() {
-            showScreen("lobby-screen");
-            document.getElementById("lobby-code").textContent = gameCode;
-            
-            var badge = document.getElementById("diff-badge");
-            badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-            badge.className = "diff-badge " + difficulty;
-            
-            document.getElementById("host-controls").style.display = isHost ? "block" : "none";
-            document.getElementById("player-controls").style.display = isHost ? "none" : "block";
-        }
-        
-        function setupListeners() {
-            playersRef.on("value", function(snap) {
-                var players = [];
-                snap.forEach(function(c) {
-                    var d = c.val();
-                    if (d && d.name) {
-                        d.id = c.key;
-                        players.push(d);
-                    }
-                });
-                allPlayers = players;
-                updateLobbyPlayers(players);
-                updateLeaderboard();
-            });
-            
-            gameRef.on("value", function(snap) {
-                var game = snap.val();
-                if (!game) { backToHome(); return; }
-                
-                if (game.status === "playing") {
-                    showScreen("game-screen");
-                    if (game.currentQuestion !== currentQ) {
-                        currentQ = game.currentQuestion;
-                        answered = false;
-                        showQuestion(game.questionStart);
-                    }
-                } else if (game.status === "finished") {
-                    showResults();
-                }
-            });
-        }
-        
-        function updateLobbyPlayers(players) {
-            var w = document.getElementById("waiting-players");
-            if (players.length === 0) {
-                w.innerHTML = '<p style="opacity:0.6">Warte auf Spieler...</p>';
-            } else {
-                w.innerHTML = players.map(function(p) {
-                    return '<div class="waiting-player"><span>' + p.name + (p.isHost ? ' 👑' : '') + '</span></div>';
-                }).join("");
-            }
-            document.getElementById("start-btn").disabled = players.filter(function(p) { return !p.isHost; }).length === 0;
-        }
-        
-        function updateLeaderboard() {
-            var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
-            document.getElementById("live-leaderboard").innerHTML = sorted.map(function(p) {
-                return '<div class="lb-row ' + (p.id === playerId ? 'me' : '') + '">' +
-                    '<span>' + p.name + '</span>' +
-                    '<span>⭐ ' + p.score + '</span>' +
-                '</div>';
-            }).join("");
-        }
-        
-        document.getElementById("start-btn").onclick = function() {
-            if (!isHost) return;
-            playersRef.once("value", function(s) {
-                s.forEach(function(c) { playersRef.child(c.key).update({ answered: false, score: 0 }); });
-                gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
-            });
-        };
-        
-        document.getElementById("reset-btn").onclick = function() {
-            if (!confirm("Zurücksetzen?")) return;
-            gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
-            playersRef.once("value", function(s) {
-                s.forEach(function(c) { playersRef.child(c.key).update({ score: 0, answered: false }); });
-            });
-            myScore = 0;
-            currentQ = -1;
-            showScreen("lobby-screen");
-        };
-        
-        function showQuestion(startTime) {
-            if (currentQ >= gameQuestions.length) {
-                gameRef.update({ status: "finished" });
-                return;
-            }
-            
-            var q = gameQuestions[currentQ];
-            document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameQuestions.length;
-            document.getElementById("category").textContent = q.cat;
-            document.getElementById("question").textContent = q.q;
-            document.getElementById("my-score").textContent = myScore;
-            
-            var idx = [0, 1, 2, 3];
-            shuffle(idx);
-            
-            var ans = document.getElementById("answers");
-            ans.innerHTML = "";
-            idx.forEach(function(origIdx) {
-                var btn = document.createElement("button");
-                btn.className = "answer-btn";
-                btn.textContent = q.a[origIdx];
-                btn.setAttribute("data-orig-idx", origIdx);
-                btn.onclick = function() { selectAnswer(btn, origIdx); };
-                ans.appendChild(btn);
-            });
-            
-            startTimer(startTime);
-        }
-        
-        function selectAnswer(btn, idx) {
-            if (answered) return;
-            answered = true;
-            
-            var q = gameQuestions[currentQ];
-            var isCorrect = idx === q.c;
-            
-            document.querySelectorAll(".answer-btn").forEach(function(b) {
-                b.disabled = true;
-                if (parseInt(b.getAttribute("data-orig-idx")) === q.c) b.classList.add("correct");
-            });
-            
-            if (isCorrect) {
-                var remaining = parseInt(document.getElementById("timer").textContent);
-                var points = Math.max(1, remaining);
-                myScore += points;
-                document.getElementById("my-score").textContent = myScore;
-                playersRef.child(playerId).update({ score: myScore, answered: true });
-            } else {
-                btn.classList.add("wrong");
-                playersRef.child(playerId).update({ answered: true });
-            }
-        }
-        
-        function startTimer(startTime) {
-            if (timerInt) clearInterval(timerInt);
-            var el = document.getElementById("timer");
-            
-            function tick() {
-                var rem = Math.max(0, 5 - Math.floor((Date.now() - startTime) / 1000));
-                el.textContent = rem;
-                el.className = "timer" + (rem <= 1 ? " danger" : rem <= 2 ? " warning" : "");
-                
-                if (rem === 0) {
-                    clearInterval(timerInt);
-                    if (!answered) {
-                        answered = true;
-                        var q = gameQuestions[currentQ];
-                        document.querySelectorAll(".answer-btn").forEach(function(b) {
-                            b.disabled = true;
-                            if (parseInt(b.getAttribute("data-orig-idx")) === q.c) b.classList.add("correct");
-                        });
-                        playersRef.child(playerId).update({ answered: true });
-                    }
-                    
-                    if (isHost) {
-                        setTimeout(function() {
-                            if (currentQ + 1 >= gameQuestions.length) {
-                                gameRef.update({ status: "finished" });
-                            } else {
-                                playersRef.once("value", function(s) {
-                                    s.forEach(function(c) { playersRef.child(c.key).update({ answered: false }); });
-                                    gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
-                                });
-                            }
-                        }, 1500);
-                    }
-                }
-            }
-            tick();
-            timerInt = setInterval(tick, 100);
-        }
-        
-        function showResults() {
-            if (timerInt) clearInterval(timerInt);
-            showScreen("result-screen");
-            
-            var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
-            var myRank = sorted.findIndex(function(p) { return p.id === playerId; }) + 1;
-            
-            document.getElementById("result-icon").textContent = myRank === 1 ? "🥇" : myRank === 2 ? "🥈" : myRank === 3 ? "🥉" : "🏁";
-            document.getElementById("result-title").textContent = myRank === 1 ? "Du hast gewonnen!" : "Platz " + myRank + "!";
-            
-            var podium = document.getElementById("podium");
-            podium.innerHTML = "";
-            
-            for (var i = 0; i < Math.min(3, sorted.length); i++) {
-                var p = sorted[i];
-                var place = document.createElement("div");
-                place.className = "podium-place " + (i === 0 ? 'first' : i === 1 ? 'second' : 'third');
-                place.innerHTML = '<div class="podium-medal">' + (i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉') + '</div>' +
-                    '<div class="podium-name">' + p.name + '</div>' +
-                    '<div class="podium-score">⭐ ' + p.score + '</div>';
-                podium.appendChild(place);
-            }
-        }
-        
+        document.getElementById("create-btn").onclick = createGame;
+        document.getElementById("join-btn").onclick = joinGame;
+        document.getElementById("start-btn").onclick = startGame;
+        document.getElementById("reset-btn").onclick = resetGame;
         document.getElementById("back-btn").onclick = backToHome;
         
-        function backToHome() {
-            if (timerInt) clearInterval(timerInt);
-            if (gameRef) gameRef.off();
-            if (playersRef) {
-                playersRef.off();
-                if (playerId) playersRef.child(playerId).remove();
-            }
-            gameCode = null;
-            playerId = null;
-            isHost = false;
-            myScore = 0;
-            currentQ = -1;
-            showScreen("login-screen");
-            document.getElementById("game-code").value = "";
+        document.getElementById("game-code").onkeypress = function(e) {
+            if (e.key === "Enter") joinGame();
+        };
+    }
+    
+    function genCode() {
+        var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        var code = "";
+        for (var i = 0; i < 4; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-    })();
+        return code;
+    }
+    
+    function showError(msg) {
+        var el = document.getElementById("error-msg");
+        el.textContent = msg;
+        el.style.display = "block";
+        setTimeout(function() { el.style.display = "none"; }, 3000);
+    }
+    
+    function showScreen(id) {
+        var screens = document.querySelectorAll('.screen');
+        for (var i = 0; i < screens.length; i++) {
+            screens[i].classList.remove('active');
+        }
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function shuffle(arr) {
+        var newArr = arr.slice();
+        for (var i = newArr.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = newArr[i];
+            newArr[i] = newArr[j];
+            newArr[j] = temp;
+        }
+        return newArr;
+    }
+    
+    function createGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        if (!playerName) { showError("Name eingeben!"); return; }
+        
+        gameCode = genCode();
+        playerId = "host_" + Date.now();
+        isHost = true;
+        gameQuestions = shuffle(questions[difficulty]).slice(0, 20);
+        
+        gameRef = db.ref("quickfire2/" + gameCode);
+        playersRef = db.ref("quickfire2/" + gameCode + "/players");
+        
+        gameRef.remove().then(function() {
+            return gameRef.set({
+                status: "lobby",
+                difficulty: difficulty,
+                currentQuestion: -1,
+                questionStart: null,
+                questions: gameQuestions,
+                host: playerId
+            });
+        }).then(function() {
+            return playersRef.child(playerId).set({
+                name: playerName,
+                score: 0,
+                isHost: true,
+                answered: false
+            });
+        }).then(function() {
+            playersRef.child(playerId).onDisconnect().remove();
+            showLobby();
+            setupListeners();
+        });
+    }
+    
+    function joinGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        gameCode = document.getElementById("game-code").value.trim().toUpperCase();
+        
+        if (!playerName) { showError("Name eingeben!"); return; }
+        if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
+        
+        playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+        isHost = false;
+        
+        gameRef = db.ref("quickfire2/" + gameCode);
+        playersRef = db.ref("quickfire2/" + gameCode + "/players");
+        
+        gameRef.once("value").then(function(s) {
+            if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject("not found"); }
+            if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject("running"); }
+            
+            difficulty = s.val().difficulty;
+            gameQuestions = s.val().questions;
+            
+            return playersRef.child(playerId).set({
+                name: playerName,
+                score: 0,
+                isHost: false,
+                answered: false
+            });
+        }).then(function() {
+            playersRef.child(playerId).onDisconnect().remove();
+            showLobby();
+            setupListeners();
+        }).catch(function(e) { console.log(e); });
+    }
+    
+    function showLobby() {
+        showScreen("lobby-screen");
+        document.getElementById("lobby-code").textContent = gameCode;
+        
+        var badge = document.getElementById("diff-badge");
+        badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+        badge.className = "diff-badge " + difficulty;
+        
+        document.getElementById("host-controls").style.display = isHost ? "block" : "none";
+        document.getElementById("player-controls").style.display = isHost ? "none" : "block";
+    }
+    
+    function setupListeners() {
+        playersRef.on("value", function(snap) {
+            var players = [];
+            snap.forEach(function(c) {
+                var d = c.val();
+                if (d && d.name) {
+                    d.id = c.key;
+                    players.push(d);
+                }
+            });
+            allPlayers = players;
+            updateLobbyPlayers();
+            updateLeaderboard();
+        });
+        
+        gameRef.on("value", function(snap) {
+            var game = snap.val();
+            if (!game) { backToHome(); return; }
+            
+            if (game.status === "playing") {
+                showScreen("game-screen");
+                if (game.currentQuestion !== currentQ) {
+                    currentQ = game.currentQuestion;
+                    answered = false;
+                    showQuestion(game.questionStart);
+                }
+            } else if (game.status === "finished") {
+                showResults();
+            }
+        });
+    }
+    
+    function updateLobbyPlayers() {
+        var w = document.getElementById("waiting-players");
+        if (allPlayers.length === 0) {
+            w.innerHTML = '<p style="opacity:0.6">Warte auf Spieler...</p>';
+        } else {
+            var html = "";
+            for (var i = 0; i < allPlayers.length; i++) {
+                var p = allPlayers[i];
+                html += '<div class="waiting-player">' + p.name + (p.isHost ? ' 👑' : '') + '</div>';
+            }
+            w.innerHTML = html;
+        }
+        
+        var nonHostCount = 0;
+        for (var i = 0; i < allPlayers.length; i++) {
+            if (!allPlayers[i].isHost) nonHostCount++;
+        }
+        document.getElementById("start-btn").disabled = nonHostCount === 0;
+    }
+    
+    function updateLeaderboard() {
+        var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+        var html = "";
+        for (var i = 0; i < sorted.length; i++) {
+            var p = sorted[i];
+            var isMe = p.id === playerId ? ' me' : '';
+            html += '<div class="lb-row' + isMe + '"><span>' + p.name + '</span><span>⭐ ' + p.score + '</span></div>';
+        }
+        document.getElementById("live-leaderboard").innerHTML = html;
+    }
+    
+    function startGame() {
+        if (!isHost) return;
+        playersRef.once("value", function(s) {
+            s.forEach(function(c) {
+                playersRef.child(c.key).update({ answered: false, score: 0 });
+            });
+            gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
+        });
+    }
+    
+    function resetGame() {
+        if (!confirm("Zurücksetzen?")) return;
+        gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
+        playersRef.once("value", function(s) {
+            s.forEach(function(c) {
+                playersRef.child(c.key).update({ score: 0, answered: false });
+            });
+        });
+        myScore = 0;
+        currentQ = -1;
+        showScreen("lobby-screen");
+    }
+    
+    function showQuestion(startTime) {
+        if (currentQ >= gameQuestions.length) {
+            gameRef.update({ status: "finished" });
+            return;
+        }
+        
+        var q = gameQuestions[currentQ];
+        document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameQuestions.length;
+        document.getElementById("category").textContent = q.cat;
+        document.getElementById("question").textContent = q.q;
+        document.getElementById("my-score").textContent = myScore;
+        
+        var idx = shuffle([0, 1, 2, 3]);
+        var ans = document.getElementById("answers");
+        ans.innerHTML = "";
+        
+        for (var i = 0; i < idx.length; i++) {
+            var origIdx = idx[i];
+            var btn = document.createElement("button");
+            btn.className = "answer-btn";
+            btn.textContent = q.a[origIdx];
+            btn.setAttribute("data-idx", origIdx);
+            btn.onclick = (function(b, oi) {
+                return function() { selectAnswer(b, oi); };
+            })(btn, origIdx);
+            ans.appendChild(btn);
+        }
+        
+        startTimer(startTime);
+    }
+    
+    function selectAnswer(btn, idx) {
+        if (answered) return;
+        answered = true;
+        
+        var q = gameQuestions[currentQ];
+        var isCorrect = idx === q.c;
+        
+        var btns = document.querySelectorAll(".answer-btn");
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].disabled = true;
+            if (parseInt(btns[i].getAttribute("data-idx")) === q.c) {
+                btns[i].classList.add("correct");
+            }
+        }
+        
+        if (isCorrect) {
+            var remaining = parseInt(document.getElementById("timer").textContent);
+            var points = Math.max(1, remaining);
+            myScore += points;
+            document.getElementById("my-score").textContent = myScore;
+            playersRef.child(playerId).update({ score: myScore, answered: true });
+        } else {
+            btn.classList.add("wrong");
+            playersRef.child(playerId).update({ answered: true });
+        }
+    }
+    
+    function startTimer(startTime) {
+        if (timerInt) clearInterval(timerInt);
+        var el = document.getElementById("timer");
+        
+        function tick() {
+            var elapsed = Math.floor((Date.now() - startTime) / 1000);
+            var rem = Math.max(0, 5 - elapsed);
+            el.textContent = rem;
+            
+            if (rem <= 1) {
+                el.className = "timer danger";
+            } else if (rem <= 2) {
+                el.className = "timer warning";
+            } else {
+                el.className = "timer";
+            }
+            
+            if (rem === 0) {
+                clearInterval(timerInt);
+                if (!answered) {
+                    answered = true;
+                    var q = gameQuestions[currentQ];
+                    var btns = document.querySelectorAll(".answer-btn");
+                    for (var i = 0; i < btns.length; i++) {
+                        btns[i].disabled = true;
+                        if (parseInt(btns[i].getAttribute("data-idx")) === q.c) {
+                            btns[i].classList.add("correct");
+                        }
+                    }
+                    playersRef.child(playerId).update({ answered: true });
+                }
+                
+                if (isHost) {
+                    setTimeout(function() {
+                        if (currentQ + 1 >= gameQuestions.length) {
+                            gameRef.update({ status: "finished" });
+                        } else {
+                            playersRef.once("value", function(s) {
+                                s.forEach(function(c) {
+                                    playersRef.child(c.key).update({ answered: false });
+                                });
+                                gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
+                            });
+                        }
+                    }, 1500);
+                }
+            }
+        }
+        tick();
+        timerInt = setInterval(tick, 100);
+    }
+    
+    function showResults() {
+        if (timerInt) clearInterval(timerInt);
+        showScreen("result-screen");
+        
+        var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+        var myRank = -1;
+        for (var i = 0; i < sorted.length; i++) {
+            if (sorted[i].id === playerId) { myRank = i + 1; break; }
+        }
+        
+        var icon = myRank === 1 ? "🥇" : myRank === 2 ? "🥈" : myRank === 3 ? "🥉" : "🏁";
+        document.getElementById("result-icon").textContent = icon;
+        document.getElementById("result-title").textContent = myRank === 1 ? "Du hast gewonnen!" : "Platz " + myRank + "!";
+        
+        var podium = document.getElementById("podium");
+        podium.innerHTML = "";
+        
+        var medals = ["🥇", "🥈", "🥉"];
+        var classes = ["first", "second", "third"];
+        
+        for (var i = 0; i < Math.min(3, sorted.length); i++) {
+            var p = sorted[i];
+            var place = document.createElement("div");
+            place.className = "podium-place " + classes[i];
+            place.innerHTML = '<div class="podium-medal">' + medals[i] + '</div>' +
+                '<div class="podium-name">' + p.name + '</div>' +
+                '<div class="podium-score">⭐ ' + p.score + '</div>';
+            podium.appendChild(place);
+        }
+    }
+    
+    function backToHome() {
+        if (timerInt) clearInterval(timerInt);
+        if (gameRef) gameRef.off();
+        if (playersRef) {
+            playersRef.off();
+            if (playerId) playersRef.child(playerId).remove();
+        }
+        gameCode = null;
+        playerId = null;
+        isHost = false;
+        myScore = 0;
+        currentQ = -1;
+        showScreen("login-screen");
+        document.getElementById("game-code").value = "";
+    }
+    
+    window.onload = init;
     </script>
     <script data-goatcounter="https://aguitoo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

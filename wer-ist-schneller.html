@@ -3,76 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏃 Wer ist schneller? - Grammatik Sprint</title>
+    <title>🏃 Wer ist schneller?</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:#fff}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#00b894 0%,#00cec9 100%);min-height:100vh;color:#fff}
         .container{max-width:900px;margin:0 auto;padding:15px}
         h1{text-align:center;font-size:1.5em;margin-bottom:15px}
         .screen{display:none}.screen.active{display:block}
         
-        /* Login */
         #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;gap:15px}
         .logo{font-size:4em;margin-bottom:10px}
-        #login-screen h2{font-size:1.2em;color:#ffd700;text-align:center}
+        #login-screen h2{font-size:1.2em;color:#fff;text-align:center}
         .difficulty-select{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;justify-content:center}
         .diff-btn{padding:15px 25px;border:3px solid rgba(255,255,255,0.3);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;font-size:1em;font-weight:700;cursor:pointer;transition:all 0.3s}
         .diff-btn:hover,.diff-btn.selected{transform:scale(1.05)}
-        .diff-btn.einfach{border-color:#00b894}.diff-btn.einfach.selected{background:#00b894}
+        .diff-btn.einfach{border-color:#55efc4}.diff-btn.einfach.selected{background:#00b894}
         .diff-btn.mittel{border-color:#fdcb6e}.diff-btn.mittel.selected{background:#e17055}
         .diff-btn.schwer{border-color:#d63031}.diff-btn.schwer.selected{background:#d63031}
         .input-group{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
-        .input-group input{font-size:1.1em;padding:12px 20px;border:2px solid #ffd700;border-radius:25px;text-align:center;background:rgba(255,255,255,0.1);color:#fff}
-        .input-group input::placeholder{color:rgba(255,255,255,0.5)}
+        .input-group input{font-size:1.1em;padding:12px 20px;border:2px solid #fff;border-radius:25px;text-align:center;background:rgba(255,255,255,0.2);color:#fff}
+        .input-group input::placeholder{color:rgba(255,255,255,0.7)}
         .input-group input.code-input{font-size:1.4em;letter-spacing:8px;text-transform:uppercase}
-        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;font-weight:700;cursor:pointer;width:100%;max-width:300px}
-        .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #ffd700;border-radius:25px;background:transparent;color:#ffd700;cursor:pointer;width:100%;max-width:300px}
+        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:#fff;color:#00b894;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+        .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #fff;border-radius:25px;background:transparent;color:#fff;cursor:pointer;width:100%;max-width:300px}
         .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
-        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.3)}
-        .error-msg{color:#ff6b6b;font-size:0.9em;margin-top:10px}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.5)}
+        .error-msg{color:#2d3436;background:rgba(255,255,255,0.9);padding:8px 15px;border-radius:10px;font-size:0.9em;margin-top:10px;display:none}
         
-        /* Lobby */
         #lobby-screen{text-align:center}
-        .lobby-box{background:rgba(255,255,255,0.1);border-radius:20px;padding:25px;margin:20px 0}
-        .lobby-code{font-size:2.5em;color:#ffd700;letter-spacing:10px;margin:10px 0}
+        .lobby-box{background:rgba(255,255,255,0.15);border-radius:20px;padding:25px;margin:20px 0}
+        .lobby-code{font-size:2.5em;color:#fff;letter-spacing:10px;margin:10px 0;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
         .diff-badge{display:inline-block;padding:8px 20px;border-radius:20px;font-weight:700;margin:10px 0}
         .diff-badge.einfach{background:#00b894}.diff-badge.mittel{background:#e17055}.diff-badge.schwer{background:#d63031}
-        .waiting-players{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0;min-height:50px}
-        .waiting-player{padding:10px 15px;background:rgba(255,215,0,0.2);border-radius:20px;border:1px solid rgba(255,215,0,0.5);display:flex;align-items:center;gap:8px}
-        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;font-weight:700;cursor:pointer;margin:15px 0}
+        .waiting-players{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0}
+        .waiting-player{padding:10px 15px;background:rgba(255,255,255,0.2);border-radius:20px;border:1px solid rgba(255,255,255,0.3)}
+        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:#fff;color:#00b894;font-weight:700;cursor:pointer;margin:15px 0}
         .start-game-btn:disabled{opacity:0.5;cursor:not-allowed}
-        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.3);border-radius:15px;background:transparent;color:#aaa;cursor:pointer;margin:5px}
-        .small-btn.danger{border-color:#e74c3c;color:#e74c3c}
+        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.5);border-radius:15px;background:transparent;color:#fff;cursor:pointer;margin:5px}
+        .small-btn.danger{background:rgba(255,0,0,0.3)}
         
-        /* Game */
-        .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.1);border-radius:15px;flex-wrap:wrap;gap:10px}
-        .timer{font-size:2.5em;font-weight:700;color:#00cec9}.timer.warning{color:#fdcb6e}.timer.danger{color:#e74c3c;animation:pulse 0.5s infinite}
+        .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.15);border-radius:15px;flex-wrap:wrap;gap:10px}
+        .score-display{font-size:1.3em}
+        .timer{font-size:2.5em;font-weight:700;color:#fff;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+        .timer.warning{color:#fdcb6e}.timer.danger{color:#d63031;animation:pulse 0.3s infinite}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-        .score-display{font-size:1.3em;color:#ffd700}
-        .question-num{color:#aaa}
         
-        .quiz-section{background:rgba(255,255,255,0.05);border:2px solid rgba(255,215,0,0.3);border-radius:20px;padding:20px;margin-bottom:15px}
-        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,215,0,0.2);border-radius:20px;font-size:0.85em;color:#ffd700;margin-bottom:12px}
-        .question{font-size:1.3em;margin-bottom:20px;line-height:1.5}
+        .quiz-section{background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.3);border-radius:20px;padding:20px;margin-bottom:15px}
+        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:0.85em;margin-bottom:12px}
+        .question{font-size:1.4em;margin-bottom:20px;line-height:1.5;text-align:center}
         .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
         @media(max-width:500px){.answers{grid-template-columns:1fr}}
-        .answer-btn{padding:15px;font-size:1em;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.05);color:#fff;cursor:pointer;transition:all 0.2s}
-        .answer-btn:hover:not(:disabled){background:rgba(255,215,0,0.2);border-color:#ffd700}
-        .answer-btn.selected{background:rgba(108,92,231,0.4);border-color:#6c5ce7}
-        .answer-btn.correct{background:rgba(0,184,148,0.7)!important;border-color:#00b894!important}
-        .answer-btn.wrong{background:rgba(214,48,49,0.7)!important;border-color:#d63031!important}
+        .answer-btn{padding:18px;font-size:1.1em;border:3px solid rgba(255,255,255,0.4);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;transition:all 0.15s;font-weight:600}
+        .answer-btn:hover:not(:disabled){background:rgba(255,255,255,0.3);border-color:#fff}
+        .answer-btn.correct{background:rgba(0,184,148,0.8)!important;border-color:#00b894!important}
+        .answer-btn.wrong{background:rgba(214,48,49,0.8)!important;border-color:#d63031!important}
         .answer-btn:disabled{cursor:not-allowed}
         
-        .leaderboard{background:rgba(255,255,255,0.05);border-radius:15px;padding:15px;margin-top:15px}
-        .leaderboard h3{font-size:1em;margin-bottom:10px;color:#ffd700}
-        .lb-row{display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:5px}
-        .lb-row.me{background:rgba(255,215,0,0.2);border:1px solid #ffd700}
+        .leaderboard{background:rgba(255,255,255,0.1);border-radius:15px;padding:15px;margin-top:15px}
+        .leaderboard h3{font-size:1em;margin-bottom:10px}
+        .lb-row{display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.1);border-radius:8px;margin-bottom:5px}
+        .lb-row.me{background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.5)}
         
-        /* Results */
         #result-screen{text-align:center;padding:30px 20px}
         .result-icon{font-size:5em;margin-bottom:15px}
         .podium{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin:30px 0}
-        .podium-place{text-align:center;padding:15px;border-radius:15px 15px 0 0}
+        .podium-place{text-align:center;padding:15px;border-radius:15px 15px 0 0;color:#2d3436}
         .podium-place.first{background:linear-gradient(135deg,#ffd700,#ff8c00);height:150px;order:2}
         .podium-place.second{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);height:120px;order:1}
         .podium-place.third{background:linear-gradient(135deg,#cd7f32,#a0522d);height:90px;order:3}
@@ -80,8 +75,8 @@
         .podium-score{font-size:0.9em;opacity:0.8}
         .podium-medal{font-size:2em}
         
-        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.5)}
-        .connection-status.connected{color:#00b894}
+        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.3)}
+        .connection-status.connected{color:#55efc4}
     </style>
 </head>
 <body>
@@ -91,9 +86,9 @@
         
         <div id="login-screen" class="screen active">
             <div class="logo">🏃</div>
-            <h2>Grammatik Sprint<br><small style="color:#aaa">Wer antwortet am schnellsten richtig?</small></h2>
+            <h2>Grammatik-Sprint!<br><small style="opacity:0.8">Schneller antworten = mehr Punkte!</small></h2>
             <div class="difficulty-select">
-                <button class="diff-btn einfach" data-diff="einfach">🟢 Einfach</button>
+                <button class="diff-btn einfach selected" data-diff="einfach">🟢 Einfach</button>
                 <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
                 <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
             </div>
@@ -111,16 +106,16 @@
             <div class="lobby-box">
                 <h2>⏳ Warteraum</h2>
                 <div class="lobby-code" id="lobby-code">CODE</div>
-                <div class="diff-badge" id="diff-badge">Einfach</div>
-                <p style="color:#888;font-size:0.85em">20 Fragen • Schnellster gewinnt!</p>
+                <div class="diff-badge einfach" id="diff-badge">Einfach</div>
+                <p style="opacity:0.8;font-size:0.9em">⏱️ 10 Sekunden • 20 Fragen</p>
                 <div class="waiting-players" id="waiting-players"></div>
                 <div id="host-controls">
                     <button class="start-game-btn" id="start-btn" disabled>▶️ START</button>
-                    <p style="color:#00b894;font-size:0.85em">👑 Du bist der Spielleiter</p>
+                    <p style="opacity:0.8;font-size:0.85em">👑 Du bist der Spielleiter</p>
                     <button class="small-btn danger" id="reset-btn">🔄 Zurücksetzen</button>
                 </div>
                 <div id="player-controls" style="display:none">
-                    <p style="color:#fdcb6e">⏳ Warte auf Spielleiter...</p>
+                    <p style="opacity:0.8">⏳ Warte auf Spielleiter...</p>
                 </div>
             </div>
         </div>
@@ -129,7 +124,7 @@
             <div class="game-header">
                 <div class="score-display">⭐ <span id="my-score">0</span></div>
                 <div class="timer" id="timer">10</div>
-                <div class="question-num" id="question-num">1/20</div>
+                <div id="question-num">1/20</div>
             </div>
             <div class="quiz-section">
                 <div class="category-badge" id="category"></div>
@@ -153,421 +148,494 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
-    (function() {
-        var firebaseConfig = {
+    var db, gameRef, playersRef;
+    var gameCode, playerId, playerName, isHost, difficulty;
+    var currentQ, myScore, answered, timerInt;
+    var allPlayers, gameQuestions;
+    
+    var questions = {
+        einfach: [
+            {cat:"Modalverben",q:"Ich ___ Deutsch lernen.",a:["muss","musst","müssen","müsst"],c:0},
+            {cat:"Modalverben",q:"Du ___ nicht rauchen.",a:["darfst","darf","dürfen","dürft"],c:0},
+            {cat:"Modalverben",q:"Er ___ gut schwimmen.",a:["kann","kannst","können","könnt"],c:0},
+            {cat:"Modalverben",q:"Wir ___ nach Hause gehen.",a:["wollen","will","wollt","willst"],c:0},
+            {cat:"Artikel",q:"Das ist ___ Buch.",a:["ein","eine","einen","einem"],c:0},
+            {cat:"Artikel",q:"Ich sehe ___ Mann.",a:["einen","ein","einer","einem"],c:0},
+            {cat:"Artikel",q:"Sie hat ___ Katze.",a:["eine","ein","einen","einer"],c:0},
+            {cat:"Pronomen",q:"Ich helfe ___.",a:["dir","dich","du","dein"],c:0},
+            {cat:"Pronomen",q:"Er gibt ___ das Buch.",a:["mir","mich","ich","mein"],c:0},
+            {cat:"Verben",q:"Er ___ gern Fußball.",a:["spielt","spielen","spielst","spiele"],c:0},
+            {cat:"Verben",q:"Wir ___ Kaffee.",a:["trinken","trinkt","trinkst","trinke"],c:0},
+            {cat:"Verben",q:"Ich ___ ein Buch.",a:["lese","liest","lesen","lest"],c:0},
+            {cat:"dass-Sätze",q:"Ich hoffe, ___ du kommst.",a:["dass","das","weil","wenn"],c:0},
+            {cat:"dass-Sätze",q:"Er sagt, ___ er müde ist.",a:["dass","das","weil","denn"],c:0},
+            {cat:"wenn-Sätze",q:"___ du Zeit hast, ruf mich an.",a:["Wenn","Wann","Als","Ob"],c:0},
+            {cat:"wenn-Sätze",q:"___ es regnet, bleibe ich zu Hause.",a:["Wenn","Wann","Als","Ob"],c:0},
+            {cat:"Präpositionen",q:"Ich gehe ___ Hause.",a:["nach","zu","in","auf"],c:0},
+            {cat:"Präpositionen",q:"Das Buch liegt ___ dem Tisch.",a:["auf","in","an","über"],c:0},
+            {cat:"Verben",q:"Sie ___ jeden Tag zur Arbeit.",a:["geht","gehen","gehst","gehe"],c:0},
+            {cat:"Artikel",q:"Ich kaufe ___ Apfel.",a:["einen","ein","eine","einer"],c:0}
+        ],
+        mittel: [
+            {cat:"Reflexivverben",q:"Ich ___ mich jeden Morgen.",a:["wasche","waschst","waschen","wäscht"],c:0},
+            {cat:"Reflexivverben",q:"Du musst ___ beeilen!",a:["dich","sich","mich","uns"],c:0},
+            {cat:"Verben+Präp.",q:"Ich warte ___ den Bus.",a:["auf","für","an","über"],c:0},
+            {cat:"Verben+Präp.",q:"Er denkt oft ___ seine Familie.",a:["an","auf","über","für"],c:0},
+            {cat:"Verben+Präp.",q:"Sie freut sich ___ das Wochenende.",a:["auf","über","für","an"],c:0},
+            {cat:"Modalverben Prät.",q:"Ich ___ gestern nicht kommen.",a:["konnte","könnte","kann","gekonnt"],c:0},
+            {cat:"Modalverben Prät.",q:"Er ___ früher aufstehen.",a:["musste","müsste","muss","gemusst"],c:0},
+            {cat:"Konjunktiv II",q:"Du ___ mehr schlafen.",a:["solltest","sollst","sollte","sollen"],c:0},
+            {cat:"Konjunktiv II",q:"Wir ___ ins Kino gehen.",a:["könnten","können","könnte","könntest"],c:0},
+            {cat:"Konjunktiv II",q:"Ich ___ lieber Tee trinken.",a:["würde","werde","wird","würden"],c:0},
+            {cat:"Dativ",q:"Ich schenke ___ ein Buch.",a:["dir","dich","du","deiner"],c:0},
+            {cat:"Dativ",q:"Er gibt ___ das Geld.",a:["mir","mich","ich","meiner"],c:0},
+            {cat:"Dativ",q:"Sie zeigt ___ die Fotos.",a:["uns","wir","unser","unsere"],c:0},
+            {cat:"Konnektoren",q:"Ich bleibe zu Hause, ___ ich krank bin.",a:["weil","dass","denn","trotzdem"],c:0},
+            {cat:"Konnektoren",q:"Es regnet. ___ gehe ich spazieren.",a:["Trotzdem","Weil","Dass","Denn"],c:0},
+            {cat:"als/wenn",q:"___ ich ein Kind war, spielte ich viel.",a:["Als","Wenn","Weil","Dass"],c:0},
+            {cat:"als/wenn",q:"Immer ___ ich ihn sehe, lacht er.",a:["wenn","als","weil","dass"],c:0},
+            {cat:"Perfekt",q:"Ich ___ gestern einen Film gesehen.",a:["habe","bin","hatte","war"],c:0},
+            {cat:"Perfekt",q:"Sie ___ nach Berlin gefahren.",a:["ist","hat","war","hatte"],c:0},
+            {cat:"Adjektive",q:"Das ist ein ___ Auto.",a:["schönes","schöne","schöner","schön"],c:0}
+        ],
+        schwer: [
+            {cat:"Konjunktiv II",q:"___ Sie bitte den Bericht schreiben?",a:["Könnten","Können","Konnten","Könnte"],c:0},
+            {cat:"Konjunktiv II",q:"Das ___ super!",a:["wäre","ist","war","wird"],c:0},
+            {cat:"Konjunktiv II",q:"Ich ___ gern früher gekommen.",a:["wäre","hätte","würde","bin"],c:0},
+            {cat:"Konjunktiv II",q:"Das ___ ich nicht gedacht.",a:["hätte","habe","hatte","wäre"],c:0},
+            {cat:"Passiv",q:"Das Haus ___ gebaut.",a:["wird","ist","hat","werden"],c:0},
+            {cat:"Passiv",q:"Der Brief ___ geschrieben worden.",a:["ist","hat","wird","war"],c:0},
+            {cat:"Relativsätze",q:"Der Mann, ___ dort steht, ist mein Chef.",a:["der","den","dem","dessen"],c:0},
+            {cat:"Relativsätze",q:"Die Frau, ___ ich helfe, ist nett.",a:["der","die","dem","deren"],c:0},
+            {cat:"Pronominaladv.",q:"Ich ärgere mich darüber. → ___ ärgerst du dich?",a:["Worüber","Darüber","Über was","Woran"],c:0},
+            {cat:"Pronominaladv.",q:"Er wartet auf den Bus. → Er wartet ___.",a:["darauf","daran","dafür","davon"],c:0},
+            {cat:"Genitiv",q:"Das ist das Auto ___ Chefs.",a:["meines","mein","meinem","meinen"],c:0},
+            {cat:"Genitiv",q:"Die Farbe ___ Hauses ist blau.",a:["des","dem","der","den"],c:0},
+            {cat:"Konjunktionen",q:"___ mehr ich lerne, ___ besser verstehe ich.",a:["Je...desto","Sowohl...als","Weder...noch","Entweder...oder"],c:0},
+            {cat:"Konjunktionen",q:"Er kam nicht, ___ er krank war.",a:["weil","obwohl","damit","sodass"],c:0},
+            {cat:"Infinitiv+zu",q:"Ich habe keine Zeit, ___ zu kochen.",a:["etwas","nichts","was","alles"],c:0},
+            {cat:"Infinitiv+zu",q:"Es ist wichtig, pünktlich ___ sein.",a:["zu","—","für","um"],c:0},
+            {cat:"Futur II",q:"Bis morgen ___ ich das Buch gelesen haben.",a:["werde","habe","bin","hatte"],c:0},
+            {cat:"indirekte Rede",q:"Er sagte, er ___ müde.",a:["sei","ist","war","wäre"],c:0},
+            {cat:"Plusquamperf.",q:"Nachdem ich gegessen ___, ging ich spazieren.",a:["hatte","habe","war","bin"],c:0},
+            {cat:"Partizip I",q:"Der ___ Mann liest Zeitung.",a:["wartende","wartend","gewartet","warten"],c:0}
+        ]
+    };
+    
+    function init() {
+        isHost = false;
+        difficulty = 'einfach';
+        currentQ = -1;
+        myScore = 0;
+        answered = false;
+        timerInt = null;
+        allPlayers = [];
+        gameQuestions = [];
+        
+        firebase.initializeApp({
             apiKey: "AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",
             authDomain: "lern-deutsch-arash.firebaseapp.com",
             databaseURL: "https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "lern-deutsch-arash"
-        };
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
-        
-        // Questions by difficulty
-        var questions = {
-            einfach: [
-                {cat:"Modalverben",q:"Ich ___ Deutsch lernen.",a:["muss","musst","müssen","müsst"],c:0},
-                {cat:"Modalverben",q:"Du ___ nicht rauchen.",a:["darfst","darf","dürfen","dürft"],c:0},
-                {cat:"Modalverben",q:"Er ___ gut schwimmen.",a:["kann","kannst","können","könnt"],c:0},
-                {cat:"Modalverben",q:"Wir ___ nach Hause gehen.",a:["wollen","will","wollt","willst"],c:0},
-                {cat:"Modalverben",q:"Ihr ___ leise sein.",a:["sollt","soll","sollen","sollst"],c:0},
-                {cat:"Artikel",q:"Das ist ___ Buch.",a:["ein","eine","einen","einem"],c:0},
-                {cat:"Artikel",q:"Ich sehe ___ Mann.",a:["einen","ein","einer","einem"],c:0},
-                {cat:"Artikel",q:"Sie hat ___ Katze.",a:["eine","ein","einen","einer"],c:0},
-                {cat:"Pronomen",q:"Ich helfe ___.",a:["dir","dich","du","dein"],c:0},
-                {cat:"Pronomen",q:"Er gibt ___ das Buch.",a:["mir","mich","ich","mein"],c:0},
-                {cat:"Pronomen",q:"Wir sehen ___.",a:["euch","ihr","euer","euren"],c:0},
-                {cat:"Verben",q:"Er ___ gern Fußball.",a:["spielt","spielen","spielst","spiele"],c:0},
-                {cat:"Verben",q:"Wir ___ Kaffee.",a:["trinken","trinkt","trinkst","trinke"],c:0},
-                {cat:"Verben",q:"Ich ___ ein Buch.",a:["lese","liest","lesen","lest"],c:0},
-                {cat:"dass-Sätze",q:"Ich hoffe, ___ du kommst.",a:["dass","das","weil","wenn"],c:0},
-                {cat:"dass-Sätze",q:"Er sagt, ___ er müde ist.",a:["dass","das","weil","denn"],c:0},
-                {cat:"wenn-Sätze",q:"___ du Zeit hast, ruf mich an.",a:["Wenn","Wann","Als","Ob"],c:0},
-                {cat:"wenn-Sätze",q:"___ es regnet, bleibe ich zu Hause.",a:["Wenn","Wann","Als","Ob"],c:0},
-                {cat:"Präpositionen",q:"Ich gehe ___ Hause.",a:["nach","zu","in","auf"],c:0},
-                {cat:"Präpositionen",q:"Das Buch liegt ___ dem Tisch.",a:["auf","in","an","über"],c:0}
-            ],
-            mittel: [
-                {cat:"Reflexivverben",q:"Ich ___ mich jeden Morgen.",a:["wasche","waschst","waschen","wäscht"],c:0},
-                {cat:"Reflexivverben",q:"Er ___ sich auf die Prüfung vor.",a:["bereitet","bereite","bereitest","bereiten"],c:0},
-                {cat:"Reflexivverben",q:"Du musst ___ beeilen!",a:["dich","sich","mich","uns"],c:0},
-                {cat:"Reflexivverben",q:"Sie interessiert ___ für Musik.",a:["sich","mich","dich","uns"],c:0},
-                {cat:"Verben+Präp.",q:"Ich warte ___ den Bus.",a:["auf","für","an","über"],c:0},
-                {cat:"Verben+Präp.",q:"Er denkt oft ___ seine Familie.",a:["an","auf","über","für"],c:0},
-                {cat:"Verben+Präp.",q:"Sie freut sich ___ das Wochenende.",a:["auf","über","für","an"],c:0},
-                {cat:"Verben+Präp.",q:"Ich interessiere mich ___ Sport.",a:["für","an","auf","über"],c:0},
-                {cat:"Modalverben Prät.",q:"Ich ___ gestern nicht kommen.",a:["konnte","könnte","kann","gekonnt"],c:0},
-                {cat:"Modalverben Prät.",q:"Er ___ früher aufstehen.",a:["musste","müsste","muss","gemusst"],c:0},
-                {cat:"Modalverben Prät.",q:"Als Kind ___ ich kein Gemüse.",a:["mochte","mag","möchte","gemocht"],c:0},
-                {cat:"Konjunktiv II",q:"Du ___ mehr schlafen.",a:["solltest","sollst","sollte","sollen"],c:0},
-                {cat:"Konjunktiv II",q:"Wir ___ ins Kino gehen.",a:["könnten","können","könnte","könntest"],c:0},
-                {cat:"Konjunktiv II",q:"Ich ___ lieber Tee trinken.",a:["würde","werde","wird","würden"],c:0},
-                {cat:"Dativ",q:"Ich schenke ___ ein Buch.",a:["dir","dich","du","deiner"],c:0},
-                {cat:"Dativ",q:"Er gibt ___ das Geld.",a:["mir","mich","ich","meiner"],c:0},
-                {cat:"Dativ",q:"Sie zeigt ___ die Fotos.",a:["uns","wir","unser","unsere"],c:0},
-                {cat:"Konnektoren",q:"Ich bleibe zu Hause, ___ ich krank bin.",a:["weil","dass","denn","trotzdem"],c:0},
-                {cat:"Konnektoren",q:"Es regnet. ___ gehe ich spazieren.",a:["Trotzdem","Weil","Dass","Denn"],c:0},
-                {cat:"Konnektoren",q:"Ich gehe nicht raus, ___ es regnet.",a:["denn","weil","dass","trotzdem"],c:0}
-            ],
-            schwer: [
-                {cat:"Konjunktiv II",q:"___ Sie bitte den Bericht schreiben?",a:["Könnten","Können","Konnten","Könnte"],c:0},
-                {cat:"Konjunktiv II",q:"Das ___ super!",a:["wäre","ist","war","wird"],c:0},
-                {cat:"Konjunktiv II",q:"Ich ___ gern früher gekommen.",a:["wäre","hätte","würde","bin"],c:0},
-                {cat:"Konjunktiv II",q:"Das ___ ich nicht gedacht.",a:["hätte","habe","hatte","wäre"],c:0},
-                {cat:"Reflexiv+Präp.",q:"Lisa ___ ___ ihr neues Auto.",a:["freut sich über","freut über sich","sich freut über","freut sich auf"],c:0},
-                {cat:"Reflexiv+Präp.",q:"Er ___ ___ einen Experten wenden.",a:["sollte sich an","sollte an sich","sich sollte an","an sich sollte"],c:0},
-                {cat:"Pronominaladverb",q:"Ich ärgere mich über die Verspätung. → Ich ärgere mich ___.",a:["darüber","daran","dafür","davon"],c:0},
-                {cat:"Pronominaladverb",q:"Er wartet auf den Bus. → Er wartet ___.",a:["darauf","daran","dafür","davon"],c:0},
-                {cat:"Pronominaladverb",q:"Sie denkt an ihre Prüfung. → Sie denkt oft ___.",a:["daran","darauf","dafür","darüber"],c:0},
-                {cat:"als/wenn",q:"___ ich ein Kind war, wohnte ich in Berlin.",a:["Als","Wenn","Weil","Dass"],c:0},
-                {cat:"als/wenn",q:"___ er ankam, war es schon dunkel.",a:["Als","Wenn","Weil","Denn"],c:0},
-                {cat:"Satzbau",q:"Welcher Satz ist korrekt?",a:["Es tut mir leid, dass ich nicht kommen konnte.","Es tut mir leid, das ich nicht kommen konnte.","Es tut mir leid, weil ich nicht kommen konnte.","Es mir leid tut, dass ich nicht kommen konnte."],c:0},
-                {cat:"Satzbau",q:"Welcher Satz ist korrekt?",a:["Wenn man erfolgreich sein will, muss man viel arbeiten.","Wen man erfolgreich sein will, muss man viel arbeiten.","Wenn man erfolgreich sein will, man muss viel arbeiten.","Als man erfolgreich sein will, muss man viel arbeiten."],c:0},
-                {cat:"Modalverben",q:"Als Schüler ___ wir Hausaufgaben machen, aber wir ___ danach draußen spielen.",a:["mussten...durften","müssen...dürfen","müssten...dürften","gemusst...gedurft"],c:0},
-                {cat:"Arbeitswelt",q:"Was bedeutet 'Überstunden'?",a:["Mehr arbeiten als normal","Weniger arbeiten","Urlaub","Pause"],c:0},
-                {cat:"Arbeitswelt",q:"Was ist ein 'Gehalt'?",a:["Geld für die Arbeit","Ein Büro","Ein Chef","Ein Praktikum"],c:0},
-                {cat:"Höflichkeit",q:"Wie fragt man höflich? '___ Sie mir bitte helfen?'",a:["Könnten","Können","Müssen","Sollen"],c:0},
-                {cat:"Höflichkeit",q:"Ich ___ gern eine Frage stellen.",a:["würde","werde","will","wollte"],c:0},
-                {cat:"Bedauern",q:"Ich ___ gern dabei gewesen. (Vergangenheit)",a:["wäre","hätte","würde","bin"],c:0},
-                {cat:"Bedauern",q:"Das ___ nicht passieren dürfen.",a:["hätte","hat","hatte","wäre"],c:0}
-            ]
-        };
-        
-        let gameCode, playerId, playerName, isHost = false, difficulty = 'einfach';
-        let currentQ = -1, myScore = 0, answered = false, timerInt = null;
-        let gameRef, playersRef, allPlayers = [], gameQuestions = [];
-        
-        // Connection status
-        db.ref(".info/connected").on("value", s => {
-            const el = document.getElementById("connection-status");
-            el.textContent = s.val() ? "🟢 Online" : "🔴 Offline";
-            el.className = "connection-status " + (s.val() ? "connected" : "disconnected");
         });
+        db = firebase.database();
         
-        // Difficulty selection
-        document.querySelectorAll('.diff-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                difficulty = btn.dataset.diff;
-            };
-        });
-        document.querySelector('.diff-btn.einfach').classList.add('selected');
-        
-        function genCode() {
-            const c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-            return Array(4).fill(0).map(() => c[Math.floor(Math.random() * c.length)]).join('');
-        }
-        
-        function showError(m) {
-            document.getElementById("error-msg").textContent = m;
-            setTimeout(() => document.getElementById("error-msg").textContent = "", 3000);
-        }
-        
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-        
-        function shuffle(arr) {
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
-        
-        // Create game
-        document.getElementById("create-btn").onclick = function() {
-            playerName = document.getElementById("player-name").value.trim();
-            if (!playerName) { showError("Name eingeben!"); return; }
-            
-            gameCode = genCode();
-            playerId = "host_" + Date.now();
-            isHost = true;
-            
-            // Shuffle and select 20 questions
-            gameQuestions = shuffle([...questions[difficulty]]).slice(0, 20);
-            
-            gameRef = db.ref("schneller/" + gameCode);
-            playersRef = db.ref("schneller/" + gameCode + "/players");
-            
-            gameRef.remove().then(() => {
-                return gameRef.set({
-                    status: "lobby",
-                    difficulty: difficulty,
-                    currentQuestion: -1,
-                    questionStart: null,
-                    questions: gameQuestions,
-                    host: playerId
-                });
-            }).then(() => {
-                return playersRef.child(playerId).set({
-                    name: playerName,
-                    score: 0,
-                    isHost: true,
-                    answered: false
-                });
-            }).then(() => {
-                playersRef.child(playerId).onDisconnect().remove();
-                showLobby();
-                setupListeners();
-            });
-        };
-        
-        // Join game
-        document.getElementById("join-btn").onclick = function() {
-            playerName = document.getElementById("player-name").value.trim();
-            gameCode = document.getElementById("game-code").value.trim().toUpperCase();
-            
-            if (!playerName) { showError("Name eingeben!"); return; }
-            if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
-            
-            playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
-            isHost = false;
-            
-            gameRef = db.ref("schneller/" + gameCode);
-            playersRef = db.ref("schneller/" + gameCode + "/players");
-            
-            gameRef.once("value").then(s => {
-                if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject(); }
-                if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject(); }
-                
-                difficulty = s.val().difficulty;
-                gameQuestions = s.val().questions;
-                
-                return playersRef.child(playerId).set({
-                    name: playerName,
-                    score: 0,
-                    isHost: false,
-                    answered: false
-                });
-            }).then(() => {
-                playersRef.child(playerId).onDisconnect().remove();
-                showLobby();
-                setupListeners();
-            }).catch(() => {});
-        };
-        
-        document.getElementById("game-code").onkeypress = e => { if (e.key === "Enter") document.getElementById("join-btn").click(); };
-        
-        function showLobby() {
-            showScreen("lobby-screen");
-            document.getElementById("lobby-code").textContent = gameCode;
-            
-            const badge = document.getElementById("diff-badge");
-            badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-            badge.className = "diff-badge " + difficulty;
-            
-            document.getElementById("host-controls").style.display = isHost ? "block" : "none";
-            document.getElementById("player-controls").style.display = isHost ? "none" : "block";
-        }
-        
-        function setupListeners() {
-            playersRef.on("value", snap => {
-                const players = [];
-                snap.forEach(c => {
-                    const d = c.val();
-                    if (d && d.name) players.push({ id: c.key, ...d });
-                });
-                allPlayers = players;
-                updateLobbyPlayers(players);
-                updateLeaderboard();
-            });
-            
-            gameRef.on("value", snap => {
-                const game = snap.val();
-                if (!game) { backToHome(); return; }
-                
-                if (game.status === "playing") {
-                    showScreen("game-screen");
-                    if (game.currentQuestion !== currentQ) {
-                        currentQ = game.currentQuestion;
-                        answered = false;
-                        showQuestion(game.questionStart);
-                    }
-                } else if (game.status === "finished") {
-                    showResults();
-                }
-            });
-        }
-        
-        function updateLobbyPlayers(players) {
-            const w = document.getElementById("waiting-players");
-            w.innerHTML = players.length === 0 ? '<p style="color:#666">Warte auf Spieler...</p>' :
-                players.map(p => `<div class="waiting-player"><span>${p.name} ${p.isHost ? '👑' : ''}</span></div>`).join("");
-            document.getElementById("start-btn").disabled = players.filter(p => !p.isHost).length === 0;
-        }
-        
-        function updateLeaderboard() {
-            const sorted = [...allPlayers].sort((a, b) => b.score - a.score);
-            document.getElementById("live-leaderboard").innerHTML = sorted.map(p => 
-                `<div class="lb-row ${p.id === playerId ? 'me' : ''}">
-                    <span>${p.name}</span>
-                    <span>⭐ ${p.score}</span>
-                </div>`
-            ).join("");
-        }
-        
-        // Start game
-        document.getElementById("start-btn").onclick = function() {
-            if (!isHost) return;
-            playersRef.once("value", s => {
-                s.forEach(c => playersRef.child(c.key).update({ answered: false, score: 0 }));
-                gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
-            });
-        };
-        
-        // Reset game
-        document.getElementById("reset-btn").onclick = function() {
-            if (!confirm("Zurücksetzen?")) return;
-            gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
-            playersRef.once("value", s => s.forEach(c => playersRef.child(c.key).update({ score: 0, answered: false })));
-            myScore = 0;
-            currentQ = -1;
-            showScreen("lobby-screen");
-        };
-        
-        function showQuestion(startTime) {
-            if (currentQ >= gameQuestions.length) {
-                gameRef.update({ status: "finished" });
-                return;
-            }
-            
-            const q = gameQuestions[currentQ];
-            document.getElementById("question-num").textContent = `${currentQ + 1}/${gameQuestions.length}`;
-            document.getElementById("category").textContent = q.cat;
-            document.getElementById("question").textContent = q.q;
-            document.getElementById("my-score").textContent = myScore;
-            
-            // Shuffle answers
-            const idx = [0, 1, 2, 3];
-            shuffle(idx);
-            
-            const ans = document.getElementById("answers");
-            ans.innerHTML = "";
-            idx.forEach(origIdx => {
-                const btn = document.createElement("button");
-                btn.className = "answer-btn";
-                btn.textContent = q.a[origIdx];
-                btn.dataset.origIdx = origIdx;
-                btn.onclick = () => selectAnswer(btn, origIdx);
-                ans.appendChild(btn);
-            });
-            
-            startTimer(startTime);
-        }
-        
-        function selectAnswer(btn, idx) {
-            if (answered) return;
-            answered = true;
-            
-            const q = gameQuestions[currentQ];
-            const isCorrect = idx === q.c;
-            
-            document.querySelectorAll(".answer-btn").forEach(b => {
-                b.disabled = true;
-                if (parseInt(b.dataset.origIdx) === q.c) b.classList.add("correct");
-            });
-            
-            if (isCorrect) {
-                // Points based on remaining time
-                const remaining = parseInt(document.getElementById("timer").textContent);
-                const points = Math.max(1, remaining);
-                myScore += points;
-                document.getElementById("my-score").textContent = myScore;
-                playersRef.child(playerId).update({ score: myScore, answered: true });
+        db.ref(".info/connected").on("value", function(s) {
+            var el = document.getElementById("connection-status");
+            if (s.val()) {
+                el.textContent = "🟢 Online";
+                el.className = "connection-status connected";
             } else {
-                btn.classList.add("wrong");
-                playersRef.child(playerId).update({ answered: true });
+                el.textContent = "🔴 Offline";
+                el.className = "connection-status";
             }
-        }
+        });
         
-        function startTimer(startTime) {
-            if (timerInt) clearInterval(timerInt);
-            const el = document.getElementById("timer");
-            
-            function tick() {
-                const rem = Math.max(0, 10 - Math.floor((Date.now() - startTime) / 1000));
-                el.textContent = rem;
-                el.className = "timer" + (rem <= 2 ? " danger" : rem <= 4 ? " warning" : "");
-                
-                if (rem === 0) {
-                    clearInterval(timerInt);
-                    if (!answered) {
-                        answered = true;
-                        // Show correct answer
-                        const q = gameQuestions[currentQ];
-                        document.querySelectorAll(".answer-btn").forEach(b => {
-                            b.disabled = true;
-                            if (parseInt(b.dataset.origIdx) === q.c) b.classList.add("correct");
-                        });
-                        playersRef.child(playerId).update({ answered: true });
-                    }
-                    
-                    // Host advances to next question
-                    if (isHost) {
-                        setTimeout(() => {
-                            if (currentQ + 1 >= gameQuestions.length) {
-                                gameRef.update({ status: "finished" });
-                            } else {
-                                playersRef.once("value", s => {
-                                    s.forEach(c => playersRef.child(c.key).update({ answered: false }));
-                                    gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
-                                });
-                            }
-                        }, 2000);
-                    }
+        setupButtons();
+    }
+    
+    function setupButtons() {
+        var diffBtns = document.querySelectorAll('.diff-btn');
+        for (var i = 0; i < diffBtns.length; i++) {
+            diffBtns[i].onclick = function() {
+                for (var j = 0; j < diffBtns.length; j++) {
+                    diffBtns[j].classList.remove('selected');
                 }
-            }
-            tick();
-            timerInt = setInterval(tick, 200);
+                this.classList.add('selected');
+                difficulty = this.getAttribute('data-diff');
+            };
         }
         
-        function showResults() {
-            if (timerInt) clearInterval(timerInt);
-            showScreen("result-screen");
-            
-            const sorted = [...allPlayers].sort((a, b) => b.score - a.score);
-            const myRank = sorted.findIndex(p => p.id === playerId) + 1;
-            
-            document.getElementById("result-icon").textContent = myRank === 1 ? "🥇" : myRank === 2 ? "🥈" : myRank === 3 ? "🥉" : "🏁";
-            document.getElementById("result-title").textContent = myRank === 1 ? "Du hast gewonnen!" : `Platz ${myRank}!`;
-            
-            // Podium
-            const podium = document.getElementById("podium");
-            podium.innerHTML = "";
-            
-            for (let i = 0; i < Math.min(3, sorted.length); i++) {
-                const p = sorted[i];
-                const place = document.createElement("div");
-                place.className = `podium-place ${i === 0 ? 'first' : i === 1 ? 'second' : 'third'}`;
-                place.innerHTML = `
-                    <div class="podium-medal">${i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</div>
-                    <div class="podium-name">${p.name}</div>
-                    <div class="podium-score">⭐ ${p.score}</div>
-                `;
-                podium.appendChild(place);
-            }
-        }
-        
+        document.getElementById("create-btn").onclick = createGame;
+        document.getElementById("join-btn").onclick = joinGame;
+        document.getElementById("start-btn").onclick = startGame;
+        document.getElementById("reset-btn").onclick = resetGame;
         document.getElementById("back-btn").onclick = backToHome;
         
-        function backToHome() {
-            if (timerInt) clearInterval(timerInt);
-            if (gameRef) gameRef.off();
-            if (playersRef) {
-                playersRef.off();
-                if (playerId) playersRef.child(playerId).remove();
-            }
-            gameCode = playerId = null;
-            isHost = false;
-            myScore = 0;
-            currentQ = -1;
-            showScreen("login-screen");
-            document.getElementById("game-code").value = "";
+        document.getElementById("game-code").onkeypress = function(e) {
+            if (e.key === "Enter") joinGame();
+        };
+    }
+    
+    function genCode() {
+        var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        var code = "";
+        for (var i = 0; i < 4; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-    })();
+        return code;
+    }
+    
+    function showError(msg) {
+        var el = document.getElementById("error-msg");
+        el.textContent = msg;
+        el.style.display = "block";
+        setTimeout(function() { el.style.display = "none"; }, 3000);
+    }
+    
+    function showScreen(id) {
+        var screens = document.querySelectorAll('.screen');
+        for (var i = 0; i < screens.length; i++) {
+            screens[i].classList.remove('active');
+        }
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function shuffle(arr) {
+        var newArr = arr.slice();
+        for (var i = newArr.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = newArr[i];
+            newArr[i] = newArr[j];
+            newArr[j] = temp;
+        }
+        return newArr;
+    }
+    
+    function createGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        if (!playerName) { showError("Name eingeben!"); return; }
+        
+        gameCode = genCode();
+        playerId = "host_" + Date.now();
+        isHost = true;
+        gameQuestions = shuffle(questions[difficulty]).slice(0, 20);
+        
+        gameRef = db.ref("schneller2/" + gameCode);
+        playersRef = db.ref("schneller2/" + gameCode + "/players");
+        
+        gameRef.remove().then(function() {
+            return gameRef.set({
+                status: "lobby",
+                difficulty: difficulty,
+                currentQuestion: -1,
+                questionStart: null,
+                questions: gameQuestions,
+                host: playerId
+            });
+        }).then(function() {
+            return playersRef.child(playerId).set({
+                name: playerName,
+                score: 0,
+                isHost: true,
+                answered: false
+            });
+        }).then(function() {
+            playersRef.child(playerId).onDisconnect().remove();
+            showLobby();
+            setupListeners();
+        });
+    }
+    
+    function joinGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        gameCode = document.getElementById("game-code").value.trim().toUpperCase();
+        
+        if (!playerName) { showError("Name eingeben!"); return; }
+        if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
+        
+        playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+        isHost = false;
+        
+        gameRef = db.ref("schneller2/" + gameCode);
+        playersRef = db.ref("schneller2/" + gameCode + "/players");
+        
+        gameRef.once("value").then(function(s) {
+            if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject("not found"); }
+            if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject("running"); }
+            
+            difficulty = s.val().difficulty;
+            gameQuestions = s.val().questions;
+            
+            return playersRef.child(playerId).set({
+                name: playerName,
+                score: 0,
+                isHost: false,
+                answered: false
+            });
+        }).then(function() {
+            playersRef.child(playerId).onDisconnect().remove();
+            showLobby();
+            setupListeners();
+        }).catch(function(e) { console.log(e); });
+    }
+    
+    function showLobby() {
+        showScreen("lobby-screen");
+        document.getElementById("lobby-code").textContent = gameCode;
+        
+        var badge = document.getElementById("diff-badge");
+        badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+        badge.className = "diff-badge " + difficulty;
+        
+        document.getElementById("host-controls").style.display = isHost ? "block" : "none";
+        document.getElementById("player-controls").style.display = isHost ? "none" : "block";
+    }
+    
+    function setupListeners() {
+        playersRef.on("value", function(snap) {
+            var players = [];
+            snap.forEach(function(c) {
+                var d = c.val();
+                if (d && d.name) {
+                    d.id = c.key;
+                    players.push(d);
+                }
+            });
+            allPlayers = players;
+            updateLobbyPlayers();
+            updateLeaderboard();
+        });
+        
+        gameRef.on("value", function(snap) {
+            var game = snap.val();
+            if (!game) { backToHome(); return; }
+            
+            if (game.status === "playing") {
+                showScreen("game-screen");
+                if (game.currentQuestion !== currentQ) {
+                    currentQ = game.currentQuestion;
+                    answered = false;
+                    showQuestion(game.questionStart);
+                }
+            } else if (game.status === "finished") {
+                showResults();
+            }
+        });
+    }
+    
+    function updateLobbyPlayers() {
+        var w = document.getElementById("waiting-players");
+        if (allPlayers.length === 0) {
+            w.innerHTML = '<p style="opacity:0.6">Warte auf Spieler...</p>';
+        } else {
+            var html = "";
+            for (var i = 0; i < allPlayers.length; i++) {
+                var p = allPlayers[i];
+                html += '<div class="waiting-player">' + p.name + (p.isHost ? ' 👑' : '') + '</div>';
+            }
+            w.innerHTML = html;
+        }
+        
+        var nonHostCount = 0;
+        for (var i = 0; i < allPlayers.length; i++) {
+            if (!allPlayers[i].isHost) nonHostCount++;
+        }
+        document.getElementById("start-btn").disabled = nonHostCount === 0;
+    }
+    
+    function updateLeaderboard() {
+        var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+        var html = "";
+        for (var i = 0; i < sorted.length; i++) {
+            var p = sorted[i];
+            var isMe = p.id === playerId ? ' me' : '';
+            html += '<div class="lb-row' + isMe + '"><span>' + p.name + '</span><span>⭐ ' + p.score + '</span></div>';
+        }
+        document.getElementById("live-leaderboard").innerHTML = html;
+    }
+    
+    function startGame() {
+        if (!isHost) return;
+        playersRef.once("value", function(s) {
+            s.forEach(function(c) {
+                playersRef.child(c.key).update({ answered: false, score: 0 });
+            });
+            gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
+        });
+    }
+    
+    function resetGame() {
+        if (!confirm("Zurücksetzen?")) return;
+        gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
+        playersRef.once("value", function(s) {
+            s.forEach(function(c) {
+                playersRef.child(c.key).update({ score: 0, answered: false });
+            });
+        });
+        myScore = 0;
+        currentQ = -1;
+        showScreen("lobby-screen");
+    }
+    
+    function showQuestion(startTime) {
+        if (currentQ >= gameQuestions.length) {
+            gameRef.update({ status: "finished" });
+            return;
+        }
+        
+        var q = gameQuestions[currentQ];
+        document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameQuestions.length;
+        document.getElementById("category").textContent = q.cat;
+        document.getElementById("question").textContent = q.q;
+        document.getElementById("my-score").textContent = myScore;
+        
+        var idx = shuffle([0, 1, 2, 3]);
+        var ans = document.getElementById("answers");
+        ans.innerHTML = "";
+        
+        for (var i = 0; i < idx.length; i++) {
+            var origIdx = idx[i];
+            var btn = document.createElement("button");
+            btn.className = "answer-btn";
+            btn.textContent = q.a[origIdx];
+            btn.setAttribute("data-idx", origIdx);
+            btn.onclick = (function(b, oi) {
+                return function() { selectAnswer(b, oi); };
+            })(btn, origIdx);
+            ans.appendChild(btn);
+        }
+        
+        startTimer(startTime);
+    }
+    
+    function selectAnswer(btn, idx) {
+        if (answered) return;
+        answered = true;
+        
+        var q = gameQuestions[currentQ];
+        var isCorrect = idx === q.c;
+        
+        var btns = document.querySelectorAll(".answer-btn");
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].disabled = true;
+            if (parseInt(btns[i].getAttribute("data-idx")) === q.c) {
+                btns[i].classList.add("correct");
+            }
+        }
+        
+        if (isCorrect) {
+            var remaining = parseInt(document.getElementById("timer").textContent);
+            var points = Math.max(1, remaining);
+            myScore += points;
+            document.getElementById("my-score").textContent = myScore;
+            playersRef.child(playerId).update({ score: myScore, answered: true });
+        } else {
+            btn.classList.add("wrong");
+            playersRef.child(playerId).update({ answered: true });
+        }
+    }
+    
+    function startTimer(startTime) {
+        if (timerInt) clearInterval(timerInt);
+        var el = document.getElementById("timer");
+        
+        function tick() {
+            var elapsed = Math.floor((Date.now() - startTime) / 1000);
+            var rem = Math.max(0, 10 - elapsed);
+            el.textContent = rem;
+            
+            if (rem <= 3) {
+                el.className = "timer danger";
+            } else if (rem <= 5) {
+                el.className = "timer warning";
+            } else {
+                el.className = "timer";
+            }
+            
+            if (rem === 0) {
+                clearInterval(timerInt);
+                if (!answered) {
+                    answered = true;
+                    var q = gameQuestions[currentQ];
+                    var btns = document.querySelectorAll(".answer-btn");
+                    for (var i = 0; i < btns.length; i++) {
+                        btns[i].disabled = true;
+                        if (parseInt(btns[i].getAttribute("data-idx")) === q.c) {
+                            btns[i].classList.add("correct");
+                        }
+                    }
+                    playersRef.child(playerId).update({ answered: true });
+                }
+                
+                if (isHost) {
+                    setTimeout(function() {
+                        if (currentQ + 1 >= gameQuestions.length) {
+                            gameRef.update({ status: "finished" });
+                        } else {
+                            playersRef.once("value", function(s) {
+                                s.forEach(function(c) {
+                                    playersRef.child(c.key).update({ answered: false });
+                                });
+                                gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
+                            });
+                        }
+                    }, 2000);
+                }
+            }
+        }
+        tick();
+        timerInt = setInterval(tick, 100);
+    }
+    
+    function showResults() {
+        if (timerInt) clearInterval(timerInt);
+        showScreen("result-screen");
+        
+        var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+        var myRank = -1;
+        for (var i = 0; i < sorted.length; i++) {
+            if (sorted[i].id === playerId) { myRank = i + 1; break; }
+        }
+        
+        var icon = myRank === 1 ? "🥇" : myRank === 2 ? "🥈" : myRank === 3 ? "🥉" : "🏁";
+        document.getElementById("result-icon").textContent = icon;
+        document.getElementById("result-title").textContent = myRank === 1 ? "Du hast gewonnen!" : "Platz " + myRank + "!";
+        
+        var podium = document.getElementById("podium");
+        podium.innerHTML = "";
+        
+        var medals = ["🥇", "🥈", "🥉"];
+        var classes = ["first", "second", "third"];
+        
+        for (var i = 0; i < Math.min(3, sorted.length); i++) {
+            var p = sorted[i];
+            var place = document.createElement("div");
+            place.className = "podium-place " + classes[i];
+            place.innerHTML = '<div class="podium-medal">' + medals[i] + '</div>' +
+                '<div class="podium-name">' + p.name + '</div>' +
+                '<div class="podium-score">⭐ ' + p.score + '</div>';
+            podium.appendChild(place);
+        }
+    }
+    
+    function backToHome() {
+        if (timerInt) clearInterval(timerInt);
+        if (gameRef) gameRef.off();
+        if (playersRef) {
+            playersRef.off();
+            if (playerId) playersRef.child(playerId).remove();
+        }
+        gameCode = null;
+        playerId = null;
+        isHost = false;
+        myScore = 0;
+        currentQ = -1;
+        showScreen("login-screen");
+        document.getElementById("game-code").value = "";
+    }
+    
+    window.onload = init;
     </script>
     <script data-goatcounter="https://aguitoo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

@@ -6,7 +6,7 @@
     <title>💼 Survival: Arbeitswelt</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#2c3e50 0%,#3498db 100%);min-height:100vh;color:#fff}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#2d3436 0%,#636e72 100%);min-height:100vh;color:#fff}
         .container{max-width:900px;margin:0 auto;padding:15px}
         h1{text-align:center;font-size:1.5em;margin-bottom:15px}
         .screen{display:none}.screen.active{display:block}
@@ -24,11 +24,11 @@
         .input-group input{font-size:1.1em;padding:12px 20px;border:2px solid #ffd700;border-radius:25px;text-align:center;background:rgba(255,255,255,0.1);color:#fff}
         .input-group input::placeholder{color:rgba(255,255,255,0.5)}
         .input-group input.code-input{font-size:1.4em;letter-spacing:8px;text-transform:uppercase}
-        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#2d3436;font-weight:700;cursor:pointer;width:100%;max-width:300px}
         .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #ffd700;border-radius:25px;background:transparent;color:#ffd700;cursor:pointer;width:100%;max-width:300px}
         .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
         .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.3)}
-        .error-msg{color:#ff6b6b;font-size:0.9em;margin-top:10px}
+        .error-msg{color:#ff6b6b;font-size:0.9em;margin-top:10px;display:none}
         
         #lobby-screen{text-align:center}
         .lobby-box{background:rgba(255,255,255,0.1);border-radius:20px;padding:25px;margin:20px 0}
@@ -36,52 +36,47 @@
         .diff-badge{display:inline-block;padding:8px 20px;border-radius:20px;font-weight:700;margin:10px 0}
         .diff-badge.einfach{background:#00b894}.diff-badge.mittel{background:#e17055}.diff-badge.schwer{background:#d63031}
         .waiting-players{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0}
-        .waiting-player{padding:10px 15px;background:rgba(255,215,0,0.2);border-radius:20px;border:1px solid rgba(255,215,0,0.5)}
-        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:linear-gradient(135deg,#e74c3c,#c0392b);color:#fff;font-weight:700;cursor:pointer;margin:15px 0}
+        .waiting-player{padding:10px 15px;background:rgba(255,255,255,0.1);border-radius:20px;border:1px solid rgba(255,255,255,0.2)}
+        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:linear-gradient(135deg,#ffd700,#ff8c00);color:#2d3436;font-weight:700;cursor:pointer;margin:15px 0}
         .start-game-btn:disabled{opacity:0.5;cursor:not-allowed}
         .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.3);border-radius:15px;background:transparent;color:#aaa;cursor:pointer;margin:5px}
         .small-btn.danger{border-color:#e74c3c;color:#e74c3c}
         
         .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.1);border-radius:15px;flex-wrap:wrap;gap:10px}
-        .player-info{display:flex;align-items:center;gap:10px}
-        .lives{font-size:1.3em}
-        .timer{font-size:2em;font-weight:700;color:#00cec9}.timer.warning{color:#fdcb6e}.timer.danger{color:#e74c3c;animation:pulse 0.5s infinite}
+        .lives{font-size:1.5em}
+        .timer{font-size:2em;font-weight:700;color:#ffd700}.timer.warning{color:#fdcb6e}.timer.danger{color:#e74c3c;animation:pulse 0.5s infinite}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-        .survivors{font-size:0.9em;color:#00cec9}
+        .survivors{color:#00b894}
         
         .quiz-section{background:rgba(255,255,255,0.05);border:2px solid rgba(255,215,0,0.3);border-radius:20px;padding:20px;margin-bottom:15px}
-        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,215,0,0.2);border-radius:20px;font-size:0.85em;color:#ffd700;margin-bottom:12px}
-        .question{font-size:1.2em;margin-bottom:20px;line-height:1.5}
+        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,215,0,0.2);border-radius:20px;font-size:0.85em;margin-bottom:12px}
+        .question{font-size:1.4em;margin-bottom:20px;line-height:1.5;text-align:center}
         .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
         @media(max-width:500px){.answers{grid-template-columns:1fr}}
-        .answer-btn{padding:15px;font-size:1em;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.05);color:#fff;cursor:pointer;transition:all 0.2s}
-        .answer-btn:hover:not(:disabled){background:rgba(255,215,0,0.2);border-color:#ffd700}
-        .answer-btn.selected{background:rgba(108,92,231,0.4);border-color:#6c5ce7}
-        .answer-btn.correct{background:rgba(0,184,148,0.7)!important;border-color:#00b894!important}
-        .answer-btn.wrong{background:rgba(214,48,49,0.7)!important;border-color:#d63031!important}
+        .answer-btn{padding:18px;font-size:1.1em;border:3px solid rgba(255,255,255,0.3);border-radius:15px;background:rgba(255,255,255,0.05);color:#fff;cursor:pointer;transition:all 0.2s;font-weight:600}
+        .answer-btn:hover:not(:disabled){background:rgba(255,255,255,0.15);border-color:#ffd700}
+        .answer-btn.correct{background:rgba(0,184,148,0.5)!important;border-color:#00b894!important}
+        .answer-btn.wrong{background:rgba(214,48,49,0.5)!important;border-color:#d63031!important}
         .answer-btn:disabled{cursor:not-allowed}
         
-        .answer-status{text-align:center;padding:12px;margin-top:15px;border-radius:10px;font-weight:700}
-        .answer-status.hidden{display:none!important}
-        .answer-status.waiting{background:rgba(108,92,231,0.3);color:#a29bfe}
+        .answer-status{text-align:center;padding:12px;margin-top:15px;border-radius:10px;font-weight:700;display:none}
+        .answer-status.show{display:block}
         .answer-status.correct{background:rgba(0,184,148,0.3);color:#55efc4}
         .answer-status.wrong{background:rgba(214,48,49,0.3);color:#ff7675}
         .answer-status.timeout{background:rgba(253,203,110,0.3);color:#fdcb6e}
         
-        .players-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:15px}
-        .player-chip{display:flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(255,255,255,0.1);border-radius:12px;font-size:0.8em}
-        .player-chip.dead{opacity:0.4;text-decoration:line-through}
-        .player-chip.is-me{border:2px solid #ffd700;background:rgba(255,215,0,0.2)}
-        .player-chip.answered{background:rgba(0,184,148,0.3)}
+        .players-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:15px}
+        .player-chip{padding:6px 12px;border-radius:15px;font-size:0.85em;background:rgba(0,184,148,0.3);border:1px solid #00b894}
+        .player-chip.eliminated{background:rgba(214,48,49,0.3);border-color:#d63031;text-decoration:line-through;opacity:0.5}
         
         #gameover-screen{text-align:center;padding:30px 20px}
         .result-icon{font-size:5em;margin-bottom:15px}
-        .winners-list{background:rgba(255,215,0,0.1);border:2px solid rgba(255,215,0,0.3);border-radius:15px;padding:15px;margin:20px 0}
-        .winner-item{display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:6px}
+        .winners-list{background:rgba(255,255,255,0.1);border-radius:15px;padding:20px;margin:20px 0}
+        .winner-item{display:flex;justify-content:space-between;padding:10px;background:rgba(255,215,0,0.1);border-radius:10px;margin-bottom:8px}
         
-        #eliminated-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:none;justify-content:center;align-items:center;z-index:200;flex-direction:column;gap:15px}
-        #eliminated-overlay .skull{font-size:5em}
-        #eliminated-overlay h2{color:#d63031}
+        #eliminated-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:100}
+        #eliminated-overlay.show{display:flex}
+        .skull{font-size:5em;margin-bottom:20px}
         
         .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.5)}
         .connection-status.connected{color:#00b894}
@@ -94,9 +89,9 @@
         
         <div id="login-screen" class="screen active">
             <div class="logo">💼</div>
-            <h2>30 Fragen • 3 Leben • 15 Sekunden<br><small style="color:#aaa">Arbeit, Beruf & Konjunktiv II</small></h2>
+            <h2>Überlebe bis zum Ende!<br><small style="color:#aaa">3 Leben • 30 Fragen</small></h2>
             <div class="difficulty-select">
-                <button class="diff-btn einfach" data-diff="einfach">🟢 Einfach</button>
+                <button class="diff-btn einfach selected" data-diff="einfach">🟢 Einfach</button>
                 <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
                 <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
             </div>
@@ -114,7 +109,8 @@
             <div class="lobby-box">
                 <h2>⏳ Warteraum</h2>
                 <div class="lobby-code" id="lobby-code">CODE</div>
-                <div class="diff-badge" id="diff-badge">Einfach</div>
+                <div class="diff-badge einfach" id="diff-badge">Einfach</div>
+                <p style="color:#aaa;font-size:0.9em">❤️❤️❤️ 3 Leben • 30 Fragen • 15 Sekunden</p>
                 <div class="waiting-players" id="waiting-players"></div>
                 <div id="host-controls">
                     <button class="start-game-btn" id="start-btn" disabled>▶️ START</button>
@@ -129,9 +125,7 @@
         
         <div id="game-screen" class="screen">
             <div class="game-header">
-                <div class="player-info">
-                    <span class="lives" id="display-lives">❤️❤️❤️</span>
-                </div>
+                <div class="lives" id="display-lives">❤️❤️❤️</div>
                 <div class="timer" id="timer">15</div>
                 <div>
                     <div id="question-num">1/30</div>
@@ -142,7 +136,7 @@
                 <div class="category-badge" id="category"></div>
                 <div class="question" id="question"></div>
                 <div class="answers" id="answers"></div>
-                <div class="answer-status hidden" id="answer-status"></div>
+                <div class="answer-status" id="answer-status"></div>
             </div>
             <div class="players-grid" id="players-grid"></div>
         </div>
@@ -161,504 +155,593 @@
             <div class="skull">💀</div>
             <h2>Ausgeschieden!</h2>
             <p style="color:#aaa">Du kannst weiter zuschauen</p>
-            <button class="btn-secondary" id="watch-btn">👀 Zuschauen</button>
+            <button class="btn-secondary" id="watch-btn" style="margin-top:20px">👀 Zuschauen</button>
         </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    var db, gameRef, playersRef;
+    var gameCode, playerId, playerName, isHost, difficulty;
+    var currentQ, myLives, answered, timerInt, eliminated;
+    var allPlayers, gameQuestions;
+    
+    var questions = {
+        einfach: [
+            {cat:"Arbeitswelt",q:"Eine Person, die arbeitet, ist ein ___.",a:["Arbeitnehmer","Arbeitgeber","Arbeitsamt","Arbeitslos"],c:0},
+            {cat:"Arbeitswelt",q:"Das Geld, das man für Arbeit bekommt, heißt ___.",a:["Gehalt","Miete","Rechnung","Steuer"],c:0},
+            {cat:"Arbeitswelt",q:"Wenn man mehr als normal arbeitet, macht man ___.",a:["Überstunden","Urlaub","Pause","Feierabend"],c:0},
+            {cat:"Arbeitswelt",q:"Der Chef einer Firma ist der ___.",a:["Arbeitgeber","Arbeitnehmer","Kollege","Praktikant"],c:0},
+            {cat:"wenn-Sätze",q:"___ du Fragen hast, frag den Chef.",a:["Wenn","Wann","Als","Ob"],c:0},
+            {cat:"wenn-Sätze",q:"___ ich krank bin, gehe ich nicht zur Arbeit.",a:["Wenn","Wann","Als","Ob"],c:0},
+            {cat:"wenn-Sätze",q:"___ du pünktlich bist, bekommst du einen Bonus.",a:["Wenn","Wann","Als","Ob"],c:0},
+            {cat:"Modalverben",q:"Ich ___ heute früher gehen.",a:["muss","musst","müssen","müsst"],c:0},
+            {cat:"Modalverben",q:"Du ___ nicht so laut sein.",a:["sollst","soll","sollen","sollt"],c:0},
+            {cat:"Modalverben",q:"Er ___ gut Englisch sprechen.",a:["kann","kannst","können","könnt"],c:0},
+            {cat:"Arbeitswelt",q:"Ein Dokument mit deiner Berufserfahrung ist ein ___.",a:["Lebenslauf","Zeugnis","Vertrag","Rechnung"],c:0},
+            {cat:"Arbeitswelt",q:"Wenn man keinen Job hat, ist man ___.",a:["arbeitslos","arbeitend","beschäftigt","angestellt"],c:0},
+            {cat:"Verben",q:"Ich ___ seit 5 Jahren in dieser Firma.",a:["arbeite","arbeitest","arbeiten","arbeitet"],c:0},
+            {cat:"Verben",q:"Er ___ jeden Tag zur Arbeit.",a:["fährt","fahrt","fahren","fährst"],c:0},
+            {cat:"Präpositionen",q:"Ich arbeite ___ 9 ___ 17 Uhr.",a:["von...bis","seit...zu","ab...nach","um...gegen"],c:0},
+            {cat:"Arbeitswelt",q:"Die Zeit zum Ausruhen bei der Arbeit ist die ___.",a:["Pause","Überstunde","Schicht","Kündigung"],c:0},
+            {cat:"dass-Sätze",q:"Ich hoffe, ___ ich die Stelle bekomme.",a:["dass","das","weil","wenn"],c:0},
+            {cat:"dass-Sätze",q:"Der Chef sagt, ___ wir pünktlich sein sollen.",a:["dass","das","weil","denn"],c:0},
+            {cat:"Arbeitswelt",q:"Man schreibt eine ___, um einen Job zu bekommen.",a:["Bewerbung","Kündigung","Rechnung","Quittung"],c:0},
+            {cat:"Arbeitswelt",q:"Das Gespräch für einen neuen Job heißt ___.",a:["Vorstellungsgespräch","Mitarbeitergespräch","Telefonat","Meeting"],c:0},
+            {cat:"Verben",q:"Ich ___ mich für die Stelle.",a:["bewerbe","bewirb","bewerben","bewerbst"],c:0},
+            {cat:"Arbeitswelt",q:"Ein Mitarbeiter, der neu lernt, ist ein ___.",a:["Praktikant","Chef","Manager","Direktor"],c:0},
+            {cat:"wenn-Sätze",q:"___ du fleißig bist, wirst du befördert.",a:["Wenn","Wann","Als","Ob"],c:0},
+            {cat:"Modalverben",q:"Wir ___ morgen früh anfangen.",a:["müssen","muss","musst","müsst"],c:0},
+            {cat:"Arbeitswelt",q:"Der Vertrag für die Arbeit heißt ___.",a:["Arbeitsvertrag","Mietvertrag","Kaufvertrag","Ehevertrag"],c:0},
+            {cat:"Verben",q:"Sie ___ ihre Arbeit sehr gut.",a:["macht","machen","machst","mache"],c:0},
+            {cat:"Präpositionen",q:"Ich bin ___ der Firma zufrieden.",a:["mit","für","über","an"],c:0},
+            {cat:"Arbeitswelt",q:"Wenn man die Arbeit beendet, macht man ___.",a:["Feierabend","Überstunden","Pause","Urlaub"],c:0},
+            {cat:"dass-Sätze",q:"Es ist wichtig, ___ man pünktlich ist.",a:["dass","das","weil","wenn"],c:0},
+            {cat:"Arbeitswelt",q:"Die Person, die mit dir arbeitet, ist dein ___.",a:["Kollege","Chef","Kunde","Gast"],c:0}
+        ],
+        mittel: [
+            {cat:"Konjunktiv II",q:"Ich ___ gern mehr Urlaub haben.",a:["würde","werde","wurde","will"],c:0},
+            {cat:"Konjunktiv II",q:"___ Sie mir bitte helfen?",a:["Könnten","Können","Konnten","Könnte"],c:0},
+            {cat:"Konjunktiv II",q:"Du ___ früher aufstehen.",a:["solltest","sollst","sollte","sollen"],c:0},
+            {cat:"Konjunktiv II",q:"Wir ___ eine Gehaltserhöhung brauchen.",a:["würden","werden","wurden","wollen"],c:0},
+            {cat:"sollte",q:"Du ___ mehr Pausen machen.",a:["solltest","sollst","sollte","sollen"],c:0},
+            {cat:"sollte",q:"Er ___ sich besser vorbereiten.",a:["sollte","soll","solltest","sollten"],c:0},
+            {cat:"sollte",q:"Wir ___ pünktlicher sein.",a:["sollten","sollt","sollte","sollst"],c:0},
+            {cat:"könnte",q:"Ich ___ das Projekt übernehmen.",a:["könnte","kann","konnte","könntest"],c:0},
+            {cat:"könnte",q:"___ Sie das bitte wiederholen?",a:["Könnten","Können","Konnten","Könnte"],c:0},
+            {cat:"Reflexiv",q:"Ich ___ mich für die Stelle.",a:["bewerbe","bewirb","bewerben","bewerbst"],c:0},
+            {cat:"Reflexiv",q:"Er ___ sich auf das Meeting vor.",a:["bereitet","bereite","bereitest","bereiten"],c:0},
+            {cat:"Reflexiv",q:"Du musst ___ beeilen!",a:["dich","sich","mich","uns"],c:0},
+            {cat:"Verben+Präp.",q:"Ich freue mich ___ das Wochenende.",a:["auf","über","für","an"],c:0},
+            {cat:"Verben+Präp.",q:"Er ärgert sich ___ seinen Chef.",a:["über","auf","für","an"],c:0},
+            {cat:"Verben+Präp.",q:"Sie interessiert sich ___ die Stelle.",a:["für","an","auf","über"],c:0},
+            {cat:"Arbeitswelt",q:"Eine höhere Position bekommen heißt ___.",a:["Beförderung","Kündigung","Bewerbung","Einstellung"],c:0},
+            {cat:"Arbeitswelt",q:"Mehr Geld für die gleiche Arbeit ist eine ___.",a:["Gehaltserhöhung","Kündigung","Strafe","Rechnung"],c:0},
+            {cat:"Konjunktiv II",q:"Es ___ besser, wenn du fragst.",a:["wäre","ist","war","wird"],c:0},
+            {cat:"Konjunktiv II",q:"Ich ___ gern weniger Überstunden.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"Konnektoren",q:"Ich bin müde, ___ ich habe viel gearbeitet.",a:["denn","weil","dass","trotzdem"],c:0},
+            {cat:"Konnektoren",q:"___ ich krank bin, gehe ich zur Arbeit.",a:["Obwohl","Weil","Wenn","Dass"],c:0},
+            {cat:"Konnektoren",q:"Er kam zu spät. ___ wurde er nicht entlassen.",a:["Trotzdem","Deshalb","Weil","Obwohl"],c:0},
+            {cat:"als/wenn",q:"___ ich Student war, hatte ich wenig Geld.",a:["Als","Wenn","Weil","Obwohl"],c:0},
+            {cat:"als/wenn",q:"Immer ___ ich Überstunden mache, bin ich müde.",a:["wenn","als","weil","obwohl"],c:0},
+            {cat:"Arbeitswelt",q:"Die erste Zeit im neuen Job heißt ___.",a:["Probezeit","Urlaubszeit","Arbeitszeit","Freizeit"],c:0},
+            {cat:"sollte",q:"Man ___ immer freundlich zu Kollegen sein.",a:["sollte","soll","solltest","sollten"],c:0},
+            {cat:"könnte",q:"Das ___ ein Problem werden.",a:["könnte","kann","konnte","könntest"],c:0},
+            {cat:"Konjunktiv II",q:"Wenn ich reich ___, würde ich nicht arbeiten.",a:["wäre","bin","war","sei"],c:0},
+            {cat:"Arbeitswelt",q:"Ein Brief, um die Arbeit zu beenden, ist eine ___.",a:["Kündigung","Bewerbung","Einladung","Rechnung"],c:0},
+            {cat:"Reflexiv",q:"Wir ___ uns auf die Konferenz.",a:["freuen","freut","freue","freust"],c:0}
+        ],
+        schwer: [
+            {cat:"Konj. II Verg.",q:"Ich ___ gern früher angefangen.",a:["hätte","habe","hatte","wäre"],c:0},
+            {cat:"Konj. II Verg.",q:"Wenn ich das gewusst ___, hätte ich anders gehandelt.",a:["hätte","habe","hatte","wäre"],c:0},
+            {cat:"Konj. II Verg.",q:"Er ___ besser gekommen, wenn er Zeit gehabt hätte.",a:["wäre","hätte","ist","hat"],c:0},
+            {cat:"Passiv",q:"Die E-Mail ___ geschrieben.",a:["wird","ist","hat","werden"],c:0},
+            {cat:"Passiv",q:"Das Projekt ___ abgeschlossen worden.",a:["ist","hat","wird","wurde"],c:0},
+            {cat:"Passiv",q:"Die Rechnung muss ___ werden.",a:["bezahlt","bezahlen","bezahlt sein","zu bezahlen"],c:0},
+            {cat:"Relativsätze",q:"Der Kollege, ___ mir geholfen hat, ist nett.",a:["der","den","dem","dessen"],c:0},
+            {cat:"Relativsätze",q:"Die Firma, ___ ich arbeite, ist groß.",a:["für die","die","der","in der"],c:0},
+            {cat:"Pronominaladv.",q:"Ich denke oft daran. → ___ denkst du?",a:["Woran","Daran","An was","Worüber"],c:0},
+            {cat:"Pronominaladv.",q:"Er wartet auf die Antwort. → Er wartet ___.",a:["darauf","daran","dafür","davon"],c:0},
+            {cat:"Höflichkeit",q:"___ ich Sie kurz stören?",a:["Dürfte","Darf","Durfte","Dürfe"],c:0},
+            {cat:"Höflichkeit",q:"Es ___ nett, wenn Sie mir helfen könnten.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"Höflichkeit",q:"___ Sie so freundlich sein, das zu erledigen?",a:["Würden","Werden","Wurden","Wollen"],c:0},
+            {cat:"Bedauern",q:"Ich ___ Ihnen leider nicht helfen können.",a:["konnte","kann","könnte","könne"],c:0},
+            {cat:"Bedauern",q:"Es tut mir leid, dass ich nicht ___ kommen können.",a:["habe","bin","hatte","war"],c:0},
+            {cat:"Konj. II Verg.",q:"Wenn ich mehr Zeit gehabt ___, hätte ich mehr geschafft.",a:["hätte","habe","hatte","wäre"],c:0},
+            {cat:"Arbeitswelt",q:"Eine Schulung im Beruf heißt ___.",a:["Fortbildung","Ausbildung","Einbildung","Abbildung"],c:0},
+            {cat:"Arbeitswelt",q:"In eine andere Abteilung wechseln ist eine ___.",a:["Versetzung","Kündigung","Bewerbung","Beförderung"],c:0},
+            {cat:"Infinitiv+zu",q:"Ich habe keine Zeit, das ___ erledigen.",a:["zu","—","für","um"],c:0},
+            {cat:"Infinitiv+zu",q:"Es ist wichtig, pünktlich ___ sein.",a:["zu","—","für","um"],c:0},
+            {cat:"Konj. II",q:"An Ihrer Stelle ___ ich das anders machen.",a:["würde","werde","will","wollte"],c:0},
+            {cat:"Konj. II",q:"Ich ___ Ihnen raten, vorsichtig zu sein.",a:["würde","werde","will","wollte"],c:0},
+            {cat:"Konnektoren",q:"___ mehr er arbeitet, ___ müder wird er.",a:["Je...desto","Sowohl...als","Weder...noch","Entweder...oder"],c:0},
+            {cat:"Konnektoren",q:"Er arbeitet viel, ___ er mehr Geld verdient.",a:["damit","sodass","weil","obwohl"],c:0},
+            {cat:"Genitiv",q:"Das Büro ___ Chefs ist im 5. Stock.",a:["des","dem","der","den"],c:0},
+            {cat:"Genitiv",q:"Die Meinung ___ Kollegen ist wichtig.",a:["der","die","den","dem"],c:0},
+            {cat:"Konj. II Verg.",q:"Das ___ nicht passieren dürfen.",a:["hätte","hat","hatte","wäre"],c:0},
+            {cat:"Passiv+Modal",q:"Das Problem muss ___ werden.",a:["gelöst","lösen","zu lösen","gelöst sein"],c:0},
+            {cat:"indirekte Rede",q:"Er sagte, er ___ krank.",a:["sei","ist","war","wäre"],c:0},
+            {cat:"indirekte Rede",q:"Sie meinte, sie ___ keine Zeit.",a:["habe","hat","hatte","hätte"],c:0}
+        ]
+    };
+    
+    function init() {
+        isHost = false;
+        difficulty = 'einfach';
+        currentQ = -1;
+        myLives = 3;
+        answered = false;
+        eliminated = false;
+        timerInt = null;
+        allPlayers = [];
+        gameQuestions = [];
+        
         firebase.initializeApp({
             apiKey: "AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",
             authDomain: "lern-deutsch-arash.firebaseapp.com",
             databaseURL: "https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "lern-deutsch-arash"
         });
-        const db = firebase.database();
+        db = firebase.database();
         
-        const questions = {
-            einfach: [
-                {cat:"Wortschatz",q:"Was bedeutet 'Arbeitnehmer'?",a:["Eine Person, die arbeitet","Eine Firma","Ein Chef","Ein Kunde"],c:0},
-                {cat:"Wortschatz",q:"Was ist 'Überstunden'?",a:["Mehr arbeiten als normal","Weniger arbeiten","Urlaub","Pause"],c:0},
-                {cat:"Wortschatz",q:"Was ist ein 'Gehalt'?",a:["Geld für die Arbeit","Ein Büro","Ein Chef","Ein Praktikum"],c:0},
-                {cat:"Wortschatz",q:"Was bedeutet 'kündigen'?",a:["Die Arbeit beenden","Anfangen zu arbeiten","Urlaub machen","Pause machen"],c:0},
-                {cat:"Wortschatz",q:"Was ist eine 'Stellenanzeige'?",a:["Jobangebot in der Zeitung","Ein Büro","Ein Kollege","Ein Chef"],c:0},
-                {cat:"wenn-Sätze",q:"___ du Fragen hast, kannst du mich fragen.",a:["Wenn","Wann","Als","Ob"],c:0},
-                {cat:"wenn-Sätze",q:"___ du krank bist, ruf bitte an.",a:["Wenn","Wann","Als","Weil"],c:0},
-                {cat:"wenn-Sätze",q:"___ Sie Hilfe brauchen, können Sie mich fragen.",a:["Wenn","Wann","Als","Ob"],c:0},
-                {cat:"sollte",q:"Du ___ pünktlich kommen.",a:["solltest","sollte","sollten","sollt"],c:0},
-                {cat:"sollte",q:"Wir ___ mehr üben.",a:["sollten","solltest","sollte","sollt"],c:0},
-                {cat:"sollte",q:"Er ___ früher aufstehen.",a:["sollte","solltest","sollten","sollt"],c:0},
-                {cat:"Arbeit",q:"Die Arbeit beginnt ___ acht Uhr.",a:["um","in","an","auf"],c:0},
-                {cat:"Arbeit",q:"Ich arbeite ___ einem Büro.",a:["in","auf","an","bei"],c:0},
-                {cat:"Arbeit",q:"Mein Chef ___ sehr nett.",a:["ist","hat","macht","geht"],c:0},
-                {cat:"Pronomen",q:"Ich helfe ___ gern. (du)",a:["dir","dich","du","dein"],c:0},
-                {cat:"Pronomen",q:"Kannst du ___ das erklären? (ich)",a:["mir","mich","ich","mein"],c:0},
-                {cat:"Modalverben",q:"Ich ___ heute länger arbeiten.",a:["muss","musst","müssen","müsst"],c:0},
-                {cat:"Modalverben",q:"Du ___ nicht rauchen.",a:["darfst","darf","dürfen","dürft"],c:0},
-                {cat:"Modalverben",q:"Wir ___ nach Hause gehen.",a:["können","kann","kannst","könnt"],c:0},
-                {cat:"Wortschatz",q:"Was ist ein 'Kollege'?",a:["Person, die mit mir arbeitet","Chef","Kunde","Praktikant"],c:0},
-                {cat:"Wortschatz",q:"Was bedeutet 'Feierabend'?",a:["Ende der Arbeit","Anfang der Arbeit","Pause","Meeting"],c:0},
-                {cat:"wenn-Sätze",q:"___ du fertig bist, sag mir Bescheid.",a:["Wenn","Wann","Als","Weil"],c:0},
-                {cat:"sollte",q:"Ihr ___ das Buch lesen.",a:["solltet","solltest","sollte","sollten"],c:0},
-                {cat:"Arbeit",q:"Ich habe eine Besprechung ___ meinem Chef.",a:["mit","bei","von","für"],c:0},
-                {cat:"Pronomen",q:"Er gibt ___ das Geld. (ich)",a:["mir","mich","ich","mein"],c:0},
-                {cat:"Wortschatz",q:"Was ist 'Teilzeit'?",a:["Weniger Stunden arbeiten","Mehr arbeiten","Urlaub","Überstunden"],c:0},
-                {cat:"wenn-Sätze",q:"___ wir Zeit haben, gehen wir essen.",a:["Wenn","Wann","Als","Ob"],c:0},
-                {cat:"sollte",q:"Sie (formal) ___ den Chef fragen.",a:["sollten","solltest","sollte","sollt"],c:0},
-                {cat:"Arbeit",q:"Ich schicke ___ eine E-Mail. (Sie)",a:["Ihnen","Sie","Ihr","Ihre"],c:0},
-                {cat:"Modalverben",q:"Er ___ gut Deutsch sprechen.",a:["kann","können","kannst","könnt"],c:0}
-            ],
-            mittel: [
-                {cat:"Konjunktiv II",q:"Du ___ mehr schlafen.",a:["solltest","sollst","sollte","sollen"],c:0},
-                {cat:"Konjunktiv II",q:"Wir ___ zusammen lernen.",a:["könnten","können","könnte","könntest"],c:0},
-                {cat:"Konjunktiv II",q:"Er ___ lieber Tee trinken.",a:["würde","werde","wird","würden"],c:0},
-                {cat:"Konjunktiv II",q:"Ihr ___ einen Tisch reservieren.",a:["solltet","sollt","sollte","solltest"],c:0},
-                {cat:"Konjunktiv II",q:"Sie ___ den Bus nehmen.",a:["könnte","kann","konnte","können"],c:0},
-                {cat:"Ratschläge",q:"Wenn du müde bist, ___ du früher schlafen gehen.",a:["solltest","sollst","sollte","sollen"],c:0},
-                {cat:"Ratschläge",q:"Wenn ihr Fragen habt, ___ ihr mich anrufen.",a:["könnt","kann","können","könntet"],c:0},
-                {cat:"Ratschläge",q:"Wenn es kalt ist, ___ du eine Jacke anziehen.",a:["solltest","sollst","sollte","sollen"],c:0},
-                {cat:"Modalverben Prät.",q:"Ich ___ gestern nicht kommen.",a:["konnte","könnte","kann","gekonnt"],c:0},
-                {cat:"Modalverben Prät.",q:"Er ___ früher aufstehen.",a:["musste","müsste","muss","gemusst"],c:0},
-                {cat:"Modalverben Prät.",q:"Wir ___ lange warten.",a:["mussten","müssen","müssten","gemusst"],c:0},
-                {cat:"Reflexivverben",q:"Ich ___ mich auf die Arbeit vor.",a:["bereite","bereitet","bereitest","bereiten"],c:0},
-                {cat:"Reflexivverben",q:"Er ___ sich über den Job.",a:["freut","freue","freust","freuen"],c:0},
-                {cat:"Reflexivverben",q:"Wir ___ uns für das Praktikum.",a:["interessieren","interessiert","interessiere","interessierst"],c:0},
-                {cat:"Präpositionen",q:"Ich warte ___ den Chef.",a:["auf","für","an","über"],c:0},
-                {cat:"Präpositionen",q:"Er denkt oft ___ seine Karriere.",a:["an","auf","über","für"],c:0},
-                {cat:"Präpositionen",q:"Sie kümmert sich ___ die Kunden.",a:["um","für","auf","über"],c:0},
-                {cat:"Arbeitswelt",q:"Wie viele Stunden arbeiten Deutsche pro Woche?",a:["41,5 Stunden","35 Stunden","50 Stunden","30 Stunden"],c:0},
-                {cat:"Arbeitswelt",q:"Wie viele Urlaubstage haben deutsche Arbeitnehmer?",a:["Etwa 30 Tage","Etwa 10 Tage","Etwa 50 Tage","Etwa 5 Tage"],c:0},
-                {cat:"Dativ",q:"Ich erkläre ___ die Aufgabe. (der Kollege)",a:["dem Kollegen","den Kollegen","der Kollege","des Kollegen"],c:0},
-                {cat:"Dativ",q:"Sie gibt ___ den Bericht. (ihr Chef)",a:["ihrem Chef","ihren Chef","ihr Chef","ihres Chefs"],c:0},
-                {cat:"Konjunktiv II",q:"Ich ___ gern dabei sein.",a:["würde","werde","will","wollte"],c:0},
-                {cat:"Konjunktiv II",q:"Das ___ super!",a:["wäre","ist","war","wird"],c:0},
-                {cat:"Modalverben Prät.",q:"Als Kind ___ ich kein Gemüse.",a:["mochte","mag","möchte","gemocht"],c:0},
-                {cat:"Reflexivverben",q:"Sie ___ sich ___ den Fehler.",a:["ärgert...über","ärgert...auf","ärgert...für","ärgert...an"],c:0},
-                {cat:"Präpositionen",q:"Wir sprechen ___ das Projekt.",a:["über","von","für","mit"],c:0},
-                {cat:"Arbeitswelt",q:"Was ist ein 'Vorstellungsgespräch'?",a:["Interview für einen Job","Mittagspause","Überstunden","Gehalt"],c:0},
-                {cat:"Dativ",q:"Er schickt ___ eine Nachricht. (seine Chefin)",a:["seiner Chefin","seine Chefin","seinen Chefin","seines Chefin"],c:0},
-                {cat:"Konjunktiv II",q:"___ Sie bitte das Fenster öffnen?",a:["Könnten","Können","Konnten","Könnte"],c:0},
-                {cat:"Arbeitswelt",q:"Was bedeutet 'Bewerbung'?",a:["Dokumente für einen Job","Arbeitsvertrag","Gehalt","Urlaub"],c:0}
-            ],
-            schwer: [
-                {cat:"Konjunktiv II",q:"Ich ___ gern früher gekommen. (Vergangenheit)",a:["wäre","hätte","würde","bin"],c:0},
-                {cat:"Konjunktiv II",q:"Das ___ ich nicht gedacht. (Vergangenheit)",a:["hätte","habe","hatte","wäre"],c:0},
-                {cat:"Konjunktiv II",q:"Ich ___ Sie gern beim Meeting gehabt.",a:["hätte","habe","hatte","wäre"],c:0},
-                {cat:"Konjunktiv II",q:"Wir ___ gern dabei gewesen.",a:["wären","hätten","würden","sind"],c:0},
-                {cat:"Konjunktiv II",q:"Das ___ nicht passieren dürfen.",a:["hätte","hat","hatte","wäre"],c:0},
-                {cat:"Höflichkeit",q:"___ Sie mir bitte helfen?",a:["Könnten","Können","Müssen","Sollen"],c:0},
-                {cat:"Höflichkeit",q:"Ich ___ gern eine Frage stellen.",a:["würde","werde","will","wollte"],c:0},
-                {cat:"Höflichkeit",q:"___ du mir bitte die Tür öffnen?",a:["Könntest","Kannst","Musst","Sollst"],c:0},
-                {cat:"Pronominaladverb",q:"Ich ärgere mich über die Verspätung. → Ich ärgere mich ___.",a:["darüber","daran","dafür","davon"],c:0},
-                {cat:"Pronominaladverb",q:"Er wartet auf die Antwort. → Er wartet ___.",a:["darauf","daran","dafür","davon"],c:0},
-                {cat:"Pronominaladverb",q:"Sie denkt an ihre Karriere. → Sie denkt oft ___.",a:["daran","darauf","dafür","darüber"],c:0},
-                {cat:"Reflexiv+Präp.",q:"Wenn Sie Probleme haben, sollten Sie ___ ___ einen Experten wenden.",a:["sich an","an sich","sich zu","zu sich"],c:0},
-                {cat:"Reflexiv+Präp.",q:"Er ___ ___ das neue Projekt.",a:["freut sich auf","freut auf sich","sich freut auf","auf sich freut"],c:0},
-                {cat:"Satzbau",q:"Welcher Satz ist korrekt?",a:["Wenn Sie Fragen haben, können Sie mich anrufen.","Wenn Sie haben Fragen, können Sie mich anrufen.","Wenn Fragen Sie haben, können Sie mich anrufen.","Wenn Sie Fragen haben, Sie können mich anrufen."],c:0},
-                {cat:"Satzbau",q:"Welcher Satz ist korrekt?",a:["Es tut mir leid, dass ich zu spät komme.","Es tut mir leid, das ich zu spät komme.","Es mir tut leid, dass ich zu spät komme.","Es tut mir leid, weil ich zu spät komme."],c:0},
-                {cat:"Bedauern",q:"Ich bedaure, ___ ich nicht dabei sein konnte.",a:["dass","weil","wenn","als"],c:0},
-                {cat:"Bedauern",q:"Es tut mir leid, ___ das passiert ist.",a:["dass","weil","wenn","als"],c:0},
-                {cat:"Arbeitswelt",q:"Was bedeutet 'Arbeitsvertrag'?",a:["Dokument über Arbeitsbedingungen","Stellenanzeige","Bewerbung","Zeugnis"],c:0},
-                {cat:"Arbeitswelt",q:"Was ist ein 'Lebenslauf'?",a:["Dokument mit persönlichen Daten und Erfahrung","Arbeitsvertrag","Gehalt","Urlaubsantrag"],c:0},
-                {cat:"Konjunktiv II",q:"Wenn ich mehr Zeit ___, würde ich mehr lernen.",a:["hätte","habe","hatte","haben"],c:0},
-                {cat:"Konjunktiv II",q:"Wenn er hier ___, würde er helfen.",a:["wäre","ist","war","sein"],c:0},
-                {cat:"Modalverben",q:"Er ___ den Bericht bis morgen fertig haben. (Notwendigkeit)",a:["muss","soll","kann","darf"],c:0},
-                {cat:"Modalverben",q:"Sie ___ früher gehen, wenn Sie möchten. (Erlaubnis)",a:["dürfen","müssen","sollen","können"],c:0},
-                {cat:"Präpositionen",q:"Ich bedanke mich ___ Ihre Hilfe.",a:["für","über","auf","an"],c:0},
-                {cat:"Präpositionen",q:"Er beschwert sich ___ den Lärm.",a:["über","für","auf","an"],c:0},
-                {cat:"Satzbau",q:"Nachdem er die E-Mail ___ hat, ruft er den Kunden an.",a:["geschrieben","schreiben","schreibt","schrieb"],c:0},
-                {cat:"Satzbau",q:"Bevor sie nach Hause ___, schließt sie alle Fenster.",a:["geht","gehen","ging","gegangen"],c:0},
-                {cat:"Höflichkeit",q:"___ Sie so freundlich sein, mir zu helfen?",a:["Würden","Werden","Wollen","Können"],c:0},
-                {cat:"Arbeitswelt",q:"Was bedeutet 'Probezeit'?",a:["Testphase am Anfang der Arbeit","Überstunden","Urlaub","Gehalt"],c:0}
-            ]
-        };
-        
-        let gameCode, playerId, playerName, isHost = false, difficulty = 'einfach';
-        let currentQ = -1, lives = 3, answered = false, selected = null, timerInt = null, watching = false;
-        let gameRef, playersRef, allPlayers = [], evaluating = false, gameQuestions = [];
-        
-        function hideStatus() {
-            const st = document.getElementById("answer-status");
-            st.className = "answer-status hidden";
-            st.textContent = "";
-        }
-        
-        db.ref(".info/connected").on("value", s => {
-            const el = document.getElementById("connection-status");
-            el.textContent = s.val() ? "🟢 Online" : "🔴 Offline";
-            el.className = "connection-status " + (s.val() ? "connected" : "disconnected");
-        });
-        
-        document.querySelectorAll('.diff-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                difficulty = btn.dataset.diff;
-            };
-        });
-        document.querySelector('.diff-btn.einfach').classList.add('selected');
-        
-        function genCode() {
-            const c = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-            return Array(4).fill(0).map(() => c[Math.floor(Math.random() * c.length)]).join('');
-        }
-        
-        function showError(m) {
-            document.getElementById("error-msg").textContent = m;
-            setTimeout(() => document.getElementById("error-msg").textContent = "", 3000);
-        }
-        
-        function showScreen(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-        
-        function shuffle(arr) {
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
-        
-        document.getElementById("create-btn").onclick = function() {
-            playerName = document.getElementById("player-name").value.trim();
-            if (!playerName) { showError("Name eingeben!"); return; }
-            
-            gameCode = genCode();
-            playerId = "host_" + Date.now();
-            isHost = true;
-            gameQuestions = shuffle([...questions[difficulty]]);
-            
-            gameRef = db.ref("arbeitswelt/" + gameCode);
-            playersRef = db.ref("arbeitswelt/" + gameCode + "/players");
-            
-            gameRef.remove().then(() => {
-                return gameRef.set({
-                    status: "lobby",
-                    difficulty: difficulty,
-                    currentQuestion: -1,
-                    questionStart: null,
-                    questions: gameQuestions,
-                    host: playerId
-                });
-            }).then(() => {
-                return playersRef.child(playerId).set({
-                    name: playerName,
-                    lives: 3,
-                    isHost: true,
-                    answered: false
-                });
-            }).then(() => {
-                playersRef.child(playerId).onDisconnect().remove();
-                showLobby();
-                setupListeners();
-            });
-        };
-        
-        document.getElementById("join-btn").onclick = function() {
-            playerName = document.getElementById("player-name").value.trim();
-            gameCode = document.getElementById("game-code").value.trim().toUpperCase();
-            
-            if (!playerName) { showError("Name eingeben!"); return; }
-            if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
-            
-            playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
-            isHost = false;
-            
-            gameRef = db.ref("arbeitswelt/" + gameCode);
-            playersRef = db.ref("arbeitswelt/" + gameCode + "/players");
-            
-            gameRef.once("value").then(s => {
-                if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject(); }
-                if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject(); }
-                
-                difficulty = s.val().difficulty;
-                gameQuestions = s.val().questions;
-                
-                return playersRef.child(playerId).set({
-                    name: playerName,
-                    lives: 3,
-                    isHost: false,
-                    answered: false
-                });
-            }).then(() => {
-                playersRef.child(playerId).onDisconnect().remove();
-                showLobby();
-                setupListeners();
-            }).catch(() => {});
-        };
-        
-        document.getElementById("game-code").onkeypress = e => { if (e.key === "Enter") document.getElementById("join-btn").click(); };
-        
-        function showLobby() {
-            showScreen("lobby-screen");
-            document.getElementById("lobby-code").textContent = gameCode;
-            
-            const badge = document.getElementById("diff-badge");
-            badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
-            badge.className = "diff-badge " + difficulty;
-            
-            document.getElementById("host-controls").style.display = isHost ? "block" : "none";
-            document.getElementById("player-controls").style.display = isHost ? "none" : "block";
-        }
-        
-        function setupListeners() {
-            playersRef.on("value", snap => {
-                const players = [];
-                snap.forEach(c => {
-                    const d = c.val();
-                    if (d && d.name) players.push({ id: c.key, ...d });
-                });
-                allPlayers = players;
-                updatePlayers(players);
-                checkAllAnswered();
-            });
-            
-            gameRef.on("value", snap => {
-                const game = snap.val();
-                if (!game) { backToHome(); return; }
-                
-                if (game.status === "playing") {
-                    showScreen("game-screen");
-                    if (game.currentQuestion !== currentQ) {
-                        hideStatus();
-                        document.getElementById("answers").innerHTML = "";
-                        currentQ = game.currentQuestion;
-                        evaluating = false;
-                        showQuestion(game.questionStart);
-                    }
-                } else if (game.status === "finished") {
-                    endGame();
-                }
-            });
-        }
-        
-        function updatePlayers(players) {
-            const w = document.getElementById("waiting-players");
-            w.innerHTML = players.length === 0 ? '<p style="color:#666">Warte...</p>' :
-                players.map(p => `<div class="waiting-player"><span>${p.name} ${p.isHost ? '👑' : ''}</span></div>`).join("");
-            
-            document.getElementById("start-btn").disabled = players.filter(p => !p.isHost).length === 0;
-            document.getElementById("survivors").textContent = `👥 ${players.filter(p => p.lives > 0).length}`;
-            
-            document.getElementById("players-grid").innerHTML = players.map(p => 
-                `<div class="player-chip ${p.lives === 0 ? 'dead' : ''} ${p.id === playerId ? 'is-me' : ''} ${p.answered && p.lives > 0 ? 'answered' : ''}">
-                    <span>${p.name}</span>
-                    <span>${p.lives > 0 ? '❤️'.repeat(p.lives) : '💀'}</span>
-                </div>`
-            ).join("");
-        }
-        
-        function checkAllAnswered() {
-            if (evaluating || currentQ < 0) return;
-            const alive = allPlayers.filter(p => p.lives > 0);
-            if (alive.length > 0 && alive.every(p => p.answered)) {
-                evaluating = true;
-                if (timerInt) clearInterval(timerInt);
-                evaluate();
-            }
-        }
-        
-        document.getElementById("start-btn").onclick = function() {
-            if (!isHost) return;
-            playersRef.once("value", s => {
-                s.forEach(c => playersRef.child(c.key).update({ answered: false }));
-                gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
-            });
-        };
-        
-        document.getElementById("reset-btn").onclick = function() {
-            if (!confirm("Zurücksetzen?")) return;
-            gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
-            playersRef.once("value", s => s.forEach(c => playersRef.child(c.key).update({ lives: 3, answered: false })));
-            lives = 3;
-            currentQ = -1;
-            watching = false;
-            evaluating = false;
-            hideStatus();
-            document.getElementById("eliminated-overlay").style.display = "none";
-            showScreen("lobby-screen");
-        };
-        
-        document.getElementById("watch-btn").onclick = function() {
-            watching = true;
-            document.getElementById("eliminated-overlay").style.display = "none";
-        };
-        
-        function showQuestion(startTime) {
-            if (currentQ >= gameQuestions.length) {
-                gameRef.update({ status: "finished" });
-                return;
-            }
-            
-            answered = false;
-            selected = null;
-            playersRef.child(playerId).update({ answered: false });
-            
-            const q = gameQuestions[currentQ];
-            document.getElementById("question-num").textContent = `${currentQ + 1}/${gameQuestions.length}`;
-            document.getElementById("category").textContent = q.cat;
-            document.getElementById("question").textContent = q.q;
-            updateLives();
-            
-            const idx = [0, 1, 2, 3];
-            shuffle(idx);
-            
-            const ans = document.getElementById("answers");
-            ans.innerHTML = "";
-            idx.forEach(origIdx => {
-                const btn = document.createElement("button");
-                btn.className = "answer-btn";
-                btn.textContent = q.a[origIdx];
-                btn.dataset.origIdx = origIdx;
-                btn.onclick = () => selectAnswer(btn, origIdx);
-                if (watching || lives === 0) btn.disabled = true;
-                ans.appendChild(btn);
-            });
-            
-            startTimer(startTime);
-        }
-        
-        function selectAnswer(btn, idx) {
-            if (answered || lives === 0) return;
-            answered = true;
-            selected = idx;
-            
-            document.querySelectorAll(".answer-btn").forEach(b => {
-                b.disabled = true;
-                b.classList.remove("selected");
-            });
-            btn.classList.add("selected");
-            
-            playersRef.child(playerId).update({ answered: true });
-            
-            const st = document.getElementById("answer-status");
-            st.className = "answer-status waiting";
-            st.textContent = "✓ Warte auf andere...";
-        }
-        
-        function startTimer(startTime) {
-            if (timerInt) clearInterval(timerInt);
-            const el = document.getElementById("timer");
-            
-            function tick() {
-                const rem = Math.max(0, 15 - Math.floor((Date.now() - startTime) / 1000));
-                el.textContent = rem;
-                el.className = "timer" + (rem <= 3 ? " danger" : rem <= 5 ? " warning" : "");
-                
-                if (rem === 0) {
-                    clearInterval(timerInt);
-                    if (!evaluating) {
-                        evaluating = true;
-                        evaluate();
-                    }
-                }
-            }
-            tick();
-            timerInt = setInterval(tick, 200);
-        }
-        
-        function evaluate() {
-            const q = gameQuestions[currentQ];
-            const st = document.getElementById("answer-status");
-            
-            document.querySelectorAll(".answer-btn").forEach(btn => {
-                btn.disabled = true;
-                if (parseInt(btn.dataset.origIdx) === q.c) btn.classList.add("correct");
-            });
-            
-            if (!answered) {
-                if (lives > 0) {
-                    lives--;
-                    playersRef.child(playerId).update({ lives });
-                }
-                st.className = "answer-status timeout";
-                st.textContent = "⏰ Zeit abgelaufen!";
-            } else if (selected === q.c) {
-                st.className = "answer-status correct";
-                st.textContent = "✅ Richtig!";
+        db.ref(".info/connected").on("value", function(s) {
+            var el = document.getElementById("connection-status");
+            if (s.val()) {
+                el.textContent = "🟢 Online";
+                el.className = "connection-status connected";
             } else {
-                if (lives > 0) {
-                    lives--;
-                    playersRef.child(playerId).update({ lives });
+                el.textContent = "🔴 Offline";
+                el.className = "connection-status";
+            }
+        });
+        
+        setupButtons();
+    }
+    
+    function setupButtons() {
+        var diffBtns = document.querySelectorAll('.diff-btn');
+        for (var i = 0; i < diffBtns.length; i++) {
+            diffBtns[i].onclick = function() {
+                for (var j = 0; j < diffBtns.length; j++) {
+                    diffBtns[j].classList.remove('selected');
                 }
-                document.querySelectorAll(".answer-btn").forEach(btn => {
-                    if (parseInt(btn.dataset.origIdx) === selected) btn.classList.add("wrong");
-                });
-                st.className = "answer-status wrong";
-                st.textContent = lives > 0 ? `❌ Falsch! Noch ${lives} Leben` : "❌ Falsch!";
+                this.classList.add('selected');
+                difficulty = this.getAttribute('data-diff');
+            };
+        }
+        
+        document.getElementById("create-btn").onclick = createGame;
+        document.getElementById("join-btn").onclick = joinGame;
+        document.getElementById("start-btn").onclick = startGame;
+        document.getElementById("reset-btn").onclick = resetGame;
+        document.getElementById("back-btn").onclick = backToHome;
+        document.getElementById("watch-btn").onclick = function() {
+            document.getElementById("eliminated-overlay").classList.remove("show");
+        };
+        
+        document.getElementById("game-code").onkeypress = function(e) {
+            if (e.key === "Enter") joinGame();
+        };
+    }
+    
+    function genCode() {
+        var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        var code = "";
+        for (var i = 0; i < 4; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+    }
+    
+    function showError(msg) {
+        var el = document.getElementById("error-msg");
+        el.textContent = msg;
+        el.style.display = "block";
+        setTimeout(function() { el.style.display = "none"; }, 3000);
+    }
+    
+    function showScreen(id) {
+        var screens = document.querySelectorAll('.screen');
+        for (var i = 0; i < screens.length; i++) {
+            screens[i].classList.remove('active');
+        }
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function shuffle(arr) {
+        var newArr = arr.slice();
+        for (var i = newArr.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = newArr[i];
+            newArr[i] = newArr[j];
+            newArr[j] = temp;
+        }
+        return newArr;
+    }
+    
+    function createGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        if (!playerName) { showError("Name eingeben!"); return; }
+        
+        gameCode = genCode();
+        playerId = "host_" + Date.now();
+        isHost = true;
+        gameQuestions = shuffle(questions[difficulty]).slice(0, 30);
+        
+        gameRef = db.ref("survival2/" + gameCode);
+        playersRef = db.ref("survival2/" + gameCode + "/players");
+        
+        gameRef.remove().then(function() {
+            return gameRef.set({
+                status: "lobby",
+                difficulty: difficulty,
+                currentQuestion: -1,
+                questionStart: null,
+                questions: gameQuestions,
+                host: playerId
+            });
+        }).then(function() {
+            return playersRef.child(playerId).set({
+                name: playerName,
+                lives: 3,
+                isHost: true,
+                answered: false
+            });
+        }).then(function() {
+            playersRef.child(playerId).onDisconnect().remove();
+            showLobby();
+            setupListeners();
+        });
+    }
+    
+    function joinGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        gameCode = document.getElementById("game-code").value.trim().toUpperCase();
+        
+        if (!playerName) { showError("Name eingeben!"); return; }
+        if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
+        
+        playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4);
+        isHost = false;
+        
+        gameRef = db.ref("survival2/" + gameCode);
+        playersRef = db.ref("survival2/" + gameCode + "/players");
+        
+        gameRef.once("value").then(function(s) {
+            if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject("not found"); }
+            if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject("running"); }
+            
+            difficulty = s.val().difficulty;
+            gameQuestions = s.val().questions;
+            
+            return playersRef.child(playerId).set({
+                name: playerName,
+                lives: 3,
+                isHost: false,
+                answered: false
+            });
+        }).then(function() {
+            playersRef.child(playerId).onDisconnect().remove();
+            showLobby();
+            setupListeners();
+        }).catch(function(e) { console.log(e); });
+    }
+    
+    function showLobby() {
+        showScreen("lobby-screen");
+        document.getElementById("lobby-code").textContent = gameCode;
+        
+        var badge = document.getElementById("diff-badge");
+        badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+        badge.className = "diff-badge " + difficulty;
+        
+        document.getElementById("host-controls").style.display = isHost ? "block" : "none";
+        document.getElementById("player-controls").style.display = isHost ? "none" : "block";
+    }
+    
+    function setupListeners() {
+        playersRef.on("value", function(snap) {
+            var players = [];
+            snap.forEach(function(c) {
+                var d = c.val();
+                if (d && d.name) {
+                    d.id = c.key;
+                    players.push(d);
+                }
+            });
+            allPlayers = players;
+            updateUI();
+        });
+        
+        gameRef.on("value", function(snap) {
+            var game = snap.val();
+            if (!game) { backToHome(); return; }
+            
+            if (game.status === "playing") {
+                showScreen("game-screen");
+                if (game.currentQuestion !== currentQ) {
+                    currentQ = game.currentQuestion;
+                    answered = false;
+                    hideStatus();
+                    showQuestion(game.questionStart);
+                }
+            } else if (game.status === "finished") {
+                showResults();
+            }
+        });
+    }
+    
+    function updateUI() {
+        // Lobby
+        var w = document.getElementById("waiting-players");
+        if (allPlayers.length === 0) {
+            w.innerHTML = '<p style="opacity:0.6">Warte auf Spieler...</p>';
+        } else {
+            var html = "";
+            for (var i = 0; i < allPlayers.length; i++) {
+                var p = allPlayers[i];
+                html += '<div class="waiting-player">' + p.name + (p.isHost ? ' 👑' : '') + '</div>';
+            }
+            w.innerHTML = html;
+        }
+        
+        var nonHostCount = 0;
+        for (var i = 0; i < allPlayers.length; i++) {
+            if (!allPlayers[i].isHost) nonHostCount++;
+        }
+        document.getElementById("start-btn").disabled = nonHostCount === 0;
+        
+        // Game
+        var me = null;
+        for (var i = 0; i < allPlayers.length; i++) {
+            if (allPlayers[i].id === playerId) { me = allPlayers[i]; break; }
+        }
+        if (me) {
+            myLives = me.lives;
+            var hearts = "";
+            for (var i = 0; i < me.lives; i++) hearts += "❤️";
+            for (var i = me.lives; i < 3; i++) hearts += "🖤";
+            document.getElementById("display-lives").textContent = hearts;
+        }
+        
+        // Survivors
+        var alive = 0;
+        for (var i = 0; i < allPlayers.length; i++) {
+            if (allPlayers[i].lives > 0) alive++;
+        }
+        document.getElementById("survivors").textContent = "👥 " + alive;
+        
+        // Players grid
+        var grid = "";
+        for (var i = 0; i < allPlayers.length; i++) {
+            var p = allPlayers[i];
+            var elim = p.lives <= 0 ? ' eliminated' : '';
+            var hearts = "";
+            for (var j = 0; j < p.lives; j++) hearts += "❤️";
+            grid += '<div class="player-chip' + elim + '">' + p.name + ' ' + hearts + '</div>';
+        }
+        document.getElementById("players-grid").innerHTML = grid;
+    }
+    
+    function hideStatus() {
+        var st = document.getElementById("answer-status");
+        st.className = "answer-status";
+        st.textContent = "";
+    }
+    
+    function startGame() {
+        if (!isHost) return;
+        playersRef.once("value", function(s) {
+            s.forEach(function(c) {
+                playersRef.child(c.key).update({ answered: false, lives: 3 });
+            });
+            gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
+        });
+    }
+    
+    function resetGame() {
+        if (!confirm("Zurücksetzen?")) return;
+        gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
+        playersRef.once("value", function(s) {
+            s.forEach(function(c) {
+                playersRef.child(c.key).update({ lives: 3, answered: false });
+            });
+        });
+        myLives = 3;
+        currentQ = -1;
+        eliminated = false;
+        document.getElementById("eliminated-overlay").classList.remove("show");
+        showScreen("lobby-screen");
+    }
+    
+    function showQuestion(startTime) {
+        if (currentQ >= gameQuestions.length) {
+            gameRef.update({ status: "finished" });
+            return;
+        }
+        
+        var q = gameQuestions[currentQ];
+        document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameQuestions.length;
+        document.getElementById("category").textContent = q.cat;
+        document.getElementById("question").textContent = q.q;
+        
+        var idx = shuffle([0, 1, 2, 3]);
+        var ans = document.getElementById("answers");
+        ans.innerHTML = "";
+        
+        for (var i = 0; i < idx.length; i++) {
+            var origIdx = idx[i];
+            var btn = document.createElement("button");
+            btn.className = "answer-btn";
+            btn.textContent = q.a[origIdx];
+            btn.setAttribute("data-idx", origIdx);
+            btn.disabled = myLives <= 0;
+            btn.onclick = (function(b, oi) {
+                return function() { selectAnswer(b, oi); };
+            })(btn, origIdx);
+            ans.appendChild(btn);
+        }
+        
+        startTimer(startTime);
+    }
+    
+    function selectAnswer(btn, idx) {
+        if (answered || myLives <= 0) return;
+        answered = true;
+        
+        var q = gameQuestions[currentQ];
+        var isCorrect = idx === q.c;
+        
+        var btns = document.querySelectorAll(".answer-btn");
+        for (var i = 0; i < btns.length; i++) {
+            btns[i].disabled = true;
+            if (parseInt(btns[i].getAttribute("data-idx")) === q.c) {
+                btns[i].classList.add("correct");
+            }
+        }
+        
+        var st = document.getElementById("answer-status");
+        if (isCorrect) {
+            st.textContent = "✅ Richtig!";
+            st.className = "answer-status correct show";
+            playersRef.child(playerId).update({ answered: true });
+        } else {
+            btn.classList.add("wrong");
+            myLives--;
+            st.textContent = "❌ Falsch! -1 ❤️";
+            st.className = "answer-status wrong show";
+            playersRef.child(playerId).update({ answered: true, lives: myLives });
+            
+            if (myLives <= 0 && !eliminated) {
+                eliminated = true;
+                setTimeout(function() {
+                    document.getElementById("eliminated-overlay").classList.add("show");
+                }, 500);
+            }
+        }
+    }
+    
+    function startTimer(startTime) {
+        if (timerInt) clearInterval(timerInt);
+        var el = document.getElementById("timer");
+        
+        function tick() {
+            var elapsed = Math.floor((Date.now() - startTime) / 1000);
+            var rem = Math.max(0, 15 - elapsed);
+            el.textContent = rem;
+            
+            if (rem <= 3) {
+                el.className = "timer danger";
+            } else if (rem <= 5) {
+                el.className = "timer warning";
+            } else {
+                el.className = "timer";
             }
             
-            updateLives();
-            
-            if (lives === 0 && !watching) {
-                setTimeout(() => {
-                    document.getElementById("eliminated-overlay").style.display = "flex";
-                }, 1000);
-            }
-            
-            if (isHost) {
-                setTimeout(() => {
-                    playersRef.once("value", s => {
-                        s.forEach(c => playersRef.child(c.key).update({ answered: false }));
-                        if (currentQ + 1 >= gameQuestions.length) {
+            if (rem === 0) {
+                clearInterval(timerInt);
+                if (!answered && myLives > 0) {
+                    answered = true;
+                    myLives--;
+                    var q = gameQuestions[currentQ];
+                    var btns = document.querySelectorAll(".answer-btn");
+                    for (var i = 0; i < btns.length; i++) {
+                        btns[i].disabled = true;
+                        if (parseInt(btns[i].getAttribute("data-idx")) === q.c) {
+                            btns[i].classList.add("correct");
+                        }
+                    }
+                    var st = document.getElementById("answer-status");
+                    st.textContent = "⏰ Zeit abgelaufen! -1 ❤️";
+                    st.className = "answer-status timeout show";
+                    playersRef.child(playerId).update({ answered: true, lives: myLives });
+                    
+                    if (myLives <= 0 && !eliminated) {
+                        eliminated = true;
+                        setTimeout(function() {
+                            document.getElementById("eliminated-overlay").classList.add("show");
+                        }, 500);
+                    }
+                }
+                
+                if (isHost) {
+                    setTimeout(function() {
+                        var allAlive = 0;
+                        for (var i = 0; i < allPlayers.length; i++) {
+                            if (allPlayers[i].lives > 0) allAlive++;
+                        }
+                        
+                        if (allAlive === 0 || currentQ + 1 >= gameQuestions.length) {
                             gameRef.update({ status: "finished" });
                         } else {
-                            gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
+                            playersRef.once("value", function(s) {
+                                s.forEach(function(c) {
+                                    playersRef.child(c.key).update({ answered: false });
+                                });
+                                gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() });
+                            });
                         }
-                    });
-                }, 3000);
+                    }, 2500);
+                }
             }
         }
+        tick();
+        timerInt = setInterval(tick, 100);
+    }
+    
+    function showResults() {
+        if (timerInt) clearInterval(timerInt);
+        showScreen("gameover-screen");
+        document.getElementById("eliminated-overlay").classList.remove("show");
         
-        function updateLives() {
-            document.getElementById("display-lives").textContent = lives > 0 ? "❤️".repeat(lives) + "🖤".repeat(3 - lives) : "💀";
+        var survivors = [];
+        for (var i = 0; i < allPlayers.length; i++) {
+            if (allPlayers[i].lives > 0) survivors.push(allPlayers[i]);
         }
         
-        function endGame() {
-            if (timerInt) clearInterval(timerInt);
-            document.getElementById("eliminated-overlay").style.display = "none";
-            showScreen("gameover-screen");
-            
-            document.getElementById("result-icon").textContent = lives > 0 ? "🏆" : "💀";
-            document.getElementById("result-title").textContent = lives > 0 ? "Du hast überlebt!" : "Ausgeschieden!";
-            
-            playersRef.once("value", s => {
-                const winners = [];
-                s.forEach(c => {
-                    const p = c.val();
-                    if (p && p.lives > 0) winners.push(p);
-                });
-                document.getElementById("winners-content").innerHTML = winners.length === 0 ? 
-                    "<p>Niemand überlebt! 💀</p>" :
-                    winners.map(w => `<div class="winner-item"><span>${w.name}</span><span>${"❤️".repeat(w.lives)}</span></div>`).join("");
-            });
+        var iAmSurvivor = false;
+        for (var i = 0; i < survivors.length; i++) {
+            if (survivors[i].id === playerId) { iAmSurvivor = true; break; }
         }
         
-        document.getElementById("back-btn").onclick = backToHome;
+        document.getElementById("result-icon").textContent = survivors.length > 0 ? "🏆" : "💀";
+        document.getElementById("result-title").textContent = iAmSurvivor ? "Du hast überlebt!" : (survivors.length > 0 ? "Spiel beendet!" : "Alle ausgeschieden!");
         
-        function backToHome() {
-            if (timerInt) clearInterval(timerInt);
-            if (gameRef) gameRef.off();
-            if (playersRef) {
-                playersRef.off();
-                if (playerId) playersRef.child(playerId).remove();
+        var html = "";
+        if (survivors.length > 0) {
+            survivors.sort(function(a, b) { return b.lives - a.lives; });
+            for (var i = 0; i < survivors.length; i++) {
+                var p = survivors[i];
+                var hearts = "";
+                for (var j = 0; j < p.lives; j++) hearts += "❤️";
+                html += '<div class="winner-item"><span>' + p.name + '</span><span>' + hearts + '</span></div>';
             }
-            gameCode = playerId = null;
-            isHost = false;
-            lives = 3;
-            currentQ = -1;
-            watching = false;
-            evaluating = false;
-            hideStatus();
-            document.getElementById("eliminated-overlay").style.display = "none";
-            showScreen("login-screen");
-            document.getElementById("game-code").value = "";
+        } else {
+            html = '<p style="color:#aaa">Niemand hat überlebt 💀</p>';
         }
-    });
+        document.getElementById("winners-content").innerHTML = html;
+    }
+    
+    function backToHome() {
+        if (timerInt) clearInterval(timerInt);
+        if (gameRef) gameRef.off();
+        if (playersRef) {
+            playersRef.off();
+            if (playerId) playersRef.child(playerId).remove();
+        }
+        gameCode = null;
+        playerId = null;
+        isHost = false;
+        myLives = 3;
+        currentQ = -1;
+        eliminated = false;
+        document.getElementById("eliminated-overlay").classList.remove("show");
+        showScreen("login-screen");
+        document.getElementById("game-code").value = "";
+    }
+    
+    window.onload = init;
     </script>
     <script data-goatcounter="https://aguitoo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>

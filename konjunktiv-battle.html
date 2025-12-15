@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧩 Zuordnungs-Duell</title>
+    <title>✨ Konjunktiv II Battle</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#6c5ce7 0%,#a29bfe 100%);min-height:100vh;color:#fff}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#e84393 0%,#fd79a8 100%);min-height:100vh;color:#fff}
         .container{max-width:900px;margin:0 auto;padding:15px}
         h1{text-align:center;font-size:1.5em;margin-bottom:15px}
         .screen{display:none}.screen.active{display:block}
@@ -17,19 +17,22 @@
         .difficulty-select{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;justify-content:center}
         .diff-btn{padding:15px 25px;border:3px solid rgba(255,255,255,0.3);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;font-size:1em;font-weight:700;cursor:pointer;transition:all 0.3s}
         .diff-btn:hover,.diff-btn.selected{transform:scale(1.05)}
-        .diff-btn.einfach{border-color:#00b894}.diff-btn.einfach.selected{background:#00b894}
+        .diff-btn.einfach{border-color:#55efc4}.diff-btn.einfach.selected{background:#00b894}
         .diff-btn.mittel{border-color:#fdcb6e}.diff-btn.mittel.selected{background:#e17055}
         .diff-btn.schwer{border-color:#d63031}.diff-btn.schwer.selected{background:#d63031}
         .input-group{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
-        .input-group input,.input-group select{font-size:1.1em;padding:12px 20px;border:2px solid #fff;border-radius:25px;text-align:center;background:rgba(255,255,255,0.15);color:#fff}
-        .input-group select option{background:#6c5ce7;color:#fff}
-        .input-group input::placeholder{color:rgba(255,255,255,0.6)}
+        .input-group input,.input-group select{font-size:1.1em;padding:12px 20px;border:2px solid #fff;border-radius:25px;text-align:center;background:rgba(255,255,255,0.2);color:#fff}
+        .input-group select option{background:#e84393;color:#fff}
+        .input-group input::placeholder{color:rgba(255,255,255,0.7)}
         .input-group input.code-input{font-size:1.4em;letter-spacing:8px;text-transform:uppercase}
-        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:#fff;color:#6c5ce7;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:#fff;color:#e84393;font-weight:700;cursor:pointer;width:100%;max-width:300px}
         .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #fff;border-radius:25px;background:transparent;color:#fff;cursor:pointer;width:100%;max-width:300px}
         .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
-        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.4)}
-        .error-msg{color:#fff;background:rgba(214,48,49,0.8);padding:8px 15px;border-radius:10px;font-size:0.9em;margin-top:10px;display:none}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.5)}
+        .error-msg{color:#2d3436;background:rgba(255,255,255,0.9);padding:8px 15px;border-radius:10px;font-size:0.9em;margin-top:10px;display:none}
+        
+        .info-box{background:rgba(255,255,255,0.15);border-radius:15px;padding:15px;margin-top:15px;max-width:350px;text-align:left;font-size:0.85em}
+        .info-box h4{color:#ffd700;margin-bottom:8px}
         
         #lobby-screen{text-align:center}
         .lobby-box{background:rgba(255,255,255,0.15);border-radius:20px;padding:25px;margin:20px 0}
@@ -45,10 +48,10 @@
         .team-players{min-height:40px;display:flex;flex-wrap:wrap;gap:5px}
         .team-player{padding:5px 10px;background:rgba(255,255,255,0.15);border-radius:10px;font-size:0.85em}
         
-        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:#fff;color:#6c5ce7;font-weight:700;cursor:pointer;margin:15px 0}
+        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:#fff;color:#e84393;font-weight:700;cursor:pointer;margin:15px 0}
         .start-game-btn:disabled{opacity:0.5;cursor:not-allowed}
-        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.4);border-radius:15px;background:transparent;color:#fff;cursor:pointer;margin:5px}
-        .small-btn.danger{border-color:#e74c3c;background:rgba(231,76,60,0.3)}
+        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.5);border-radius:15px;background:transparent;color:#fff;cursor:pointer;margin:5px}
+        .small-btn.danger{background:rgba(255,0,0,0.3)}
         
         .scoreboard{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}
         @media(max-width:600px){.scoreboard{grid-template-columns:1fr 1fr}}
@@ -60,29 +63,24 @@
         .team-score .emoji{font-size:1.5em}.team-score .points{font-size:1.3em;font-weight:700}
         
         .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.15);border-radius:15px;flex-wrap:wrap;gap:10px}
-        .timer{font-size:2em;font-weight:700}.timer.warning{color:#fdcb6e}.timer.danger{color:#e74c3c;animation:pulse 0.5s infinite}
+        .timer{font-size:2em;font-weight:700}.timer.warning{color:#fdcb6e}.timer.danger{color:#d63031;animation:pulse 0.5s infinite}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
         
-        .matching-section{background:rgba(255,255,255,0.1);border-radius:20px;padding:20px}
-        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:0.85em;margin-bottom:15px}
+        .quiz-section{background:rgba(255,255,255,0.1);border-radius:20px;padding:20px;margin-bottom:15px}
+        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:0.85em;margin-bottom:12px}
+        .question{font-size:1.4em;margin-bottom:20px;line-height:1.5;text-align:center}
+        .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        @media(max-width:500px){.answers{grid-template-columns:1fr}}
+        .answer-btn{padding:18px;font-size:1.1em;border:3px solid rgba(255,255,255,0.4);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;transition:all 0.2s;font-weight:600}
+        .answer-btn:hover:not(:disabled){background:rgba(255,255,255,0.3);border-color:#fff}
+        .answer-btn.correct{background:rgba(0,184,148,0.8)!important;border-color:#00b894!important}
+        .answer-btn.wrong{background:rgba(214,48,49,0.8)!important;border-color:#d63031!important}
+        .answer-btn:disabled{cursor:not-allowed}
         
-        .matching-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-        @media(max-width:500px){.matching-grid{gap:10px}}
-        .matching-column{display:flex;flex-direction:column;gap:10px}
-        .matching-column h4{text-align:center;margin-bottom:5px;font-size:0.9em;opacity:0.8}
-        
-        .match-item{padding:15px;background:rgba(255,255,255,0.15);border:3px solid rgba(255,255,255,0.3);border-radius:12px;cursor:pointer;transition:all 0.2s;font-weight:600;text-align:center}
-        .match-item:hover:not(.matched):not(.disabled){background:rgba(255,255,255,0.25);border-color:#fff;transform:scale(1.02)}
-        .match-item.selected{background:rgba(255,215,0,0.4);border-color:#ffd700}
-        .match-item.matched{background:rgba(0,184,148,0.5);border-color:#00b894;cursor:default}
-        .match-item.wrong{animation:shake 0.3s;background:rgba(214,48,49,0.5);border-color:#d63031}
-        .match-item.disabled{opacity:0.5;cursor:not-allowed}
-        @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-        
-        .match-progress{margin-top:15px;text-align:center;font-size:0.9em;opacity:0.8}
         .answer-status{text-align:center;padding:12px;margin-top:15px;border-radius:10px;font-weight:700;display:none}
         .answer-status.show{display:block}
         .answer-status.correct{background:rgba(0,184,148,0.4)}
+        .answer-status.wrong{background:rgba(214,48,49,0.4)}
         .answer-status.timeout{background:rgba(253,203,110,0.4)}
         
         #gameover-screen{text-align:center;padding:30px 20px}
@@ -91,18 +89,18 @@
         .final-team{display:flex;justify-content:space-between;align-items:center;padding:12px;margin-bottom:8px;border-radius:10px;background:rgba(255,255,255,0.1)}
         .final-team.winner{background:rgba(255,215,0,0.3);border:2px solid #ffd700}
         
-        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.4)}
+        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.3)}
         .connection-status.connected{color:#55efc4}
     </style>
 </head>
 <body>
     <div class="connection-status" id="connection-status">Verbinde...</div>
     <div class="container">
-        <h1>🧩 Zuordnungs-Duell</h1>
+        <h1>✨ Konjunktiv II Battle</h1>
         
         <div id="login-screen" class="screen active">
-            <div class="logo">🧩</div>
-            <h2>Verbinde die Paare!<br><small style="opacity:0.8">Team-Wettbewerb</small></h2>
+            <div class="logo">✨</div>
+            <h2>würde • hätte • wäre<br><small style="opacity:0.8">Team-Wettbewerb</small></h2>
             <div class="difficulty-select">
                 <button class="diff-btn einfach selected" data-diff="einfach">🟢 Einfach</button>
                 <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
@@ -123,6 +121,13 @@
             <div class="divider"><span>oder</span></div>
             <button class="btn-secondary" id="create-btn">👑 Neues Spiel erstellen</button>
             <div class="error-msg" id="error-msg"></div>
+            <div class="info-box">
+                <h4>💡 Konjunktiv II:</h4>
+                <p><strong>würde</strong> + Infinitiv (ich würde gehen)<br>
+                <strong>hätte</strong> (ich hätte Zeit)<br>
+                <strong>wäre</strong> (ich wäre froh)<br>
+                <strong>könnte/sollte/müsste</strong> (Modalverben)</p>
+            </div>
         </div>
         
         <div id="lobby-screen" class="screen">
@@ -130,7 +135,6 @@
                 <h2>⏳ Warteraum</h2>
                 <div class="lobby-code" id="lobby-code">CODE</div>
                 <div class="diff-badge einfach" id="diff-badge">Einfach</div>
-                <p style="opacity:0.8;font-size:0.9em">🧩 4 Paare • 30 Sekunden • 10 Runden</p>
                 <div class="teams-grid">
                     <div class="team-box mond"><h3>🌙 Mond</h3><div class="team-players" id="team-mond"></div></div>
                     <div class="team-box sonne"><h3>☀️ Sonne</h3><div class="team-players" id="team-sonne"></div></div>
@@ -156,17 +160,14 @@
                 <div class="team-score ozean"><div class="emoji">🌊</div><div class="points" id="score-ozean">0</div></div>
             </div>
             <div class="game-header">
-                <div id="question-num">1/10</div>
-                <div class="timer" id="timer">30</div>
+                <div id="question-num">1/25</div>
+                <div class="timer" id="timer">12</div>
                 <div id="my-team"></div>
             </div>
-            <div class="matching-section">
+            <div class="quiz-section">
                 <div class="category-badge" id="category"></div>
-                <div class="matching-grid">
-                    <div class="matching-column"><h4>Begriff</h4><div id="left-items"></div></div>
-                    <div class="matching-column"><h4>Bedeutung</h4><div id="right-items"></div></div>
-                </div>
-                <div class="match-progress" id="match-progress">0/4 gefunden</div>
+                <div class="question" id="question"></div>
+                <div class="answers" id="answers"></div>
                 <div class="answer-status" id="answer-status"></div>
             </div>
         </div>
@@ -185,107 +186,131 @@
     var db, gameRef, playersRef, scoresRef;
     var gameCode, playerId, playerName, playerTeam, isHost, difficulty;
     var currentQ, answered, timerInt;
-    var allPlayers, gameSets, teamScores;
-    var selectedLeft, matchedPairs, currentSet;
+    var allPlayers, gameQuestions, teamScores;
     var teamEmoji = {mond:"🌙",sonne:"☀️",stern:"⭐",ozean:"🌊"};
     
-    var matchingSets = {
+    var questions = {
         einfach: [
-            {cat:"Arbeitswelt",pairs:[["Arbeitnehmer","Person, die arbeitet"],["Gehalt","Geld für Arbeit"],["Überstunden","Mehr als normal arbeiten"],["Urlaub","Freie Tage"]]},
-            {cat:"Arbeitswelt",pairs:[["Chef","Leiter der Firma"],["Kollege","Mitarbeiter"],["Büro","Arbeitsplatz"],["Pause","Zeit zum Ausruhen"]]},
-            {cat:"Verben",pairs:[["kündigen","Arbeit beenden"],["bewerben","Job suchen"],["einstellen","Jmd. Arbeit geben"],["arbeiten","Tätig sein"]]},
-            {cat:"Modalverben",pairs:[["müssen","Pflicht haben"],["können","Fähig sein"],["dürfen","Erlaubnis haben"],["wollen","Wunsch haben"]]},
-            {cat:"Konnektoren",pairs:[["weil","Grund (Verb am Ende)"],["denn","Grund (Verb Position 2)"],["dass","Nebensatz einleiten"],["wenn","Bedingung"]]},
-            {cat:"Dativ Pronomen",pairs:[["mir","1. Person Singular"],["dir","2. Person Singular"],["ihm","3. Person Maskulin"],["ihr","3. Person Feminin"]]},
-            {cat:"Konnektoren",pairs:[["trotzdem","Aber dennoch"],["deshalb","Darum"],["aber","Gegensatz"],["und","Verbindung"]]},
-            {cat:"Bewerbung",pairs:[["Lebenslauf","Berufliche Geschichte"],["Zeugnis","Schulnoten-Dokument"],["Bewerbung","Brief für Job"],["Foto","Bild von sich"]]},
-            {cat:"Eigenschaften",pairs:[["pünktlich","Rechtzeitig sein"],["zuverlässig","Man kann vertrauen"],["freundlich","Nett sein"],["fleißig","Viel arbeiten"]]},
-            {cat:"Arbeitsformen",pairs:[["Teilzeit","Weniger Stunden"],["Vollzeit","40 Stunden/Woche"],["Praktikum","Zum Lernen arbeiten"],["Ausbildung","Beruf lernen"]]}
+            {cat:"würde",q:"Ich ___ gern ins Kino gehen.",a:["würde","werde","wurde","will"],c:0},
+            {cat:"würde",q:"Er ___ lieber zu Hause bleiben.",a:["würde","werde","wurde","will"],c:0},
+            {cat:"würde",q:"Wir ___ das gern machen.",a:["würden","werden","wurden","wollen"],c:0},
+            {cat:"würde",q:"___ du mir bitte helfen?",a:["Würdest","Wirst","Wurdest","Willst"],c:0},
+            {cat:"hätte",q:"Ich ___ gern mehr Zeit.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"hätte",q:"Er ___ gern ein neues Auto.",a:["hätte","habe","hatte","hat"],c:0},
+            {cat:"hätte",q:"Wir ___ gern Urlaub.",a:["hätten","haben","hatten","hab"],c:0},
+            {cat:"hätte",q:"___ du Zeit für mich?",a:["Hättest","Hast","Hattest","Habst"],c:0},
+            {cat:"wäre",q:"Das ___ toll!",a:["wäre","ist","war","sei"],c:0},
+            {cat:"wäre",q:"Ich ___ gern reich.",a:["wäre","bin","war","sei"],c:0},
+            {cat:"wäre",q:"Er ___ gern berühmt.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"wäre",q:"___ das möglich?",a:["Wäre","Ist","War","Sei"],c:0},
+            {cat:"könnte",q:"Ich ___ dir helfen.",a:["könnte","kann","konnte","könntest"],c:0},
+            {cat:"könnte",q:"___ Sie das bitte wiederholen?",a:["Könnten","Können","Konnten","Könnte"],c:0},
+            {cat:"sollte",q:"Du ___ mehr schlafen.",a:["solltest","sollst","sollte","sollen"],c:0},
+            {cat:"sollte",q:"Er ___ pünktlicher sein.",a:["sollte","soll","solltest","sollen"],c:0},
+            {cat:"müsste",q:"Ich ___ eigentlich arbeiten.",a:["müsste","muss","musste","müssen"],c:0},
+            {cat:"müsste",q:"Er ___ mehr lernen.",a:["müsste","muss","musste","müssen"],c:0},
+            {cat:"wäre",q:"Es ___ schön, wenn du kommst.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"hätte",q:"Ich ___ gern ein Stück Kuchen.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"würde",q:"Was ___ du an meiner Stelle tun?",a:["würdest","wirst","wurdest","willst"],c:0},
+            {cat:"könnte",q:"Das ___ klappen!",a:["könnte","kann","konnte","könntest"],c:0},
+            {cat:"wäre",q:"Ich ___ so gern in Paris.",a:["wäre","bin","war","sei"],c:0},
+            {cat:"hätte",q:"___ ihr Lust auf Pizza?",a:["Hättet","Habt","Hattet","Hatten"],c:0},
+            {cat:"würde",q:"Ich ___ dich gern besuchen.",a:["würde","werde","wurde","will"],c:0}
         ],
         mittel: [
-            {cat:"Konjunktiv II",pairs:[["sollte","Empfehlung"],["könnte","Möglichkeit"],["würde","Konditional"],["müsste","Notwendigkeit"]]},
-            {cat:"Konjunktiv II",pairs:[["wäre","sein im Konjunktiv"],["hätte","haben im Konjunktiv"],["dürfte","Höfliche Vermutung"],["möchte","Wunsch"]]},
-            {cat:"Reflexivverben",pairs:[["sich bewerben","Für Job anfragen"],["sich beeilen","Schneller machen"],["sich freuen","Glücklich sein"],["sich ärgern","Wütend sein"]]},
-            {cat:"Konnektoren",pairs:[["obwohl","Trotz etwas"],["trotzdem","Aber dennoch"],["deshalb","Darum"],["damit","Mit dem Ziel"]]},
-            {cat:"Temporale Konn.",pairs:[["als","Einmal Vergangenheit"],["wenn","Wiederholung/Zukunft"],["nachdem","Danach"],["bevor","Davor"]]},
-            {cat:"Verben+Präp.",pairs:[["warten auf","Erwarten"],["denken an","Im Kopf haben"],["sich freuen auf","Vorfreude"],["sich kümmern um","Sorgen für"]]},
-            {cat:"Modal Präteritum",pairs:[["konnte","können Vergangen"],["musste","müssen Vergangen"],["wollte","wollen Vergangen"],["durfte","dürfen Vergangen"]]},
-            {cat:"Arbeitswelt",pairs:[["Vorstellungsgespräch","Interview für Job"],["Probezeit","Test-Arbeitszeit"],["Arbeitsvertrag","Job-Dokument"],["Kündigung","Arbeit beenden"]]},
-            {cat:"Pronominaladv.",pairs:[["darauf","auf + das"],["daran","an + das"],["darüber","über + das"],["dafür","für + das"]]},
-            {cat:"Doppelkonn.",pairs:[["je...desto","Vergleich steigern"],["sowohl...als auch","Beides"],["weder...noch","Nichts davon"],["entweder...oder","Auswahl"]]}
+            {cat:"Konj.II+wenn",q:"Wenn ich Zeit ___, würde ich kommen.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"Konj.II+wenn",q:"Wenn er reich ___, würde er reisen.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"Konj.II+wenn",q:"Wenn ich du ___, würde ich das machen.",a:["wäre","bin","war","sei"],c:0},
+            {cat:"Höflichkeit",q:"___ ich Sie kurz stören?",a:["Dürfte","Darf","Durfte","Dürfe"],c:0},
+            {cat:"Höflichkeit",q:"___ Sie mir bitte helfen?",a:["Könnten","Können","Konnten","Könnte"],c:0},
+            {cat:"Höflichkeit",q:"___ Sie so freundlich sein?",a:["Würden","Werden","Wurden","Wollen"],c:0},
+            {cat:"Wunsch",q:"Ich ___ so gern Urlaub!",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"Wunsch",q:"Wenn ich doch reich ___!",a:["wäre","bin","war","sei"],c:0},
+            {cat:"Wunsch",q:"Wenn er doch endlich ___!",a:["käme","kommt","kam","kommen"],c:0},
+            {cat:"Ratschlag",q:"An deiner Stelle ___ ich zum Arzt gehen.",a:["würde","werde","wurde","will"],c:0},
+            {cat:"Ratschlag",q:"Du ___ wirklich mehr Sport machen.",a:["solltest","sollst","sollte","sollen"],c:0},
+            {cat:"Ratschlag",q:"Ich ___ das anders machen.",a:["würde","werde","wurde","will"],c:0},
+            {cat:"Vermutung",q:"Das ___ stimmen.",a:["könnte","kann","konnte","könntest"],c:0},
+            {cat:"Vermutung",q:"Er ___ krank sein.",a:["könnte","kann","konnte","könntest"],c:0},
+            {cat:"Vermutung",q:"Sie ___ etwa 30 sein.",a:["dürfte","darf","durfte","dürfe"],c:0},
+            {cat:"irreal",q:"Wenn ich Geld ___, würde ich ein Haus kaufen.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"irreal",q:"Wenn das Wetter besser ___, würden wir spazieren.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"irreal",q:"Wenn ich fliegen ___, würde ich nach Japan reisen.",a:["könnte","kann","konnte","könntest"],c:0},
+            {cat:"Konj.II",q:"Ich ___ mir wünschen, dass...",a:["würde","werde","wurde","will"],c:0},
+            {cat:"Konj.II",q:"Es ___ mich freuen, wenn...",a:["würde","werde","wurde","will"],c:0},
+            {cat:"Konj.II",q:"Ich ___ gern wissen, ob...",a:["würde","werde","wurde","will"],c:0},
+            {cat:"hätte",q:"___ Sie etwas dagegen, wenn...?",a:["Hätten","Haben","Hatten","Hab"],c:0},
+            {cat:"wäre",q:"Es ___ nett, wenn Sie...",a:["wäre","ist","war","sei"],c:0},
+            {cat:"könnte",q:"___ ich Sie kurz sprechen?",a:["Könnte","Kann","Konnte","Könntest"],c:0},
+            {cat:"würde",q:"Ich ___ vorschlagen, dass...",a:["würde","werde","wurde","will"],c:0}
         ],
         schwer: [
-            {cat:"Konj. II Verg.",pairs:[["wäre gekommen","Irreale Vergangenheit"],["hätte gemacht","Irreale Handlung"],["wäre geblieben","Irreales Bleiben"],["hätte gekonnt","Irreale Fähigkeit"]]},
-            {cat:"Konnektoren",pairs:[["indem","Durch die Art wie"],["sodass","Mit dem Ergebnis"],["sofern","Falls/Wenn"],["zumal","Besonders weil"]]},
-            {cat:"Infinitivsätze",pairs:[["ohne...zu","Fehlendes"],["statt...zu","Ersatz"],["um...zu","Zweck"],["anstatt dass","Alternative"]]},
-            {cat:"Konzessive",pairs:[["als ob","Wie wenn"],["obgleich","Trotz dass"],["wohingegen","Im Gegensatz"],["insofern als","In dem Maße"]]},
-            {cat:"Reflexiv+Präp.",pairs:[["sich wenden an","Kontaktieren"],["sich einlassen auf","Akzeptieren"],["sich abfinden mit","Akzeptieren müssen"],["sich bemühen um","Versuchen zu bekommen"]]},
-            {cat:"Modal+Infinitiv",pairs:[["hätte...sollen","Verpasste Pflicht"],["hätte...können","Verpasste Chance"],["hätte...müssen","Verpasste Notwendigkeit"],["hätte...dürfen","Verpasste Erlaubnis"]]},
-            {cat:"Pronominaladv.",pairs:[["worauf","Frage: auf was"],["woran","Frage: an was"],["worüber","Frage: über was"],["wofür","Frage: für was"]]},
-            {cat:"Karriere",pairs:[["Gehaltserhöhung","Mehr Geld bekommen"],["Beförderung","Höhere Position"],["Fortbildung","Weiterlernen"],["Versetzung","Abteilung wechseln"]]},
-            {cat:"Komplexe Konn.",pairs:[["kaum...da","Sofort als"],["nicht nur...sondern auch","Zusätzlich"],["zwar...aber","Einschränkung"],["einerseits...andererseits","Zwei Seiten"]]},
-            {cat:"Höflichkeit",pairs:[["Es wäre nett, wenn","Höfliche Bitte"],["Ich hätte gern","Höflicher Wunsch"],["Könnten Sie","Höfliche Frage"],["Würden Sie","Höfliche Aufforderung"]]}
+            {cat:"Verg.irreal",q:"Wenn ich das gewusst ___, hätte ich anders gehandelt.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"Verg.irreal",q:"Ich ___ gern früher gekommen.",a:["wäre","bin","war","sei"],c:0},
+            {cat:"Verg.irreal",q:"Das ___ ich nicht gedacht.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"Verg.irreal",q:"Wenn er schneller ___, hätte er den Bus erreicht.",a:["gelaufen wäre","gelaufen ist","lief","läuft"],c:0},
+            {cat:"Verg.irreal",q:"Wenn ich mehr Zeit gehabt ___, wäre ich gekommen.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"Verg.irreal",q:"Das ___ nicht passieren dürfen.",a:["hätte","hat","hatte","hab"],c:0},
+            {cat:"Verg.irreal",q:"Er ___ besser vorbereitet sein sollen.",a:["hätte","hat","hatte","hab"],c:0},
+            {cat:"als ob",q:"Er tut so, als ob er reich ___.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"als ob",q:"Sie sieht aus, als ob sie krank ___.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"als ob",q:"Er redet, als ob er alles ___.",a:["wüsste","weiß","wusste","wissen"],c:0},
+            {cat:"Bedauern",q:"Ich ___ Ihnen leider nicht helfen können.",a:["konnte","kann","könnte","könne"],c:0},
+            {cat:"Bedauern",q:"Es tut mir leid, dass ich nicht ___ kommen können.",a:["habe","bin","hatte","war"],c:0},
+            {cat:"Bedauern",q:"Ich ___ dir gern geholfen.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"fast",q:"Ich ___ fast hingefallen.",a:["wäre","bin","war","sei"],c:0},
+            {cat:"fast",q:"Er ___ beinahe zu spät gekommen.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"Kritik",q:"Du ___ das nicht sagen sollen.",a:["hättest","hast","hattest","habst"],c:0},
+            {cat:"Kritik",q:"Er ___ besser aufpassen müssen.",a:["hätte","hat","hatte","hab"],c:0},
+            {cat:"Irrealis",q:"Ohne deine Hilfe ___ ich das nicht geschafft.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"Irrealis",q:"Sonst ___ alles schiefgegangen.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"Irrealis",q:"Andernfalls ___ ich nicht hier.",a:["wäre","bin","war","sei"],c:0},
+            {cat:"Konj.II Perf.",q:"Ich ___ das lieber anders gemacht.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"Konj.II Perf.",q:"Er ___ besser nicht gekommen.",a:["wäre","ist","war","sei"],c:0},
+            {cat:"Konj.II Perf.",q:"Wir ___ früher losfahren sollen.",a:["hätten","haben","hatten","hab"],c:0},
+            {cat:"Konj.II Perf.",q:"Das ___ ich mir denken können.",a:["hätte","habe","hatte","hab"],c:0},
+            {cat:"Konj.II Perf.",q:"Sie ___ besser vorbereitet gewesen.",a:["wäre","ist","war","sei"],c:0}
         ]
     };
     
     function init() {
         isHost = false; difficulty = 'einfach'; currentQ = -1; answered = false; timerInt = null;
-        allPlayers = []; gameSets = []; teamScores = {mond:0,sonne:0,stern:0,ozean:0};
-        selectedLeft = null; matchedPairs = []; currentSet = null;
-        
-        firebase.initializeApp({
-            apiKey: "AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",
-            authDomain: "lern-deutsch-arash.firebaseapp.com",
-            databaseURL: "https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "lern-deutsch-arash"
-        });
+        allPlayers = []; gameQuestions = []; teamScores = {mond:0,sonne:0,stern:0,ozean:0};
+        firebase.initializeApp({apiKey:"AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",authDomain:"lern-deutsch-arash.firebaseapp.com",databaseURL:"https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",projectId:"lern-deutsch-arash"});
         db = firebase.database();
-        
-        db.ref(".info/connected").on("value", function(s) {
-            var el = document.getElementById("connection-status");
-            if (s.val()) { el.textContent = "🟢 Online"; el.className = "connection-status connected"; }
-            else { el.textContent = "🔴 Offline"; el.className = "connection-status"; }
-        });
-        
+        db.ref(".info/connected").on("value", function(s) { var el = document.getElementById("connection-status"); if (s.val()) { el.textContent = "🟢 Online"; el.className = "connection-status connected"; } else { el.textContent = "🔴 Offline"; el.className = "connection-status"; } });
         setupButtons();
     }
     
     function setupButtons() {
         var diffBtns = document.querySelectorAll('.diff-btn');
-        for (var i = 0; i < diffBtns.length; i++) {
-            diffBtns[i].onclick = function() {
-                for (var j = 0; j < diffBtns.length; j++) { diffBtns[j].classList.remove('selected'); }
-                this.classList.add('selected'); difficulty = this.getAttribute('data-diff');
-            };
-        }
+        for (var i = 0; i < diffBtns.length; i++) { diffBtns[i].onclick = function() { for (var j = 0; j < diffBtns.length; j++) { diffBtns[j].classList.remove('selected'); } this.classList.add('selected'); difficulty = this.getAttribute('data-diff'); }; }
         document.getElementById("create-btn").onclick = createGame;
         document.getElementById("join-btn").onclick = joinGame;
         document.getElementById("start-btn").onclick = startGame;
         document.getElementById("reset-btn").onclick = resetGame;
         document.getElementById("back-btn").onclick = backToHome;
+        document.getElementById("game-code").onkeypress = function(e) { if (e.key === "Enter") joinGame(); };
     }
     
     function genCode() { var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; var code = ""; for (var i = 0; i < 4; i++) { code += chars.charAt(Math.floor(Math.random() * chars.length)); } return code; }
     function showError(msg) { var el = document.getElementById("error-msg"); el.textContent = msg; el.style.display = "block"; setTimeout(function() { el.style.display = "none"; }, 3000); }
     function showScreen(id) { var screens = document.querySelectorAll('.screen'); for (var i = 0; i < screens.length; i++) { screens[i].classList.remove('active'); } document.getElementById(id).classList.add('active'); }
     function shuffle(arr) { var newArr = arr.slice(); for (var i = newArr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = newArr[i]; newArr[i] = newArr[j]; newArr[j] = temp; } return newArr; }
+    function hideStatus() { var st = document.getElementById("answer-status"); st.className = "answer-status"; st.textContent = ""; }
     
     function createGame() {
         playerName = document.getElementById("player-name").value.trim();
         playerTeam = document.getElementById("team-select").value;
         if (!playerName) { showError("Name eingeben!"); return; }
         if (!playerTeam) { showError("Team wählen!"); return; }
-        
         gameCode = genCode(); playerId = "host_" + Date.now(); isHost = true;
-        gameSets = shuffle(matchingSets[difficulty]).slice(0, 10);
-        
-        gameRef = db.ref("zuordnung2/" + gameCode);
-        playersRef = db.ref("zuordnung2/" + gameCode + "/players");
-        scoresRef = db.ref("zuordnung2/" + gameCode + "/scores");
-        
-        gameRef.remove().then(function() {
-            return gameRef.set({ status: "lobby", difficulty: difficulty, currentQuestion: -1, questionStart: null, sets: gameSets, host: playerId });
-        }).then(function() { return scoresRef.set({mond:0,sonne:0,stern:0,ozean:0}); })
+        gameQuestions = shuffle(questions[difficulty]).slice(0, 25);
+        gameRef = db.ref("konjunktiv2/" + gameCode);
+        playersRef = db.ref("konjunktiv2/" + gameCode + "/players");
+        scoresRef = db.ref("konjunktiv2/" + gameCode + "/scores");
+        gameRef.remove().then(function() { return gameRef.set({ status: "lobby", difficulty: difficulty, currentQuestion: -1, questionStart: null, questions: gameQuestions, host: playerId }); })
+        .then(function() { return scoresRef.set({mond:0,sonne:0,stern:0,ozean:0}); })
         .then(function() { return playersRef.child(playerId).set({ name: playerName, team: playerTeam, isHost: true, answered: false }); })
         .then(function() { playersRef.child(playerId).onDisconnect().remove(); showLobby(); setupListeners(); });
     }
@@ -297,16 +322,14 @@
         if (!playerName) { showError("Name eingeben!"); return; }
         if (!playerTeam) { showError("Team wählen!"); return; }
         if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
-        
         playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4); isHost = false;
-        gameRef = db.ref("zuordnung2/" + gameCode);
-        playersRef = db.ref("zuordnung2/" + gameCode + "/players");
-        scoresRef = db.ref("zuordnung2/" + gameCode + "/scores");
-        
+        gameRef = db.ref("konjunktiv2/" + gameCode);
+        playersRef = db.ref("konjunktiv2/" + gameCode + "/players");
+        scoresRef = db.ref("konjunktiv2/" + gameCode + "/scores");
         gameRef.once("value").then(function(s) {
             if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject("not found"); }
             if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject("running"); }
-            difficulty = s.val().difficulty; gameSets = s.val().sets;
+            difficulty = s.val().difficulty; gameQuestions = s.val().questions;
             return playersRef.child(playerId).set({ name: playerName, team: playerTeam, isHost: false, answered: false });
         }).then(function() { playersRef.child(playerId).onDisconnect().remove(); showLobby(); setupListeners(); }).catch(function(e) { console.log(e); });
     }
@@ -320,17 +343,12 @@
     }
     
     function setupListeners() {
-        playersRef.on("value", function(snap) {
-            var players = []; snap.forEach(function(c) { var d = c.val(); if (d && d.name) { d.id = c.key; players.push(d); } });
-            allPlayers = players; updatePlayers();
-        });
+        playersRef.on("value", function(snap) { var players = []; snap.forEach(function(c) { var d = c.val(); if (d && d.name) { d.id = c.key; players.push(d); } }); allPlayers = players; updatePlayers(); });
         scoresRef.on("value", function(snap) { var s = snap.val(); if (s) { teamScores = s; updateScores(); } });
         gameRef.on("value", function(snap) {
             var game = snap.val(); if (!game) { backToHome(); return; }
-            if (game.status === "playing") {
-                showScreen("game-screen");
-                if (game.currentQuestion !== currentQ) { currentQ = game.currentQuestion; answered = false; selectedLeft = null; matchedPairs = []; hideStatus(); showRound(game.questionStart); }
-            } else if (game.status === "finished") { endGame(); }
+            if (game.status === "playing") { showScreen("game-screen"); if (game.currentQuestion !== currentQ) { currentQ = game.currentQuestion; answered = false; hideStatus(); showQuestion(game.questionStart); } }
+            else if (game.status === "finished") { endGame(); }
         });
     }
     
@@ -349,15 +367,10 @@
     }
     
     function updateScores() { var teams = ["mond","sonne","stern","ozean"]; for (var i = 0; i < teams.length; i++) { document.getElementById("score-" + teams[i]).textContent = teamScores[teams[i]] || 0; } }
-    function hideStatus() { var st = document.getElementById("answer-status"); st.className = "answer-status"; st.textContent = ""; }
     
     function startGame() {
         if (!isHost) return;
-        playersRef.once("value", function(s) {
-            s.forEach(function(c) { playersRef.child(c.key).update({ answered: false }); });
-            scoresRef.set({mond:0,sonne:0,stern:0,ozean:0});
-            gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() });
-        });
+        playersRef.once("value", function(s) { s.forEach(function(c) { playersRef.child(c.key).update({ answered: false }); }); scoresRef.set({mond:0,sonne:0,stern:0,ozean:0}); gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() }); });
     }
     
     function resetGame() {
@@ -367,100 +380,56 @@
         currentQ = -1; hideStatus(); showScreen("lobby-screen");
     }
     
-    function showRound(startTime) {
-        if (currentQ >= gameSets.length) { gameRef.update({ status: "finished" }); return; }
-        
-        currentSet = gameSets[currentQ];
-        document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameSets.length;
-        document.getElementById("category").textContent = currentSet.cat;
+    function showQuestion(startTime) {
+        if (currentQ >= gameQuestions.length) { gameRef.update({ status: "finished" }); return; }
+        var q = gameQuestions[currentQ];
+        document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameQuestions.length;
+        document.getElementById("category").textContent = q.cat;
+        document.getElementById("question").textContent = q.q;
         document.getElementById("my-team").textContent = teamEmoji[playerTeam];
-        document.getElementById("match-progress").textContent = "0/4 gefunden";
-        
-        var leftItems = shuffle(currentSet.pairs.map(function(p, i) { return {text: p[0], idx: i}; }));
-        var rightItems = shuffle(currentSet.pairs.map(function(p, i) { return {text: p[1], idx: i}; }));
-        
-        var leftDiv = document.getElementById("left-items"); leftDiv.innerHTML = "";
-        var rightDiv = document.getElementById("right-items"); rightDiv.innerHTML = "";
-        
-        for (var i = 0; i < leftItems.length; i++) {
-            var item = leftItems[i];
-            var div = document.createElement("div");
-            div.className = "match-item"; div.textContent = item.text;
-            div.setAttribute("data-idx", item.idx); div.setAttribute("data-side", "left");
-            div.onclick = (function(idx) { return function() { selectItem("left", idx, this); }; })(item.idx);
-            leftDiv.appendChild(div);
+        var idx = shuffle([0, 1, 2, 3]);
+        var ans = document.getElementById("answers"); ans.innerHTML = "";
+        for (var i = 0; i < idx.length; i++) {
+            var origIdx = idx[i];
+            var btn = document.createElement("button"); btn.className = "answer-btn"; btn.textContent = q.a[origIdx]; btn.setAttribute("data-idx", origIdx);
+            btn.onclick = (function(b, oi) { return function() { selectAnswer(b, oi); }; })(btn, origIdx);
+            ans.appendChild(btn);
         }
-        
-        for (var i = 0; i < rightItems.length; i++) {
-            var item = rightItems[i];
-            var div = document.createElement("div");
-            div.className = "match-item"; div.textContent = item.text;
-            div.setAttribute("data-idx", item.idx); div.setAttribute("data-side", "right");
-            div.onclick = (function(idx) { return function() { selectItem("right", idx, this); }; })(item.idx);
-            rightDiv.appendChild(div);
-        }
-        
         startTimer(startTime);
     }
     
-    function selectItem(side, idx, el) {
+    function selectAnswer(btn, idx) {
         if (answered) return;
-        if (matchedPairs.indexOf(idx) !== -1) return;
-        
-        if (side === "left") {
-            var leftItems = document.querySelectorAll('#left-items .match-item');
-            for (var i = 0; i < leftItems.length; i++) { leftItems[i].classList.remove('selected'); }
-            el.classList.add('selected');
-            selectedLeft = idx;
-        } else if (side === "right" && selectedLeft !== null) {
-            if (idx === selectedLeft) {
-                // Correct match
-                matchedPairs.push(idx);
-                var leftItems = document.querySelectorAll('#left-items .match-item');
-                var rightItems = document.querySelectorAll('#right-items .match-item');
-                for (var i = 0; i < leftItems.length; i++) {
-                    if (parseInt(leftItems[i].getAttribute('data-idx')) === idx) { leftItems[i].classList.remove('selected'); leftItems[i].classList.add('matched'); }
-                }
-                el.classList.add('matched');
-                document.getElementById("match-progress").textContent = matchedPairs.length + "/4 gefunden";
-                selectedLeft = null;
-                
-                if (matchedPairs.length === 4) {
-                    answered = true;
-                    var st = document.getElementById("answer-status");
-                    st.textContent = "✅ Alle gefunden! +1 für " + teamEmoji[playerTeam];
-                    st.className = "answer-status correct show";
-                    scoresRef.child(playerTeam).transaction(function(v) { return (v || 0) + 1; });
-                    playersRef.child(playerId).update({ answered: true });
-                }
-            } else {
-                // Wrong match
-                el.classList.add('wrong');
-                setTimeout(function() { el.classList.remove('wrong'); }, 300);
-            }
-        }
+        answered = true;
+        var q = gameQuestions[currentQ]; var isCorrect = idx === q.c;
+        var btns = document.querySelectorAll(".answer-btn");
+        for (var i = 0; i < btns.length; i++) { btns[i].disabled = true; if (parseInt(btns[i].getAttribute("data-idx")) === q.c) { btns[i].classList.add("correct"); } }
+        var st = document.getElementById("answer-status");
+        if (isCorrect) { st.textContent = "✅ Richtig! +1 für " + teamEmoji[playerTeam]; st.className = "answer-status correct show"; scoresRef.child(playerTeam).transaction(function(v) { return (v || 0) + 1; }); }
+        else { btn.classList.add("wrong"); st.textContent = "❌ Falsch!"; st.className = "answer-status wrong show"; }
+        playersRef.child(playerId).update({ answered: true });
     }
     
     function startTimer(startTime) {
         if (timerInt) clearInterval(timerInt);
         var el = document.getElementById("timer");
         function tick() {
-            var elapsed = Math.floor((Date.now() - startTime) / 1000);
-            var rem = Math.max(0, 30 - elapsed);
+            var elapsed = Math.floor((Date.now() - startTime) / 1000); var rem = Math.max(0, 12 - elapsed);
             el.textContent = rem;
-            if (rem <= 5) { el.className = "timer danger"; } else if (rem <= 10) { el.className = "timer warning"; } else { el.className = "timer"; }
+            if (rem <= 3) { el.className = "timer danger"; } else if (rem <= 5) { el.className = "timer warning"; } else { el.className = "timer"; }
             if (rem === 0) {
                 clearInterval(timerInt);
                 if (!answered) {
                     answered = true;
-                    var st = document.getElementById("answer-status");
-                    st.textContent = "⏰ Zeit abgelaufen! " + matchedPairs.length + "/4 gefunden";
-                    st.className = "answer-status timeout show";
+                    var q = gameQuestions[currentQ];
+                    var btns = document.querySelectorAll(".answer-btn");
+                    for (var i = 0; i < btns.length; i++) { btns[i].disabled = true; if (parseInt(btns[i].getAttribute("data-idx")) === q.c) { btns[i].classList.add("correct"); } }
+                    var st = document.getElementById("answer-status"); st.textContent = "⏰ Zeit abgelaufen!"; st.className = "answer-status timeout show";
                     playersRef.child(playerId).update({ answered: true });
                 }
                 if (isHost) {
                     setTimeout(function() {
-                        if (currentQ + 1 >= gameSets.length) { gameRef.update({ status: "finished" }); }
+                        if (currentQ + 1 >= gameQuestions.length) { gameRef.update({ status: "finished" }); }
                         else { playersRef.once("value", function(s) { s.forEach(function(c) { playersRef.child(c.key).update({ answered: false }); }); gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() }); }); }
                     }, 2500);
                 }
@@ -490,10 +459,8 @@
         if (playersRef) { playersRef.off(); if (playerId) playersRef.child(playerId).remove(); }
         if (scoresRef) scoresRef.off();
         gameCode = null; playerId = null; isHost = false; currentQ = -1;
-        teamScores = {mond:0,sonne:0,stern:0,ozean:0}; selectedLeft = null; matchedPairs = [];
-        hideStatus(); showScreen("login-screen");
-        document.getElementById("game-code").value = "";
-        document.getElementById("team-select").value = "";
+        teamScores = {mond:0,sonne:0,stern:0,ozean:0}; hideStatus();
+        showScreen("login-screen"); document.getElementById("game-code").value = ""; document.getElementById("team-select").value = "";
     }
     
     window.onload = init;

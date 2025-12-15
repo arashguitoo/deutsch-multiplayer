@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔗 Verben + Präpositionen</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#6c5ce7 0%,#a29bfe 100%);min-height:100vh;color:#fff}
+        .container{max-width:900px;margin:0 auto;padding:15px}
+        h1{text-align:center;font-size:1.5em;margin-bottom:15px}
+        .screen{display:none}.screen.active{display:block}
+        
+        #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;gap:15px}
+        .logo{font-size:4em;margin-bottom:10px}
+        #login-screen h2{font-size:1.2em;text-align:center}
+        .difficulty-select{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;justify-content:center}
+        .diff-btn{padding:15px 25px;border:3px solid rgba(255,255,255,0.3);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;font-size:1em;font-weight:700;cursor:pointer;transition:all 0.3s}
+        .diff-btn:hover,.diff-btn.selected{transform:scale(1.05)}
+        .diff-btn.einfach{border-color:#55efc4}.diff-btn.einfach.selected{background:#00b894}
+        .diff-btn.mittel{border-color:#fdcb6e}.diff-btn.mittel.selected{background:#e17055}
+        .diff-btn.schwer{border-color:#d63031}.diff-btn.schwer.selected{background:#d63031}
+        .input-group{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+        .input-group input{font-size:1.1em;padding:12px 20px;border:2px solid #fff;border-radius:25px;text-align:center;background:rgba(255,255,255,0.2);color:#fff}
+        .input-group input::placeholder{color:rgba(255,255,255,0.7)}
+        .input-group input.code-input{font-size:1.4em;letter-spacing:8px;text-transform:uppercase}
+        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:#fff;color:#6c5ce7;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+        .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #fff;border-radius:25px;background:transparent;color:#fff;cursor:pointer;width:100%;max-width:300px}
+        .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.5)}
+        .error-msg{color:#2d3436;background:rgba(255,255,255,0.9);padding:8px 15px;border-radius:10px;font-size:0.9em;margin-top:10px;display:none}
+        
+        .info-box{background:rgba(255,255,255,0.15);border-radius:15px;padding:15px;margin-top:15px;max-width:350px;text-align:left;font-size:0.85em}
+        .info-box h4{color:#ffd700;margin-bottom:8px}
+        
+        #lobby-screen{text-align:center}
+        .lobby-box{background:rgba(255,255,255,0.15);border-radius:20px;padding:25px;margin:20px 0}
+        .lobby-code{font-size:2.5em;letter-spacing:10px;margin:10px 0}
+        .diff-badge{display:inline-block;padding:8px 20px;border-radius:20px;font-weight:700;margin:10px 0}
+        .diff-badge.einfach{background:#00b894}.diff-badge.mittel{background:#e17055}.diff-badge.schwer{background:#d63031}
+        .waiting-players{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0}
+        .waiting-player{padding:10px 15px;background:rgba(255,255,255,0.2);border-radius:20px}
+        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:#fff;color:#6c5ce7;font-weight:700;cursor:pointer;margin:15px 0}
+        .start-game-btn:disabled{opacity:0.5;cursor:not-allowed}
+        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.5);border-radius:15px;background:transparent;color:#fff;cursor:pointer;margin:5px}
+        .small-btn.danger{background:rgba(255,0,0,0.3)}
+        
+        .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.15);border-radius:15px;flex-wrap:wrap;gap:10px}
+        .score-display{font-size:1.3em}
+        .timer{font-size:2.5em;font-weight:700}.timer.warning{color:#fdcb6e}.timer.danger{color:#d63031;animation:pulse 0.3s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+        
+        .quiz-section{background:rgba(255,255,255,0.1);border-radius:20px;padding:20px;margin-bottom:15px}
+        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:0.85em;margin-bottom:12px}
+        .verb-display{font-size:2.2em;margin-bottom:10px;text-align:center;color:#ffd700;font-weight:700}
+        .question{font-size:1.2em;margin-bottom:20px;line-height:1.5;text-align:center;opacity:0.9}
+        .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        @media(max-width:500px){.answers{grid-template-columns:1fr}}
+        .answer-btn{padding:18px;font-size:1.2em;border:3px solid rgba(255,255,255,0.4);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;transition:all 0.15s;font-weight:700}
+        .answer-btn:hover:not(:disabled){background:rgba(255,255,255,0.3);border-color:#fff}
+        .answer-btn.correct{background:rgba(0,184,148,0.8)!important;border-color:#00b894!important}
+        .answer-btn.wrong{background:rgba(214,48,49,0.8)!important;border-color:#d63031!important}
+        .answer-btn:disabled{cursor:not-allowed}
+        
+        .leaderboard{background:rgba(255,255,255,0.1);border-radius:15px;padding:15px;margin-top:15px}
+        .leaderboard h3{font-size:1em;margin-bottom:10px}
+        .lb-row{display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.1);border-radius:8px;margin-bottom:5px}
+        .lb-row.me{background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.5)}
+        
+        #result-screen{text-align:center;padding:30px 20px}
+        .result-icon{font-size:5em;margin-bottom:15px}
+        .podium{display:flex;justify-content:center;align-items:flex-end;gap:10px;margin:30px 0}
+        .podium-place{text-align:center;padding:15px;border-radius:15px 15px 0 0;color:#2d3436}
+        .podium-place.first{background:linear-gradient(135deg,#ffd700,#ff8c00);height:150px;order:2}
+        .podium-place.second{background:linear-gradient(135deg,#c0c0c0,#a0a0a0);height:120px;order:1}
+        .podium-place.third{background:linear-gradient(135deg,#cd7f32,#a0522d);height:90px;order:3}
+        .podium-name{font-weight:700;font-size:1.1em}
+        .podium-score{font-size:0.9em;opacity:0.8}
+        .podium-medal{font-size:2em}
+        
+        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.3)}
+        .connection-status.connected{color:#55efc4}
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connection-status">Verbinde...</div>
+    <div class="container">
+        <h1>🔗 Verben + Präpositionen</h1>
+        
+        <div id="login-screen" class="screen active">
+            <div class="logo">🔗</div>
+            <h2>Welche Präposition passt?<br><small style="opacity:0.8">⚡ Schnell antworten = mehr Punkte!</small></h2>
+            <div class="difficulty-select">
+                <button class="diff-btn einfach selected" data-diff="einfach">🟢 Einfach</button>
+                <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
+                <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="player-name" placeholder="Dein Name" maxlength="15">
+                <input type="text" id="game-code" class="code-input" placeholder="CODE" maxlength="4">
+            </div>
+            <button class="btn-primary" id="join-btn">🚪 Beitreten</button>
+            <div class="divider"><span>oder</span></div>
+            <button class="btn-secondary" id="create-btn">👑 Neues Spiel erstellen</button>
+            <div class="error-msg" id="error-msg"></div>
+            <div class="info-box">
+                <h4>💡 Beispiele:</h4>
+                <p>warten <strong>auf</strong> + Akk<br>
+                denken <strong>an</strong> + Akk<br>
+                sich freuen <strong>über</strong> + Akk<br>
+                sich interessieren <strong>für</strong> + Akk</p>
+            </div>
+        </div>
+        
+        <div id="lobby-screen" class="screen">
+            <div class="lobby-box">
+                <h2>⏳ Warteraum</h2>
+                <div class="lobby-code" id="lobby-code">CODE</div>
+                <div class="diff-badge einfach" id="diff-badge">Einfach</div>
+                <p style="opacity:0.8;font-size:0.9em">⏱️ 8 Sekunden • 20 Fragen</p>
+                <div class="waiting-players" id="waiting-players"></div>
+                <div id="host-controls">
+                    <button class="start-game-btn" id="start-btn" disabled>▶️ START</button>
+                    <p style="color:#55efc4;font-size:0.85em">👑 Du bist der Spielleiter</p>
+                    <button class="small-btn danger" id="reset-btn">🔄 Zurücksetzen</button>
+                </div>
+                <div id="player-controls" style="display:none">
+                    <p style="color:#fdcb6e">⏳ Warte auf Spielleiter...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="score-display">⭐ <span id="my-score">0</span></div>
+                <div class="timer" id="timer">8</div>
+                <div id="question-num">1/20</div>
+            </div>
+            <div class="quiz-section">
+                <div class="category-badge" id="category"></div>
+                <div class="verb-display" id="verb"></div>
+                <div class="question" id="question">Welche Präposition?</div>
+                <div class="answers" id="answers"></div>
+            </div>
+            <div class="leaderboard">
+                <h3>🏆 Live-Rangliste</h3>
+                <div id="live-leaderboard"></div>
+            </div>
+        </div>
+        
+        <div id="result-screen" class="screen">
+            <div class="result-icon" id="result-icon">🏆</div>
+            <h2 id="result-title">Spiel beendet!</h2>
+            <div class="podium" id="podium"></div>
+            <button class="btn-primary" id="back-btn">🏠 Zurück</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script>
+    var db, gameRef, playersRef;
+    var gameCode, playerId, playerName, isHost, difficulty;
+    var currentQ, myScore, answered, timerInt;
+    var allPlayers, gameQuestions;
+    
+    var questions = {
+        einfach: [
+            {cat:"warten",v:"warten ___",a:["auf","für","an","über"],c:0},
+            {cat:"denken",v:"denken ___",a:["an","auf","für","über"],c:0},
+            {cat:"freuen auf",v:"sich freuen ___",a:["auf","über","für","an"],c:0},
+            {cat:"freuen über",v:"sich freuen ___ (Geschenk)",a:["über","auf","für","an"],c:0},
+            {cat:"interessieren",v:"sich interessieren ___",a:["für","an","auf","über"],c:0},
+            {cat:"kümmern",v:"sich kümmern ___",a:["um","für","an","auf"],c:0},
+            {cat:"sprechen",v:"sprechen ___ (Thema)",a:["über","von","mit","an"],c:0},
+            {cat:"sprechen",v:"sprechen ___ (Person)",a:["mit","über","von","an"],c:0},
+            {cat:"fragen",v:"fragen ___",a:["nach","für","über","an"],c:0},
+            {cat:"bitten",v:"bitten ___",a:["um","für","nach","an"],c:0},
+            {cat:"danken",v:"danken ___",a:["für","um","an","über"],c:0},
+            {cat:"hoffen",v:"hoffen ___",a:["auf","für","an","über"],c:0},
+            {cat:"träumen",v:"träumen ___",a:["von","über","an","für"],c:0},
+            {cat:"erzählen",v:"erzählen ___",a:["von","über","an","für"],c:0},
+            {cat:"schreiben",v:"schreiben ___",a:["an","für","über","mit"],c:0},
+            {cat:"glauben",v:"glauben ___",a:["an","für","über","auf"],c:0},
+            {cat:"achten",v:"achten ___",a:["auf","an","für","über"],c:0},
+            {cat:"anfangen",v:"anfangen ___",a:["mit","an","für","auf"],c:0},
+            {cat:"aufhören",v:"aufhören ___",a:["mit","an","für","auf"],c:0},
+            {cat:"arbeiten",v:"arbeiten ___",a:["an","mit","für","auf"],c:0}
+        ],
+        mittel: [
+            {cat:"ärgern",v:"sich ärgern ___",a:["über","auf","an","für"],c:0},
+            {cat:"beschweren",v:"sich beschweren ___",a:["über","auf","an","für"],c:0},
+            {cat:"wundern",v:"sich wundern ___",a:["über","auf","an","für"],c:0},
+            {cat:"gewöhnen",v:"sich gewöhnen ___",a:["an","auf","über","für"],c:0},
+            {cat:"erinnern",v:"sich erinnern ___",a:["an","auf","über","für"],c:0},
+            {cat:"verlassen",v:"sich verlassen ___",a:["auf","an","über","für"],c:0},
+            {cat:"vorbereiten",v:"sich vorbereiten ___",a:["auf","an","über","für"],c:0},
+            {cat:"konzentrieren",v:"sich konzentrieren ___",a:["auf","an","über","für"],c:0},
+            {cat:"bewerben",v:"sich bewerben ___",a:["um","für","an","auf"],c:0},
+            {cat:"bemühen",v:"sich bemühen ___",a:["um","für","an","auf"],c:0},
+            {cat:"handeln",v:"es handelt sich ___",a:["um","für","an","auf"],c:0},
+            {cat:"streiten",v:"sich streiten ___",a:["um","für","an","über"],c:0},
+            {cat:"unterhalten",v:"sich unterhalten ___",a:["über","von","mit","an"],c:0},
+            {cat:"verabschieden",v:"sich verabschieden ___",a:["von","mit","an","für"],c:0},
+            {cat:"beschäftigen",v:"sich beschäftigen ___",a:["mit","an","für","über"],c:0},
+            {cat:"entscheiden",v:"sich entscheiden ___",a:["für","an","auf","über"],c:0},
+            {cat:"entschuldigen",v:"sich entschuldigen ___",a:["für","an","bei","über"],c:0},
+            {cat:"bedanken",v:"sich bedanken ___",a:["für","an","bei","über"],c:0},
+            {cat:"fürchten",v:"sich fürchten ___",a:["vor","an","für","über"],c:0},
+            {cat:"schützen",v:"sich schützen ___",a:["vor","an","für","gegen"],c:0}
+        ],
+        schwer: [
+            {cat:"einlassen",v:"sich einlassen ___",a:["auf","an","für","mit"],c:0},
+            {cat:"abfinden",v:"sich abfinden ___",a:["mit","an","für","auf"],c:0},
+            {cat:"sehnen",v:"sich sehnen ___",a:["nach","für","an","auf"],c:0},
+            {cat:"richten",v:"sich richten ___",a:["nach","für","an","auf"],c:0},
+            {cat:"wenden",v:"sich wenden ___",a:["an","für","nach","auf"],c:0},
+            {cat:"beklagen",v:"sich beklagen ___",a:["über","für","an","auf"],c:0},
+            {cat:"beziehen",v:"sich beziehen ___",a:["auf","für","an","über"],c:0},
+            {cat:"eignen",v:"sich eignen ___",a:["für","an","auf","über"],c:0},
+            {cat:"unterscheiden",v:"sich unterscheiden ___",a:["von","mit","an","für"],c:0},
+            {cat:"erholen",v:"sich erholen ___",a:["von","mit","an","für"],c:0},
+            {cat:"hüten",v:"sich hüten ___",a:["vor","mit","an","für"],c:0},
+            {cat:"wehren",v:"sich wehren ___",a:["gegen","mit","an","für"],c:0},
+            {cat:"orientieren",v:"sich orientieren ___",a:["an","mit","für","auf"],c:0},
+            {cat:"berufen",v:"sich berufen ___",a:["auf","mit","für","an"],c:0},
+            {cat:"anpassen",v:"sich anpassen ___",a:["an","mit","für","auf"],c:0},
+            {cat:"sträuben",v:"sich sträuben ___",a:["gegen","mit","für","an"],c:0},
+            {cat:"durchsetzen",v:"sich durchsetzen ___",a:["gegen","mit","für","an"],c:0},
+            {cat:"verlieben",v:"sich verlieben ___",a:["in","an","für","auf"],c:0},
+            {cat:"spezialisieren",v:"sich spezialisieren ___",a:["auf","an","für","in"],c:0},
+            {cat:"lossagen",v:"sich lossagen ___",a:["von","mit","an","für"],c:0}
+        ]
+    };
+    
+    function init() {
+        isHost = false; difficulty = 'einfach'; currentQ = -1; myScore = 0; answered = false; timerInt = null; allPlayers = []; gameQuestions = [];
+        firebase.initializeApp({apiKey:"AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",authDomain:"lern-deutsch-arash.firebaseapp.com",databaseURL:"https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",projectId:"lern-deutsch-arash"});
+        db = firebase.database();
+        db.ref(".info/connected").on("value", function(s) { var el = document.getElementById("connection-status"); if (s.val()) { el.textContent = "🟢 Online"; el.className = "connection-status connected"; } else { el.textContent = "🔴 Offline"; el.className = "connection-status"; } });
+        setupButtons();
+    }
+    
+    function setupButtons() {
+        var diffBtns = document.querySelectorAll('.diff-btn');
+        for (var i = 0; i < diffBtns.length; i++) { diffBtns[i].onclick = function() { for (var j = 0; j < diffBtns.length; j++) { diffBtns[j].classList.remove('selected'); } this.classList.add('selected'); difficulty = this.getAttribute('data-diff'); }; }
+        document.getElementById("create-btn").onclick = createGame;
+        document.getElementById("join-btn").onclick = joinGame;
+        document.getElementById("start-btn").onclick = startGame;
+        document.getElementById("reset-btn").onclick = resetGame;
+        document.getElementById("back-btn").onclick = backToHome;
+        document.getElementById("game-code").onkeypress = function(e) { if (e.key === "Enter") joinGame(); };
+    }
+    
+    function genCode() { var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; var code = ""; for (var i = 0; i < 4; i++) { code += chars.charAt(Math.floor(Math.random() * chars.length)); } return code; }
+    function showError(msg) { var el = document.getElementById("error-msg"); el.textContent = msg; el.style.display = "block"; setTimeout(function() { el.style.display = "none"; }, 3000); }
+    function showScreen(id) { var screens = document.querySelectorAll('.screen'); for (var i = 0; i < screens.length; i++) { screens[i].classList.remove('active'); } document.getElementById(id).classList.add('active'); }
+    function shuffle(arr) { var newArr = arr.slice(); for (var i = newArr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = newArr[i]; newArr[i] = newArr[j]; newArr[j] = temp; } return newArr; }
+    
+    function createGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        if (!playerName) { showError("Name eingeben!"); return; }
+        gameCode = genCode(); playerId = "host_" + Date.now(); isHost = true;
+        gameQuestions = shuffle(questions[difficulty]).slice(0, 20);
+        gameRef = db.ref("verbpraep/" + gameCode);
+        playersRef = db.ref("verbpraep/" + gameCode + "/players");
+        gameRef.remove().then(function() { return gameRef.set({ status: "lobby", difficulty: difficulty, currentQuestion: -1, questionStart: null, questions: gameQuestions, host: playerId }); })
+        .then(function() { return playersRef.child(playerId).set({ name: playerName, score: 0, isHost: true, answered: false }); })
+        .then(function() { playersRef.child(playerId).onDisconnect().remove(); showLobby(); setupListeners(); });
+    }
+    
+    function joinGame() {
+        playerName = document.getElementById("player-name").value.trim();
+        gameCode = document.getElementById("game-code").value.trim().toUpperCase();
+        if (!playerName) { showError("Name eingeben!"); return; }
+        if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
+        playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4); isHost = false;
+        gameRef = db.ref("verbpraep/" + gameCode);
+        playersRef = db.ref("verbpraep/" + gameCode + "/players");
+        gameRef.once("value").then(function(s) {
+            if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject("not found"); }
+            if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject("running"); }
+            difficulty = s.val().difficulty; gameQuestions = s.val().questions;
+            return playersRef.child(playerId).set({ name: playerName, score: 0, isHost: false, answered: false });
+        }).then(function() { playersRef.child(playerId).onDisconnect().remove(); showLobby(); setupListeners(); }).catch(function(e) { console.log(e); });
+    }
+    
+    function showLobby() {
+        showScreen("lobby-screen");
+        document.getElementById("lobby-code").textContent = gameCode;
+        var badge = document.getElementById("diff-badge"); badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1); badge.className = "diff-badge " + difficulty;
+        document.getElementById("host-controls").style.display = isHost ? "block" : "none";
+        document.getElementById("player-controls").style.display = isHost ? "none" : "block";
+    }
+    
+    function setupListeners() {
+        playersRef.on("value", function(snap) { var players = []; snap.forEach(function(c) { var d = c.val(); if (d && d.name) { d.id = c.key; players.push(d); } }); allPlayers = players; updateLobbyPlayers(); updateLeaderboard(); });
+        gameRef.on("value", function(snap) {
+            var game = snap.val(); if (!game) { backToHome(); return; }
+            if (game.status === "playing") { showScreen("game-screen"); if (game.currentQuestion !== currentQ) { currentQ = game.currentQuestion; answered = false; showQuestion(game.questionStart); } }
+            else if (game.status === "finished") { showResults(); }
+        });
+    }
+    
+    function updateLobbyPlayers() {
+        var w = document.getElementById("waiting-players");
+        if (allPlayers.length === 0) { w.innerHTML = '<p style="opacity:0.6">Warte auf Spieler...</p>'; }
+        else { var html = ""; for (var i = 0; i < allPlayers.length; i++) { var p = allPlayers[i]; html += '<div class="waiting-player">' + p.name + (p.isHost ? ' 👑' : '') + '</div>'; } w.innerHTML = html; }
+        var nonHostCount = 0; for (var i = 0; i < allPlayers.length; i++) { if (!allPlayers[i].isHost) nonHostCount++; }
+        document.getElementById("start-btn").disabled = nonHostCount === 0;
+    }
+    
+    function updateLeaderboard() {
+        var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+        var html = ""; for (var i = 0; i < sorted.length; i++) { var p = sorted[i]; var isMe = p.id === playerId ? ' me' : ''; html += '<div class="lb-row' + isMe + '"><span>' + p.name + '</span><span>⭐ ' + p.score + '</span></div>'; }
+        document.getElementById("live-leaderboard").innerHTML = html;
+    }
+    
+    function startGame() {
+        if (!isHost) return;
+        playersRef.once("value", function(s) { s.forEach(function(c) { playersRef.child(c.key).update({ answered: false, score: 0 }); }); gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() }); });
+    }
+    
+    function resetGame() {
+        if (!confirm("Zurücksetzen?")) return;
+        gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
+        playersRef.once("value", function(s) { s.forEach(function(c) { playersRef.child(c.key).update({ score: 0, answered: false }); }); });
+        myScore = 0; currentQ = -1; showScreen("lobby-screen");
+    }
+    
+    function showQuestion(startTime) {
+        if (currentQ >= gameQuestions.length) { gameRef.update({ status: "finished" }); return; }
+        var q = gameQuestions[currentQ];
+        document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameQuestions.length;
+        document.getElementById("category").textContent = q.cat;
+        document.getElementById("verb").textContent = q.v;
+        document.getElementById("my-score").textContent = myScore;
+        var idx = shuffle([0, 1, 2, 3]);
+        var ans = document.getElementById("answers"); ans.innerHTML = "";
+        for (var i = 0; i < idx.length; i++) {
+            var origIdx = idx[i];
+            var btn = document.createElement("button"); btn.className = "answer-btn"; btn.textContent = q.a[origIdx]; btn.setAttribute("data-idx", origIdx);
+            btn.onclick = (function(b, oi) { return function() { selectAnswer(b, oi); }; })(btn, origIdx);
+            ans.appendChild(btn);
+        }
+        startTimer(startTime);
+    }
+    
+    function selectAnswer(btn, idx) {
+        if (answered) return;
+        answered = true;
+        var q = gameQuestions[currentQ]; var isCorrect = idx === q.c;
+        var btns = document.querySelectorAll(".answer-btn");
+        for (var i = 0; i < btns.length; i++) { btns[i].disabled = true; if (parseInt(btns[i].getAttribute("data-idx")) === q.c) { btns[i].classList.add("correct"); } }
+        if (isCorrect) {
+            var remaining = parseInt(document.getElementById("timer").textContent);
+            var points = Math.max(1, remaining);
+            myScore += points; document.getElementById("my-score").textContent = myScore;
+            playersRef.child(playerId).update({ score: myScore, answered: true });
+        } else { btn.classList.add("wrong"); playersRef.child(playerId).update({ answered: true }); }
+    }
+    
+    function startTimer(startTime) {
+        if (timerInt) clearInterval(timerInt);
+        var el = document.getElementById("timer");
+        function tick() {
+            var elapsed = Math.floor((Date.now() - startTime) / 1000); var rem = Math.max(0, 8 - elapsed);
+            el.textContent = rem;
+            if (rem <= 2) { el.className = "timer danger"; } else if (rem <= 4) { el.className = "timer warning"; } else { el.className = "timer"; }
+            if (rem === 0) {
+                clearInterval(timerInt);
+                if (!answered) {
+                    answered = true;
+                    var q = gameQuestions[currentQ];
+                    var btns = document.querySelectorAll(".answer-btn");
+                    for (var i = 0; i < btns.length; i++) { btns[i].disabled = true; if (parseInt(btns[i].getAttribute("data-idx")) === q.c) { btns[i].classList.add("correct"); } }
+                    playersRef.child(playerId).update({ answered: true });
+                }
+                if (isHost) {
+                    setTimeout(function() {
+                        if (currentQ + 1 >= gameQuestions.length) { gameRef.update({ status: "finished" }); }
+                        else { playersRef.once("value", function(s) { s.forEach(function(c) { playersRef.child(c.key).update({ answered: false }); }); gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() }); }); }
+                    }, 2000);
+                }
+            }
+        }
+        tick(); timerInt = setInterval(tick, 100);
+    }
+    
+    function showResults() {
+        if (timerInt) clearInterval(timerInt);
+        showScreen("result-screen");
+        var sorted = allPlayers.slice().sort(function(a, b) { return b.score - a.score; });
+        var myRank = -1; for (var i = 0; i < sorted.length; i++) { if (sorted[i].id === playerId) { myRank = i + 1; break; } }
+        var icon = myRank === 1 ? "🥇" : myRank === 2 ? "🥈" : myRank === 3 ? "🥉" : "🏁";
+        document.getElementById("result-icon").textContent = icon;
+        document.getElementById("result-title").textContent = myRank === 1 ? "Du hast gewonnen!" : "Platz " + myRank + "!";
+        var podium = document.getElementById("podium"); podium.innerHTML = "";
+        var medals = ["🥇", "🥈", "🥉"]; var classes = ["first", "second", "third"];
+        for (var i = 0; i < Math.min(3, sorted.length); i++) {
+            var p = sorted[i];
+            var place = document.createElement("div"); place.className = "podium-place " + classes[i];
+            place.innerHTML = '<div class="podium-medal">' + medals[i] + '</div><div class="podium-name">' + p.name + '</div><div class="podium-score">⭐ ' + p.score + '</div>';
+            podium.appendChild(place);
+        }
+    }
+    
+    function backToHome() {
+        if (timerInt) clearInterval(timerInt);
+        if (gameRef) gameRef.off();
+        if (playersRef) { playersRef.off(); if (playerId) playersRef.child(playerId).remove(); }
+        gameCode = null; playerId = null; isHost = false; myScore = 0; currentQ = -1;
+        showScreen("login-screen"); document.getElementById("game-code").value = "";
+    }
+    
+    window.onload = init;
+    </script>
+    <script data-goatcounter="https://aguitoo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

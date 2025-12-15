@@ -3,183 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎮 Multiplayer Quiz Arena</title>
+    <title>🎮 Multiplayer Arena | Lern Deutsch mit Arash</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);min-height:100vh;color:#fff;padding:20px}
-        .container{max-width:1000px;margin:0 auto}
-        h1{text-align:center;font-size:2.2em;margin-bottom:10px;background:linear-gradient(135deg,#ffd700,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-        .subtitle{text-align:center;color:#aaa;margin-bottom:30px;font-size:1.1em}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);min-height:100vh;color:#fff}
         
-        .games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:30px}
+        .container{max-width:1100px;margin:0 auto;padding:30px 20px}
         
-        .game-card{background:rgba(255,255,255,0.05);border-radius:20px;padding:25px;border:2px solid rgba(255,255,255,0.1);transition:all 0.3s;cursor:pointer;text-decoration:none;color:#fff;display:block}
-        .game-card:hover{transform:translateY(-5px);border-color:rgba(255,215,0,0.5);box-shadow:0 10px 30px rgba(0,0,0,0.3)}
+        header{text-align:center;margin-bottom:40px}
+        h1{font-size:2.5em;margin-bottom:10px;background:linear-gradient(135deg,#ffd700,#ff8c00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .subtitle{font-size:1.1em;color:#a29bfe;margin-bottom:20px}
+        .features{display:flex;flex-wrap:wrap;gap:15px;justify-content:center;margin-top:20px}
+        .feature{padding:8px 18px;background:rgba(255,255,255,0.1);border-radius:20px;font-size:0.85em;border:1px solid rgba(255,255,255,0.2)}
+        
+        .games-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:25px;margin-bottom:40px}
+        
+        .game-card{background:rgba(255,255,255,0.08);border-radius:20px;padding:25px;border:2px solid rgba(255,255,255,0.1);transition:all 0.3s;text-decoration:none;color:#fff;display:block}
+        .game-card:hover{transform:translateY(-5px);border-color:#ffd700;box-shadow:0 10px 40px rgba(255,215,0,0.2)}
         
         .game-icon{font-size:3em;margin-bottom:15px}
-        .game-title{font-size:1.3em;font-weight:700;margin-bottom:8px}
-        .game-desc{font-size:0.9em;color:#aaa;margin-bottom:12px;line-height:1.4}
+        .game-title{font-size:1.4em;font-weight:700;margin-bottom:8px}
+        .game-desc{font-size:0.95em;color:#a29bfe;margin-bottom:15px;line-height:1.5}
         
-        .game-tags{display:flex;flex-wrap:wrap;gap:6px}
-        .tag{padding:4px 10px;border-radius:12px;font-size:0.75em;font-weight:600}
-        .tag.individual{background:rgba(0,184,148,0.2);color:#00b894;border:1px solid rgba(0,184,148,0.3)}
-        .tag.team{background:rgba(108,92,231,0.2);color:#a29bfe;border:1px solid rgba(108,92,231,0.3)}
-        .tag.einfach{background:rgba(0,184,148,0.2);color:#00b894}
-        .tag.mittel{background:rgba(253,203,110,0.2);color:#fdcb6e}
-        .tag.schwer{background:rgba(214,48,49,0.2);color:#ff7675}
-        .tag.mc{background:rgba(9,132,227,0.2);color:#74b9ff}
-        .tag.ordering{background:rgba(255,107,129,0.2);color:#ff6b81}
-        .tag.matching{background:rgba(156,136,255,0.2);color:#a29bfe}
+        .game-tags{display:flex;flex-wrap:wrap;gap:8px}
+        .tag{padding:5px 12px;border-radius:15px;font-size:0.75em;font-weight:600}
+        .tag.individual{background:rgba(0,184,148,0.3);color:#55efc4}
+        .tag.team{background:rgba(108,92,231,0.3);color:#a29bfe}
+        .tag.mc{background:rgba(253,203,110,0.3);color:#fdcb6e}
+        .tag.order{background:rgba(225,112,85,0.3);color:#fab1a0}
+        .tag.match{background:rgba(232,67,147,0.3);color:#fd79a8}
+        .tag.timer{background:rgba(116,185,255,0.3);color:#74b9ff}
         
-        .difficulty-badge{display:flex;gap:5px;margin-top:10px}
-        .diff-dot{width:10px;height:10px;border-radius:50%}
-        .diff-dot.einfach{background:#00b894}
-        .diff-dot.mittel{background:#fdcb6e}
-        .diff-dot.schwer{background:#d63031}
+        .difficulty-dots{display:flex;gap:4px;margin-top:10px}
+        .dot{width:12px;height:12px;border-radius:50%}
+        .dot.green{background:#00b894}.dot.yellow{background:#fdcb6e}.dot.red{background:#d63031}
         
-        .info-section{background:rgba(255,255,255,0.05);border-radius:15px;padding:20px;margin-top:20px}
-        .info-section h3{color:#ffd700;margin-bottom:10px}
-        .info-section p{color:#aaa;line-height:1.6;font-size:0.95em}
+        .info-section{background:rgba(255,255,255,0.05);border-radius:20px;padding:30px;margin-bottom:30px}
+        .info-section h2{font-size:1.5em;margin-bottom:20px;color:#ffd700}
+        .info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+        .info-item{text-align:center;padding:15px}
+        .info-item .icon{font-size:2em;margin-bottom:10px}
+        .info-item h3{font-size:1em;margin-bottom:5px}
+        .info-item p{font-size:0.85em;color:#a29bfe}
         
-        .feature-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;margin-top:15px}
-        .feature{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:10px}
-        .feature-icon{font-size:1.5em}
-        .feature-text{font-size:0.9em;color:#ccc}
+        footer{text-align:center;padding:30px;color:#636e72;font-size:0.9em}
+        footer a{color:#a29bfe;text-decoration:none}
         
-        footer{text-align:center;margin-top:30px;color:#666;font-size:0.85em}
+        @media(max-width:600px){
+            h1{font-size:1.8em}
+            .games-grid{grid-template-columns:1fr}
+            .game-card{padding:20px}
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 Multiplayer Quiz Arena</h1>
-        <p class="subtitle">6 Spiele • Echtzeit-Multiplayer • Für den Deutschunterricht</p>
+        <header>
+            <h1>🎮 Multiplayer Arena</h1>
+            <p class="subtitle">Deutsche Grammatik spielerisch lernen - gemeinsam oder gegeneinander!</p>
+            <div class="features">
+                <div class="feature">🎯 3 Schwierigkeitsstufen</div>
+                <div class="feature">⏱️ Echtzeit-Timer</div>
+                <div class="feature">🏆 Live-Rangliste</div>
+                <div class="feature">👥 4 Teams</div>
+                <div class="feature">📱 Mobil optimiert</div>
+                <div class="feature">🔄 Echtzeit-Sync</div>
+            </div>
+        </header>
         
         <div class="games-grid">
             <a href="wer-ist-schneller.html" class="game-card">
                 <div class="game-icon">🏃</div>
                 <div class="game-title">Wer ist schneller?</div>
-                <div class="game-desc">Grammatik-Sprint! Wer antwortet am schnellsten? Punkte basieren auf Restzeit.</div>
+                <div class="game-desc">Grammatik-Sprint! Schneller antworten = mehr Punkte. 20 Fragen, 10 Sekunden pro Frage.</div>
                 <div class="game-tags">
-                    <span class="tag individual">👤 Einzelspiel</span>
+                    <span class="tag individual">👤 Einzeln</span>
                     <span class="tag mc">Multiple Choice</span>
+                    <span class="tag timer">⏱️ 10s</span>
                 </div>
-                <div class="difficulty-badge">
-                    <div class="diff-dot einfach" title="Einfach"></div>
-                    <div class="diff-dot mittel" title="Mittel"></div>
-                    <div class="diff-dot schwer" title="Schwer"></div>
-                </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
             </a>
             
             <a href="survival-arbeitswelt.html" class="game-card">
                 <div class="game-icon">💼</div>
                 <div class="game-title">Survival: Arbeitswelt</div>
-                <div class="game-desc">3 Leben, 30 Fragen! Arbeitswelt, Konjunktiv II und wenn-Sätze. Überlebe bis zum Ende!</div>
+                <div class="game-desc">3 Leben, 30 Fragen. Arbeitswelt-Vokabular und Konjunktiv II. Wer überlebt bis zum Ende?</div>
                 <div class="game-tags">
-                    <span class="tag individual">👤 Einzelspiel</span>
+                    <span class="tag individual">👤 Einzeln</span>
                     <span class="tag mc">Multiple Choice</span>
+                    <span class="tag timer">⏱️ 15s</span>
                 </div>
-                <div class="difficulty-badge">
-                    <div class="diff-dot einfach"></div>
-                    <div class="diff-dot mittel"></div>
-                    <div class="diff-dot schwer"></div>
-                </div>
-            </a>
-            
-            <a href="wortsalat-battle.html" class="game-card">
-                <div class="game-icon">🔀</div>
-                <div class="game-title">Wortsalat-Battle</div>
-                <div class="game-desc">Ordne die Wörter zum richtigen Satz! 4 Teams kämpfen gegeneinander.</div>
-                <div class="game-tags">
-                    <span class="tag team">👥 Teamspiel</span>
-                    <span class="tag ordering">Wörter ordnen</span>
-                </div>
-                <div class="difficulty-badge">
-                    <div class="diff-dot einfach"></div>
-                    <div class="diff-dot mittel"></div>
-                    <div class="diff-dot schwer"></div>
-                </div>
-            </a>
-            
-            <a href="team-battle-grammatik.html" class="game-card">
-                <div class="game-icon">⚔️</div>
-                <div class="game-title">Team Battle: Grammatik</div>
-                <div class="game-desc">Konjunktiv II, Modalverben & mehr! 4 Teams, 25 Fragen. Welches Team gewinnt?</div>
-                <div class="game-tags">
-                    <span class="tag team">👥 Teamspiel</span>
-                    <span class="tag mc">Multiple Choice</span>
-                </div>
-                <div class="difficulty-badge">
-                    <div class="diff-dot einfach"></div>
-                    <div class="diff-dot mittel"></div>
-                    <div class="diff-dot schwer"></div>
-                </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
             </a>
             
             <a href="quick-fire-konnektoren.html" class="game-card">
                 <div class="game-icon">🎯</div>
                 <div class="game-title">Quick Fire: Konnektoren</div>
-                <div class="game-desc">Blitzschnell! Nur 5 Sekunden pro Frage. dass, weil, denn, wenn, trotzdem...</div>
+                <div class="game-desc">Blitzschnell! Nur 5 Sekunden pro Frage. Konnektoren-Fokus: dass, weil, obwohl, damit...</div>
                 <div class="game-tags">
-                    <span class="tag individual">👤 Einzelspiel</span>
+                    <span class="tag individual">👤 Einzeln</span>
                     <span class="tag mc">Multiple Choice</span>
+                    <span class="tag timer">⚡ 5s</span>
                 </div>
-                <div class="difficulty-badge">
-                    <div class="diff-dot einfach"></div>
-                    <div class="diff-dot mittel"></div>
-                    <div class="diff-dot schwer"></div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
+            </a>
+            
+            <a href="partizip-perfekt-challenge.html" class="game-card">
+                <div class="game-icon">📝</div>
+                <div class="game-title">Partizip Perfekt Challenge</div>
+                <div class="game-desc">Wie heißt das Partizip II? machen → gemacht. Regelmäßige, unregelmäßige und trennbare Verben.</div>
+                <div class="game-tags">
+                    <span class="tag individual">👤 Einzeln</span>
+                    <span class="tag mc">Multiple Choice</span>
+                    <span class="tag timer">⏱️ 10s</span>
                 </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
+            </a>
+            
+            <a href="akkusativ-dativ.html" class="game-card">
+                <div class="game-icon">🎁</div>
+                <div class="game-title">Akkusativ oder Dativ?</div>
+                <div class="game-desc">Verben mit zwei Objekten: Wem gebe ich was? 3-Leben-Survival mit 25 Fragen.</div>
+                <div class="game-tags">
+                    <span class="tag individual">👤 Einzeln</span>
+                    <span class="tag mc">Multiple Choice</span>
+                    <span class="tag timer">⏱️ 12s</span>
+                </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
+            </a>
+            
+            <a href="verben-praepositionen.html" class="game-card">
+                <div class="game-icon">🔗</div>
+                <div class="game-title">Verben + Präpositionen</div>
+                <div class="game-desc">Welche Präposition passt? warten auf, denken an, sich freuen über... Schnell = mehr Punkte!</div>
+                <div class="game-tags">
+                    <span class="tag individual">👤 Einzeln</span>
+                    <span class="tag mc">Multiple Choice</span>
+                    <span class="tag timer">⏱️ 8s</span>
+                </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
+            </a>
+            
+            <a href="konjunktiv-battle.html" class="game-card">
+                <div class="game-icon">✨</div>
+                <div class="game-title">Konjunktiv II Battle</div>
+                <div class="game-desc">würde, hätte, wäre, könnte, sollte... Team-Wettbewerb mit 25 Fragen zum Konjunktiv II.</div>
+                <div class="game-tags">
+                    <span class="tag team">👥 4 Teams</span>
+                    <span class="tag mc">Multiple Choice</span>
+                    <span class="tag timer">⏱️ 12s</span>
+                </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
+            </a>
+            
+            <a href="adjektiv-endungen.html" class="game-card">
+                <div class="game-icon">🎨</div>
+                <div class="game-title">Adjektiv-Endungen</div>
+                <div class="game-desc">der große Mann oder ein großer Mann? -e, -er, -en, -es... Schneller = mehr Punkte!</div>
+                <div class="game-tags">
+                    <span class="tag individual">👤 Einzeln</span>
+                    <span class="tag mc">Multiple Choice</span>
+                    <span class="tag timer">⏱️ 10s</span>
+                </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
+            </a>
+            
+            <a href="team-battle-grammatik.html" class="game-card">
+                <div class="game-icon">⚔️</div>
+                <div class="game-title">Team Battle: Grammatik</div>
+                <div class="game-desc">4 Teams kämpfen! Konjunktiv II, Dativ, Konnektoren und mehr. 25 Fragen, jede richtige Antwort = +1 für dein Team.</div>
+                <div class="game-tags">
+                    <span class="tag team">👥 4 Teams</span>
+                    <span class="tag mc">Multiple Choice</span>
+                    <span class="tag timer">⏱️ 15s</span>
+                </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
+            </a>
+            
+            <a href="wortsalat-battle.html" class="game-card">
+                <div class="game-icon">🔀</div>
+                <div class="game-title">Wortsalat-Battle</div>
+                <div class="game-desc">Bringe die Wörter in die richtige Reihenfolge! Team-Wettbewerb mit 15 Sätzen.</div>
+                <div class="game-tags">
+                    <span class="tag team">👥 4 Teams</span>
+                    <span class="tag order">Wörter ordnen</span>
+                    <span class="tag timer">⏱️ 20s</span>
+                </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
             </a>
             
             <a href="zuordnungs-duell.html" class="game-card">
                 <div class="game-icon">🧩</div>
                 <div class="game-title">Zuordnungs-Duell</div>
-                <div class="game-desc">Verbinde die passenden Paare! Deutsch ↔ Bedeutung. Wer findet alle 4 Paare?</div>
+                <div class="game-desc">Verbinde die Paare! Begriff ↔ Bedeutung. 4 Paare pro Runde, 10 Runden insgesamt.</div>
                 <div class="game-tags">
-                    <span class="tag team">👥 Teamspiel</span>
-                    <span class="tag matching">Zuordnung</span>
+                    <span class="tag team">👥 4 Teams</span>
+                    <span class="tag match">Zuordnung</span>
+                    <span class="tag timer">⏱️ 30s</span>
                 </div>
-                <div class="difficulty-badge">
-                    <div class="diff-dot einfach"></div>
-                    <div class="diff-dot mittel"></div>
-                    <div class="diff-dot schwer"></div>
-                </div>
+                <div class="difficulty-dots"><div class="dot green"></div><div class="dot yellow"></div><div class="dot red"></div></div>
             </a>
         </div>
         
         <div class="info-section">
-            <h3>📖 So funktioniert's</h3>
-            <p>Alle Spiele sind Echtzeit-Multiplayer mit Firebase. Ein Spielleiter erstellt ein Spiel und erhält einen 4-stelligen Code. Die anderen Spieler geben diesen Code ein, um beizutreten.</p>
-            
-            <div class="feature-list">
-                <div class="feature">
-                    <span class="feature-icon">🎯</span>
-                    <span class="feature-text">3 Schwierigkeitsstufen</span>
+            <h2>ℹ️ So funktioniert's</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="icon">👑</div>
+                    <h3>Spiel erstellen</h3>
+                    <p>Einer erstellt das Spiel und erhält einen 4-stelligen Code</p>
                 </div>
-                <div class="feature">
-                    <span class="feature-icon">⏱️</span>
-                    <span class="feature-text">Timer für jede Frage</span>
+                <div class="info-item">
+                    <div class="icon">🚪</div>
+                    <h3>Beitreten</h3>
+                    <p>Andere geben den Code ein und treten bei</p>
                 </div>
-                <div class="feature">
-                    <span class="feature-icon">📊</span>
-                    <span class="feature-text">Live-Rangliste</span>
+                <div class="info-item">
+                    <div class="icon">▶️</div>
+                    <h3>Starten</h3>
+                    <p>Der Spielleiter startet, wenn alle bereit sind</p>
                 </div>
-                <div class="feature">
-                    <span class="feature-icon">👥</span>
-                    <span class="feature-text">4 Expeditions-Teams</span>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">📱</span>
-                    <span class="feature-text">Mobil optimiert</span>
-                </div>
-                <div class="feature">
-                    <span class="feature-icon">🔄</span>
-                    <span class="feature-text">Echtzeit-Synchronisation</span>
+                <div class="info-item">
+                    <div class="icon">🏆</div>
+                    <h3>Gewinnen</h3>
+                    <p>Am Ende werden die Gewinner gekürt!</p>
                 </div>
             </div>
         </div>
         
         <footer>
-            Lern Deutsch mit Arash • Multiplayer Quiz Arena
+            <p>🎓 Lern Deutsch mit Arash | <a href="https://arashemami.github.io/lerndeutsch">Zurück zur Hauptseite</a></p>
         </footer>
     </div>
     
