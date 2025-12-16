@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔗 Verben + Präpositionen</title>
+    <title>✨ Konjunktiv II</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#6c5ce7 0%,#a29bfe 100%);min-height:100vh;color:#fff}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#e84393 0%,#fd79a8 100%);min-height:100vh;color:#fff}
         .container{max-width:800px;margin:0 auto;padding:15px}
         h1{text-align:center;font-size:1.4em;margin-bottom:15px;text-shadow:0 2px 4px rgba(0,0,0,0.3)}
         .screen{display:none}.screen.active{display:block}
@@ -96,11 +96,10 @@
         .score-item .team-score{font-size:1.4em;font-weight:700}
         .quiz-section{background:rgba(255,255,255,0.08);border-radius:20px;padding:20px;border:2px solid rgba(255,255,255,0.1)}
         .category{display:inline-block;padding:5px 15px;background:rgba(255,215,0,0.15);border-radius:15px;font-size:0.85em;margin-bottom:15px;color:#ffd700}
-        .verb-display{font-size:1.8em;margin-bottom:15px;text-align:center;color:#ffd700;font-weight:700}
-        .question{font-size:1.1em;margin-bottom:20px;line-height:1.5;text-align:center;opacity:0.9}
+        .question{font-size:1.3em;margin-bottom:20px;line-height:1.5;text-align:center}
         .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
         @media(max-width:450px){.answers{grid-template-columns:1fr}}
-        .answer-btn{padding:16px;font-size:1.15em;border:3px solid rgba(255,255,255,0.25);border-radius:15px;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;transition:all 0.15s;font-weight:700;text-align:center}
+        .answer-btn{padding:16px;font-size:1.05em;border:3px solid rgba(255,255,255,0.25);border-radius:15px;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;transition:all 0.15s;font-weight:600;text-align:center}
         .answer-btn:hover:not(:disabled){background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.5)}
         .answer-btn:disabled{cursor:not-allowed;opacity:0.7}
         .answer-btn.correct{background:rgba(46,204,113,0.5);border-color:#2ecc71}
@@ -134,11 +133,11 @@
 <body>
     <div class="connection" id="connection">Verbinde...</div>
     <div class="container">
-        <h1>🔗 Verben + Präpositionen</h1>
+        <h1>✨ Konjunktiv II</h1>
         
         <div id="login-screen" class="screen active">
-            <div class="logo">🔗</div>
-            <h2>Welche Präposition passt?</h2>
+            <div class="logo">✨</div>
+            <h2>würde • hätte • wäre</h2>
             <div class="mode-select">
                 <button class="mode-btn selected" data-mode="einzeln"><span class="icon">👤</span>Einzeln</button>
                 <button class="mode-btn" data-mode="team"><span class="icon">👥</span>Teams</button>
@@ -153,18 +152,14 @@
                 <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
                 <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
             </div>
-            <div class="input-group">
-                <input type="text" id="player-name" placeholder="Dein Name" maxlength="15" autocomplete="off">
-            </div>
+            <div class="input-group"><input type="text" id="player-name" placeholder="Dein Name" maxlength="15" autocomplete="off"></div>
             <div class="team-select-grid" id="team-select-grid">
                 <button class="team-select-btn t1" data-team="1">🔴 Team 1</button>
                 <button class="team-select-btn t2" data-team="2">🔵 Team 2</button>
                 <button class="team-select-btn t3" data-team="3">🟢 Team 3</button>
                 <button class="team-select-btn t4" data-team="4">🟡 Team 4</button>
             </div>
-            <div class="input-group">
-                <input type="text" id="game-code" class="code-input" placeholder="CODE" maxlength="4" autocomplete="off">
-            </div>
+            <div class="input-group"><input type="text" id="game-code" class="code-input" placeholder="CODE" maxlength="4" autocomplete="off"></div>
             <button class="btn-primary" id="join-btn">🚪 Spiel beitreten</button>
             <div class="divider"><span>oder</span></div>
             <button class="btn-secondary" id="create-btn">👑 Neues Spiel erstellen</button>
@@ -193,24 +188,17 @@
         <div id="game-screen" class="screen">
             <div class="scoreboard" id="scoreboard" style="display:none"></div>
             <div class="game-header">
-                <div class="game-info">
-                    <div class="timer" id="timer">10</div>
-                    <div class="question-counter" id="question-counter">1/20</div>
-                </div>
+                <div class="game-info"><div class="timer" id="timer">12</div><div class="question-counter" id="question-counter">1/20</div></div>
                 <div class="my-score" id="my-score">⭐ 0</div>
                 <div class="my-team-indicator" id="my-team-indicator" style="display:none"></div>
             </div>
             <div class="quiz-section">
                 <div class="category" id="category">Kategorie</div>
-                <div class="verb-display" id="verb"></div>
-                <div class="question" id="question">Welche Präposition?</div>
+                <div class="question" id="question">Frage wird geladen...</div>
                 <div class="answers" id="answers"></div>
                 <div class="feedback" id="feedback"></div>
             </div>
-            <div class="live-players" id="live-players">
-                <h4>👥 Spieler</h4>
-                <div class="live-players-grid" id="live-players-grid"></div>
-            </div>
+            <div class="live-players" id="live-players"><h4>👥 Spieler</h4><div class="live-players-grid" id="live-players-grid"></div></div>
         </div>
         
         <div id="result-screen" class="screen">
@@ -226,74 +214,74 @@
     <script>
     (function() {
         'use strict';
-        var CONFIG = {TIMER_SECONDS:10,QUESTIONS_COUNT:20,TRANSITION_DELAY:2500,FIREBASE:{apiKey:"AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",authDomain:"lern-deutsch-arash.firebaseapp.com",databaseURL:"https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",projectId:"lern-deutsch-arash"},DB_PATH:"verbpraep2"};
+        var CONFIG = {TIMER_SECONDS:12,QUESTIONS_COUNT:20,TRANSITION_DELAY:2500,FIREBASE:{apiKey:"AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",authDomain:"lern-deutsch-arash.firebaseapp.com",databaseURL:"https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",projectId:"lern-deutsch-arash"},DB_PATH:"konjunktiv3"};
         
         var QUESTIONS = {
             einfach: [
-                {cat:"warten",v:"warten ___",a:["auf","für","an","über"],c:0},
-                {cat:"denken",v:"denken ___",a:["an","auf","für","über"],c:0},
-                {cat:"freuen",v:"sich freuen ___ (Zukunft)",a:["auf","über","für","an"],c:0},
-                {cat:"freuen",v:"sich freuen ___ (Geschenk)",a:["über","auf","für","an"],c:0},
-                {cat:"interessieren",v:"sich interessieren ___",a:["für","an","auf","über"],c:0},
-                {cat:"kümmern",v:"sich kümmern ___",a:["um","für","an","auf"],c:0},
-                {cat:"sprechen",v:"sprechen ___ (Thema)",a:["über","von","mit","an"],c:0},
-                {cat:"sprechen",v:"sprechen ___ (Person)",a:["mit","über","von","an"],c:0},
-                {cat:"fragen",v:"fragen ___",a:["nach","für","über","an"],c:0},
-                {cat:"bitten",v:"bitten ___",a:["um","für","nach","an"],c:0},
-                {cat:"danken",v:"danken ___",a:["für","um","an","über"],c:0},
-                {cat:"hoffen",v:"hoffen ___",a:["auf","für","an","über"],c:0},
-                {cat:"träumen",v:"träumen ___",a:["von","über","an","für"],c:0},
-                {cat:"erzählen",v:"erzählen ___",a:["von","über","an","für"],c:0},
-                {cat:"schreiben",v:"schreiben ___",a:["an","für","über","mit"],c:0},
-                {cat:"glauben",v:"glauben ___",a:["an","für","über","auf"],c:0},
-                {cat:"achten",v:"achten ___",a:["auf","an","für","über"],c:0},
-                {cat:"anfangen",v:"anfangen ___",a:["mit","an","für","auf"],c:0},
-                {cat:"aufhören",v:"aufhören ___",a:["mit","an","für","auf"],c:0},
-                {cat:"arbeiten",v:"arbeiten ___",a:["an","mit","für","auf"],c:0}
+                {cat:"würde",q:"Ich ___ gern ins Kino gehen.",a:["würde","werde","wurde","will"],c:0},
+                {cat:"würde",q:"Er ___ lieber zu Hause bleiben.",a:["würde","werde","wurde","will"],c:0},
+                {cat:"würde",q:"Wir ___ das gern machen.",a:["würden","werden","wurden","wollen"],c:0},
+                {cat:"würde",q:"___ du mir bitte helfen?",a:["Würdest","Wirst","Wurdest","Willst"],c:0},
+                {cat:"hätte",q:"Ich ___ gern mehr Zeit.",a:["hätte","habe","hatte","hab"],c:0},
+                {cat:"hätte",q:"Er ___ gern ein neues Auto.",a:["hätte","habe","hatte","hat"],c:0},
+                {cat:"hätte",q:"Wir ___ gern Urlaub.",a:["hätten","haben","hatten","hab"],c:0},
+                {cat:"hätte",q:"___ du Zeit für mich?",a:["Hättest","Hast","Hattest","Habst"],c:0},
+                {cat:"wäre",q:"Das ___ toll!",a:["wäre","ist","war","sei"],c:0},
+                {cat:"wäre",q:"Ich ___ gern reich.",a:["wäre","bin","war","sei"],c:0},
+                {cat:"wäre",q:"Er ___ gern berühmt.",a:["wäre","ist","war","sei"],c:0},
+                {cat:"wäre",q:"___ das möglich?",a:["Wäre","Ist","War","Sei"],c:0},
+                {cat:"könnte",q:"Ich ___ dir helfen.",a:["könnte","kann","konnte","könntest"],c:0},
+                {cat:"könnte",q:"___ Sie das bitte wiederholen?",a:["Könnten","Können","Konnten","Könnte"],c:0},
+                {cat:"sollte",q:"Du ___ mehr schlafen.",a:["solltest","sollst","sollte","sollen"],c:0},
+                {cat:"sollte",q:"Er ___ pünktlicher sein.",a:["sollte","soll","solltest","sollen"],c:0},
+                {cat:"müsste",q:"Ich ___ eigentlich arbeiten.",a:["müsste","muss","musste","müssen"],c:0},
+                {cat:"müsste",q:"Er ___ mehr lernen.",a:["müsste","muss","musste","müssen"],c:0},
+                {cat:"wäre",q:"Es ___ schön, wenn du kommst.",a:["wäre","ist","war","sei"],c:0},
+                {cat:"hätte",q:"Ich ___ gern ein Stück Kuchen.",a:["hätte","habe","hatte","hab"],c:0}
             ],
             mittel: [
-                {cat:"ärgern",v:"sich ärgern ___",a:["über","auf","an","für"],c:0},
-                {cat:"beschweren",v:"sich beschweren ___",a:["über","auf","an","für"],c:0},
-                {cat:"wundern",v:"sich wundern ___",a:["über","auf","an","für"],c:0},
-                {cat:"gewöhnen",v:"sich gewöhnen ___",a:["an","auf","über","für"],c:0},
-                {cat:"erinnern",v:"sich erinnern ___",a:["an","auf","über","für"],c:0},
-                {cat:"verlassen",v:"sich verlassen ___",a:["auf","an","über","für"],c:0},
-                {cat:"vorbereiten",v:"sich vorbereiten ___",a:["auf","an","über","für"],c:0},
-                {cat:"konzentrieren",v:"sich konzentrieren ___",a:["auf","an","über","für"],c:0},
-                {cat:"bewerben",v:"sich bewerben ___",a:["um","für","an","auf"],c:0},
-                {cat:"bemühen",v:"sich bemühen ___",a:["um","für","an","auf"],c:0},
-                {cat:"handeln",v:"es handelt sich ___",a:["um","für","an","auf"],c:0},
-                {cat:"streiten",v:"sich streiten ___",a:["um","für","an","über"],c:0},
-                {cat:"unterhalten",v:"sich unterhalten ___",a:["über","von","mit","an"],c:0},
-                {cat:"verabschieden",v:"sich verabschieden ___",a:["von","mit","an","für"],c:0},
-                {cat:"beschäftigen",v:"sich beschäftigen ___",a:["mit","an","für","über"],c:0},
-                {cat:"entscheiden",v:"sich entscheiden ___",a:["für","an","auf","über"],c:0},
-                {cat:"entschuldigen",v:"sich entschuldigen ___",a:["für","an","bei","über"],c:0},
-                {cat:"bedanken",v:"sich bedanken ___",a:["für","an","bei","über"],c:0},
-                {cat:"fürchten",v:"sich fürchten ___",a:["vor","an","für","über"],c:0},
-                {cat:"schützen",v:"sich schützen ___",a:["vor","an","für","gegen"],c:0}
+                {cat:"wenn",q:"Wenn ich Zeit ___, würde ich kommen.",a:["hätte","habe","hatte","hab"],c:0},
+                {cat:"wenn",q:"Wenn er reich ___, würde er reisen.",a:["wäre","ist","war","sei"],c:0},
+                {cat:"wenn",q:"Wenn ich du ___, würde ich das machen.",a:["wäre","bin","war","sei"],c:0},
+                {cat:"Höflichkeit",q:"___ ich Sie kurz stören?",a:["Dürfte","Darf","Durfte","Dürfe"],c:0},
+                {cat:"Höflichkeit",q:"___ Sie mir bitte helfen?",a:["Könnten","Können","Konnten","Könnte"],c:0},
+                {cat:"Höflichkeit",q:"___ Sie so freundlich sein?",a:["Würden","Werden","Wurden","Wollen"],c:0},
+                {cat:"Wunsch",q:"Ich ___ so gern Urlaub!",a:["hätte","habe","hatte","hab"],c:0},
+                {cat:"Wunsch",q:"Wenn ich doch reich ___!",a:["wäre","bin","war","sei"],c:0},
+                {cat:"Wunsch",q:"Wenn er doch endlich ___!",a:["käme","kommt","kam","kommen"],c:0},
+                {cat:"Ratschlag",q:"An deiner Stelle ___ ich zum Arzt gehen.",a:["würde","werde","wurde","will"],c:0},
+                {cat:"Ratschlag",q:"Du ___ wirklich mehr Sport machen.",a:["solltest","sollst","sollte","sollen"],c:0},
+                {cat:"Vermutung",q:"Das ___ stimmen.",a:["könnte","kann","konnte","könntest"],c:0},
+                {cat:"Vermutung",q:"Er ___ krank sein.",a:["könnte","kann","konnte","könntest"],c:0},
+                {cat:"Vermutung",q:"Sie ___ etwa 30 sein.",a:["dürfte","darf","durfte","dürfe"],c:0},
+                {cat:"irreal",q:"Wenn ich Geld ___, würde ich ein Haus kaufen.",a:["hätte","habe","hatte","hab"],c:0},
+                {cat:"irreal",q:"Wenn das Wetter besser ___, würden wir spazieren.",a:["wäre","ist","war","sei"],c:0},
+                {cat:"irreal",q:"Wenn ich fliegen ___, würde ich nach Japan reisen.",a:["könnte","kann","konnte","könntest"],c:0},
+                {cat:"Konj.II",q:"Ich ___ mir wünschen, dass...",a:["würde","werde","wurde","will"],c:0},
+                {cat:"Konj.II",q:"Es ___ mich freuen, wenn...",a:["würde","werde","wurde","will"],c:0},
+                {cat:"hätte",q:"___ Sie etwas dagegen, wenn...?",a:["Hätten","Haben","Hatten","Hab"],c:0}
             ],
             schwer: [
-                {cat:"einlassen",v:"sich einlassen ___",a:["auf","an","für","mit"],c:0},
-                {cat:"abfinden",v:"sich abfinden ___",a:["mit","an","für","auf"],c:0},
-                {cat:"sehnen",v:"sich sehnen ___",a:["nach","für","an","auf"],c:0},
-                {cat:"richten",v:"sich richten ___",a:["nach","für","an","auf"],c:0},
-                {cat:"wenden",v:"sich wenden ___",a:["an","für","nach","auf"],c:0},
-                {cat:"beklagen",v:"sich beklagen ___",a:["über","für","an","auf"],c:0},
-                {cat:"beziehen",v:"sich beziehen ___",a:["auf","für","an","über"],c:0},
-                {cat:"eignen",v:"sich eignen ___",a:["für","an","auf","über"],c:0},
-                {cat:"unterscheiden",v:"sich unterscheiden ___",a:["von","mit","an","für"],c:0},
-                {cat:"erholen",v:"sich erholen ___",a:["von","mit","an","für"],c:0},
-                {cat:"hüten",v:"sich hüten ___",a:["vor","mit","an","für"],c:0},
-                {cat:"wehren",v:"sich wehren ___",a:["gegen","mit","an","für"],c:0},
-                {cat:"orientieren",v:"sich orientieren ___",a:["an","mit","für","auf"],c:0},
-                {cat:"berufen",v:"sich berufen ___",a:["auf","mit","für","an"],c:0},
-                {cat:"anpassen",v:"sich anpassen ___",a:["an","mit","für","auf"],c:0},
-                {cat:"sträuben",v:"sich sträuben ___",a:["gegen","mit","für","an"],c:0},
-                {cat:"durchsetzen",v:"sich durchsetzen ___",a:["gegen","mit","für","an"],c:0},
-                {cat:"verlieben",v:"sich verlieben ___",a:["in","an","für","auf"],c:0},
-                {cat:"spezialisieren",v:"sich spezialisieren ___",a:["auf","an","für","in"],c:0},
-                {cat:"lossagen",v:"sich lossagen ___",a:["von","mit","an","für"],c:0}
+                {cat:"Vergangenheit",q:"Wenn ich das gewusst ___, hätte ich anders gehandelt.",a:["hätte","habe","hatte","hab"],c:0},
+                {cat:"Vergangenheit",q:"Ich ___ gern früher gekommen.",a:["wäre","bin","war","sei"],c:0},
+                {cat:"Vergangenheit",q:"Das ___ ich nicht gedacht.",a:["hätte","habe","hatte","hab"],c:0},
+                {cat:"Vergangenheit",q:"Wenn er schneller ___, hätte er den Bus erreicht.",a:["gelaufen wäre","gelaufen ist","lief","läuft"],c:0},
+                {cat:"Vergangenheit",q:"Das ___ nicht passieren dürfen.",a:["hätte","hat","hatte","hab"],c:0},
+                {cat:"Vergangenheit",q:"Er ___ besser vorbereitet sein sollen.",a:["hätte","hat","hatte","hab"],c:0},
+                {cat:"als ob",q:"Er tut so, als ob er reich ___.",a:["wäre","ist","war","sei"],c:0},
+                {cat:"als ob",q:"Sie sieht aus, als ob sie krank ___.",a:["wäre","ist","war","sei"],c:0},
+                {cat:"als ob",q:"Er redet, als ob er alles ___.",a:["wüsste","weiß","wusste","wissen"],c:0},
+                {cat:"Bedauern",q:"Ich ___ dir gern geholfen.",a:["hätte","habe","hatte","hab"],c:0},
+                {cat:"fast",q:"Ich ___ fast hingefallen.",a:["wäre","bin","war","sei"],c:0},
+                {cat:"fast",q:"Er ___ beinahe zu spät gekommen.",a:["wäre","ist","war","sei"],c:0},
+                {cat:"Kritik",q:"Du ___ das nicht sagen sollen.",a:["hättest","hast","hattest","habst"],c:0},
+                {cat:"Kritik",q:"Er ___ besser aufpassen müssen.",a:["hätte","hat","hatte","hab"],c:0},
+                {cat:"Irrealis",q:"Ohne deine Hilfe ___ ich das nicht geschafft.",a:["hätte","habe","hatte","hab"],c:0},
+                {cat:"Irrealis",q:"Sonst ___ alles schiefgegangen.",a:["wäre","ist","war","sei"],c:0},
+                {cat:"Konj.II Perf.",q:"Ich ___ das lieber anders gemacht.",a:["hätte","habe","hatte","hab"],c:0},
+                {cat:"Konj.II Perf.",q:"Er ___ besser nicht gekommen.",a:["wäre","ist","war","sei"],c:0},
+                {cat:"Konj.II Perf.",q:"Wir ___ früher losfahren sollen.",a:["hätten","haben","hatten","hab"],c:0},
+                {cat:"Konj.II Perf.",q:"Das ___ ich mir denken können.",a:["hätte","habe","hatte","hab"],c:0}
             ]
         };
         
@@ -373,7 +361,7 @@
             if(state.currentQuestion>=state.questions.length){state.gameRef.update({status:'finished'});return}
             var q=state.questions[state.currentQuestion];
             $('question-counter').textContent=(state.currentQuestion+1)+'/'+state.questions.length;
-            $('category').textContent=q.cat;$('verb').textContent=q.v;$('my-score').textContent='⭐ '+state.myScore;
+            $('category').textContent=q.cat;$('question').textContent=q.q;$('my-score').textContent='⭐ '+state.myScore;
             if(state.mode==='team'){var ti=$('my-team-indicator');ti.style.display='inline-block';ti.className='my-team-indicator t'+state.myTeam;ti.textContent='Team '+state.myTeam}
             var indices=shuffle([0,1,2,3]);var answersHtml='';for(var i=0;i<indices.length;i++){var idx=indices[i];answersHtml+='<button class="answer-btn" data-idx="'+idx+'">'+q.a[idx]+'</button>'}$('answers').innerHTML=answersHtml;
             var btns=$$('.answer-btn');for(var i=0;i<btns.length;i++){btns[i].onclick=function(){selectAnswer(this,parseInt(this.getAttribute('data-idx')))}}

@@ -7,442 +7,226 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#00b894 0%,#00cec9 100%);min-height:100vh;color:#fff}
-        .container{max-width:900px;margin:0 auto;padding:15px}
-        h1{text-align:center;font-size:1.5em;margin-bottom:15px}
-        .screen{display:none!important}.screen.active{display:block!important}#login-screen.active{display:flex!important}
-        
-        #login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;gap:15px}
-        .logo{font-size:4em;margin-bottom:10px}
-        #login-screen h2{font-size:1.2em;text-align:center}
-        .difficulty-select{display:flex;gap:10px;margin:15px 0;flex-wrap:wrap;justify-content:center}
-        .diff-btn{padding:15px 25px;border:3px solid rgba(255,255,255,0.3);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;font-size:1em;font-weight:700;cursor:pointer;transition:all 0.3s}
-        .diff-btn:hover,.diff-btn.selected{transform:scale(1.05)}
-        .diff-btn.einfach{border-color:#55efc4}.diff-btn.einfach.selected{background:#00b894}
-        .diff-btn.mittel{border-color:#fdcb6e}.diff-btn.mittel.selected{background:#e17055}
-        .diff-btn.schwer{border-color:#d63031}.diff-btn.schwer.selected{background:#d63031}
+        .container{max-width:800px;margin:0 auto;padding:15px}
+        h1{text-align:center;font-size:1.4em;margin-bottom:15px}
+        .screen{display:none}.screen.active{display:block}
+        #login-screen.active{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:85vh;gap:12px}
+        .logo{font-size:3.5em;margin-bottom:5px}
+        #login-screen h2{font-size:1.1em;text-align:center;opacity:0.9}
+        .info-box{background:rgba(255,255,255,0.15);padding:12px 18px;border-radius:12px;font-size:0.9em;max-width:320px;text-align:center;line-height:1.5}
+        .mode-select{display:flex;gap:10px;margin:15px 0}
+        .mode-btn{flex:1;padding:15px;border:3px solid rgba(255,255,255,0.3);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;font-size:1em;font-weight:700;cursor:pointer;text-align:center}
+        .mode-btn:hover,.mode-btn.selected{border-color:#ffd700;background:rgba(255,215,0,0.2)}
+        .mode-btn .icon{font-size:1.5em;display:block;margin-bottom:5px}
+        .team-count-select{display:none;gap:8px;margin:10px 0}.team-count-select.show{display:flex}
+        .team-count-btn{padding:12px 20px;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.1);color:#fff;font-weight:700;cursor:pointer}
+        .team-count-btn:hover,.team-count-btn.selected{border-color:#ffd700;background:rgba(255,215,0,0.2)}
+        .team-select-grid{display:none;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;width:100%;max-width:300px}.team-select-grid.show{display:grid}
+        .team-select-btn{padding:12px;border:3px solid;border-radius:12px;background:rgba(255,255,255,0.1);color:#fff;font-weight:700;cursor:pointer}
+        .team-select-btn:hover,.team-select-btn.selected{transform:scale(1.02);filter:brightness(1.2)}
+        .team-select-btn.t1{border-color:#e74c3c}.team-select-btn.t2{border-color:#3498db}.team-select-btn.t3{border-color:#2ecc71}.team-select-btn.t4{border-color:#f39c12}
+        .difficulty-select{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;justify-content:center}
+        .diff-btn{padding:12px 20px;border:2px solid rgba(255,255,255,0.3);border-radius:12px;background:rgba(255,255,255,0.1);color:#fff;font-size:0.9em;font-weight:700;cursor:pointer}
+        .diff-btn.einfach.selected{border-color:#2ecc71;background:rgba(46,204,113,0.3)}
+        .diff-btn.mittel.selected{border-color:#f39c12;background:rgba(243,156,18,0.3)}
+        .diff-btn.schwer.selected{border-color:#e74c3c;background:rgba(231,76,60,0.3)}
         .input-group{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
-        .input-group input{font-size:1.1em;padding:12px 20px;border:2px solid #fff;border-radius:25px;text-align:center;background:rgba(255,255,255,0.2);color:#fff}
-        .input-group input::placeholder{color:rgba(255,255,255,0.7)}
-        .input-group input.code-input{font-size:1.4em;letter-spacing:8px;text-transform:uppercase}
-        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:#fff;color:#00b894;font-weight:700;cursor:pointer;width:100%;max-width:300px}
-        .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid #fff;border-radius:25px;background:transparent;color:#fff;cursor:pointer;width:100%;max-width:300px}
-        .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0}
-        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.5)}
-        .error-msg{color:#2d3436;background:rgba(255,255,255,0.9);padding:8px 15px;border-radius:10px;font-size:0.9em;margin-top:10px;display:none}
-        
-        .info-box{background:rgba(255,255,255,0.15);border-radius:15px;padding:15px;margin-top:15px;max-width:350px;text-align:left;font-size:0.85em}
-        .info-box h4{color:#ffd700;margin-bottom:8px}
-        
-        #lobby-screen{text-align:center}
-        .lobby-box{background:rgba(255,255,255,0.15);border-radius:20px;padding:25px;margin:20px 0}
-        .lobby-code{font-size:2.5em;letter-spacing:10px;margin:10px 0}
-        .diff-badge{display:inline-block;padding:8px 20px;border-radius:20px;font-weight:700;margin:10px 0}
-        .diff-badge.einfach{background:#00b894}.diff-badge.mittel{background:#e17055}.diff-badge.schwer{background:#d63031}
-        .waiting-players{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:20px 0}
-        .waiting-player{padding:10px 15px;background:rgba(255,255,255,0.2);border-radius:20px}
-        .start-game-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:#fff;color:#00b894;font-weight:700;cursor:pointer;margin:15px 0}
-        .start-game-btn:disabled{opacity:0.5;cursor:not-allowed}
-        .small-btn{font-size:0.85em;padding:8px 15px;border:1px solid rgba(255,255,255,0.5);border-radius:15px;background:transparent;color:#fff;cursor:pointer;margin:5px}
-        .small-btn.danger{background:rgba(255,0,0,0.3)}
-        
-        .game-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding:12px 15px;background:rgba(255,255,255,0.15);border-radius:15px;flex-wrap:wrap;gap:10px}
-        .lives{font-size:1.5em}
-        .timer{font-size:2em;font-weight:700}.timer.warning{color:#fdcb6e}.timer.danger{color:#d63031;animation:pulse 0.5s infinite}
+        .input-group input{font-size:1.1em;padding:12px 20px;border:2px solid rgba(255,255,255,0.5);border-radius:25px;text-align:center;background:rgba(255,255,255,0.15);color:#fff}
+        .input-group input::placeholder{color:rgba(255,255,255,0.6)}
+        .input-group input.code-input{font-size:1.3em;letter-spacing:6px;text-transform:uppercase}
+        .btn-primary{font-size:1.1em;padding:15px 40px;border:none;border-radius:30px;background:linear-gradient(135deg,#ffd700,#ffaa00);color:#333;font-weight:700;cursor:pointer;width:100%;max-width:300px}
+        .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+        .btn-secondary{font-size:1em;padding:12px 30px;border:2px solid rgba(255,255,255,0.5);border-radius:25px;background:transparent;color:#fff;cursor:pointer;width:100%;max-width:300px}
+        .divider{display:flex;align-items:center;gap:15px;width:100%;max-width:300px;margin:5px 0;color:rgba(255,255,255,0.5)}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.3)}
+        .error-msg{color:#ff6b6b;background:rgba(255,107,107,0.2);padding:10px 15px;border-radius:10px;font-size:0.9em;display:none;max-width:300px;text-align:center}.error-msg.show{display:block}
+        .lobby-box{background:rgba(255,255,255,0.1);border-radius:20px;padding:20px;margin:15px 0;text-align:center}
+        .lobby-code{font-size:2.5em;color:#ffd700;letter-spacing:8px;margin:10px 0;font-weight:700}
+        .lobby-info{display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin:15px 0}
+        .lobby-badge{padding:8px 15px;border-radius:20px;font-size:0.85em;font-weight:600}
+        .lobby-badge.mode{background:rgba(255,215,0,0.2);color:#ffd700}.lobby-badge.diff{background:rgba(46,204,113,0.2);color:#2ecc71}
+        .players-list,.teams-list{margin:20px 0}
+        .players-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+        .player-chip{padding:8px 15px;background:rgba(255,255,255,0.15);border-radius:20px;font-size:0.9em}.player-chip.host{border:2px solid #ffd700}
+        .teams-grid{display:grid;gap:12px;margin:15px 0}
+        .teams-grid.t2{grid-template-columns:1fr 1fr}.teams-grid.t3{grid-template-columns:1fr 1fr 1fr}.teams-grid.t4{grid-template-columns:1fr 1fr}
+        @media(max-width:500px){.teams-grid.t3,.teams-grid.t4{grid-template-columns:1fr}}
+        .team-box{background:rgba(255,255,255,0.08);border-radius:12px;padding:12px;border-left:4px solid}
+        .team-box.t1{border-color:#e74c3c}.team-box.t2{border-color:#3498db}.team-box.t3{border-color:#2ecc71}.team-box.t4{border-color:#f39c12}
+        .team-box h4{font-size:0.9em;margin-bottom:8px}
+        .team-box h4 .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px}
+        .team-box.t1 .dot{background:#e74c3c}.team-box.t2 .dot{background:#3498db}.team-box.t3 .dot{background:#2ecc71}.team-box.t4 .dot{background:#f39c12}
+        .team-players{display:flex;flex-wrap:wrap;gap:5px;min-height:25px}
+        .team-player{padding:4px 10px;background:rgba(255,255,255,0.1);border-radius:10px;font-size:0.8em}
+        .host-controls{margin-top:20px}
+        .start-btn{font-size:1.2em;padding:15px 50px;border:none;border-radius:30px;background:linear-gradient(135deg,#2ecc71,#27ae60);color:#fff;font-weight:700;cursor:pointer}
+        .start-btn:disabled{opacity:0.5;cursor:not-allowed}
+        .host-label{color:#ffd700;font-size:0.85em;margin-top:10px}
+        .reset-btn{margin-top:15px;padding:8px 20px;border:1px solid rgba(231,76,60,0.5);border-radius:15px;background:transparent;color:#e74c3c;font-size:0.85em;cursor:pointer}
+        .player-wait{color:rgba(255,255,255,0.7);font-style:italic}
+        .game-header{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:rgba(255,255,255,0.1);border-radius:15px;margin-bottom:15px;flex-wrap:wrap;gap:10px}
+        .game-info{display:flex;align-items:center;gap:15px}
+        .timer{font-size:2em;font-weight:700;color:#ffd700;min-width:50px;text-align:center}
+        .timer.warning{color:#f39c12}.timer.danger{color:#e74c3c;animation:pulse 0.5s infinite}
         @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
-        .survivors{color:#55efc4}
-        
-        .quiz-section{background:rgba(255,255,255,0.1);border-radius:20px;padding:20px;margin-bottom:15px}
-        .category-badge{display:inline-block;padding:5px 15px;background:rgba(255,255,255,0.2);border-radius:20px;font-size:0.85em;margin-bottom:12px}
-        .question{font-size:1.4em;margin-bottom:20px;line-height:1.5;text-align:center}
-        .verb-highlight{color:#ffd700;font-weight:700}
+        .question-counter{font-size:0.95em;opacity:0.9}
+        .my-score{font-size:1.1em;font-weight:600}
+        .my-team-indicator{padding:5px 12px;border-radius:15px;font-size:0.85em;font-weight:600}
+        .my-team-indicator.t1{background:rgba(231,76,60,0.3);border:2px solid #e74c3c}
+        .my-team-indicator.t2{background:rgba(52,152,219,0.3);border:2px solid #3498db}
+        .my-team-indicator.t3{background:rgba(46,204,113,0.3);border:2px solid #2ecc71}
+        .my-team-indicator.t4{background:rgba(243,156,18,0.3);border:2px solid #f39c12}
+        .scoreboard{display:flex;justify-content:center;gap:10px;margin-bottom:15px;flex-wrap:wrap}
+        .score-item{padding:10px 20px;border-radius:12px;text-align:center;min-width:80px}
+        .score-item.t1{background:rgba(231,76,60,0.25);border:2px solid #e74c3c}
+        .score-item.t2{background:rgba(52,152,219,0.25);border:2px solid #3498db}
+        .score-item.t3{background:rgba(46,204,113,0.25);border:2px solid #2ecc71}
+        .score-item.t4{background:rgba(243,156,18,0.25);border:2px solid #f39c12}
+        .score-item .team-name{font-size:0.8em;opacity:0.8}.score-item .team-score{font-size:1.4em;font-weight:700}
+        .quiz-section{background:rgba(255,255,255,0.08);border-radius:20px;padding:20px;border:2px solid rgba(255,255,255,0.1)}
+        .category{display:inline-block;padding:5px 15px;background:rgba(255,215,0,0.15);border-radius:15px;font-size:0.85em;margin-bottom:15px;color:#ffd700}
+        .question{font-size:1.3em;margin-bottom:15px;line-height:1.5;text-align:center}
+        .case-hint{font-size:0.9em;opacity:0.7;margin-bottom:15px;text-align:center}
         .answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-        @media(max-width:500px){.answers{grid-template-columns:1fr}}
-        .answer-btn{padding:18px;font-size:1.1em;border:3px solid rgba(255,255,255,0.4);border-radius:15px;background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;transition:all 0.2s;font-weight:600}
-        .answer-btn:hover:not(:disabled){background:rgba(255,255,255,0.3);border-color:#fff}
-        .answer-btn.correct{background:rgba(0,184,148,0.8)!important;border-color:#00b894!important}
-        .answer-btn.wrong{background:rgba(214,48,49,0.8)!important;border-color:#d63031!important}
-        .answer-btn:disabled{cursor:not-allowed}
-        
-        .answer-status{text-align:center;padding:12px;margin-top:15px;border-radius:10px;font-weight:700;display:none}
-        .answer-status.show{display:block}
-        .answer-status.correct{background:rgba(0,184,148,0.4)}
-        .answer-status.wrong{background:rgba(214,48,49,0.4)}
-        .answer-status.timeout{background:rgba(253,203,110,0.4)}
-        
-        .players-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:15px}
-        .player-chip{padding:6px 12px;border-radius:15px;font-size:0.85em;background:rgba(0,184,148,0.3);border:1px solid #00b894}
-        .player-chip.eliminated{background:rgba(214,48,49,0.3);border-color:#d63031;text-decoration:line-through;opacity:0.5}
-        
-        #gameover-screen{text-align:center;padding:30px 20px}
-        .result-icon{font-size:5em;margin-bottom:15px}
-        .winners-list{background:rgba(255,255,255,0.15);border-radius:15px;padding:20px;margin:20px 0}
-        .winner-item{display:flex;justify-content:space-between;padding:10px;background:rgba(255,255,255,0.1);border-radius:10px;margin-bottom:8px}
-        
-        #eliminated-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:100}
-        #eliminated-overlay.show{display:flex}
-        
-        .connection-status{position:fixed;top:10px;right:10px;padding:5px 10px;border-radius:12px;font-size:0.75em;background:rgba(0,0,0,0.3)}
-        .connection-status.connected{color:#55efc4}
+        @media(max-width:450px){.answers{grid-template-columns:1fr}}
+        .answer-btn{padding:16px;font-size:1.05em;border:3px solid rgba(255,255,255,0.25);border-radius:15px;background:rgba(255,255,255,0.08);color:#fff;cursor:pointer;font-weight:600;text-align:center}
+        .answer-btn:hover:not(:disabled){background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.5)}
+        .answer-btn:disabled{cursor:not-allowed;opacity:0.7}
+        .answer-btn.correct{background:rgba(46,204,113,0.5);border-color:#2ecc71}
+        .answer-btn.wrong{background:rgba(231,76,60,0.5);border-color:#e74c3c}
+        .feedback{text-align:center;padding:12px;margin-top:15px;border-radius:12px;font-weight:600;display:none}
+        .feedback.show{display:block}
+        .feedback.correct{background:rgba(46,204,113,0.25);color:#2ecc71}
+        .feedback.wrong{background:rgba(231,76,60,0.25);color:#e74c3c}
+        .feedback.timeout{background:rgba(243,156,18,0.25);color:#f39c12}
+        .live-players{margin-top:15px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px}
+        .live-players h4{font-size:0.85em;margin-bottom:8px;opacity:0.7}
+        .live-players-grid{display:flex;flex-wrap:wrap;gap:6px}
+        .live-player{padding:4px 10px;border-radius:10px;font-size:0.8em;background:rgba(255,255,255,0.1)}
+        .live-player.answered{background:rgba(46,204,113,0.3)}.live-player.me{border:1px solid #ffd700}
+        #result-screen{text-align:center;padding:20px}
+        .result-icon{font-size:4em;margin-bottom:10px}
+        .result-title{font-size:1.5em;margin-bottom:20px}
+        .final-standings{background:rgba(255,255,255,0.1);border-radius:15px;padding:20px;margin:20px 0}
+        .standing-row{display:flex;justify-content:space-between;align-items:center;padding:12px 15px;margin:8px 0;border-radius:10px;background:rgba(255,255,255,0.05)}
+        .standing-row.winner{background:rgba(255,215,0,0.2);border:2px solid #ffd700}
+        .standing-row.me{border:2px solid rgba(255,255,255,0.5)}
+        .standing-rank{font-size:1.3em;min-width:40px}
+        .standing-name{flex:1;text-align:left;margin-left:10px}
+        .standing-score{font-weight:700;font-size:1.1em}
+        .connection{position:fixed;top:10px;right:10px;padding:5px 12px;border-radius:15px;font-size:0.75em;background:rgba(0,0,0,0.4)}
+        .connection.online{color:#2ecc71}.connection.offline{color:#e74c3c}
     </style>
 </head>
 <body>
-    <div class="connection-status" id="connection-status">Verbinde...</div>
+    <div class="connection" id="connection">Verbinde...</div>
     <div class="container">
         <h1>🎁 Akkusativ oder Dativ?</h1>
-        
         <div id="login-screen" class="screen active">
             <div class="logo">🎁</div>
-            <h2>Verben mit Akk + Dat Objekt<br><small style="opacity:0.8">Wer bekommt was?</small></h2>
+            <h2>Verben mit zwei Objekten</h2>
+            <div class="info-box">WEM? → Dativ (Person)<br>WAS? → Akkusativ (Sache)</div>
+            <div class="mode-select">
+                <button class="mode-btn selected" data-mode="einzeln"><span class="icon">👤</span>Einzeln</button>
+                <button class="mode-btn" data-mode="team"><span class="icon">👥</span>Teams</button>
+            </div>
+            <div class="team-count-select" id="team-count-select">
+                <button class="team-count-btn selected" data-count="2">2 Teams</button>
+                <button class="team-count-btn" data-count="3">3 Teams</button>
+                <button class="team-count-btn" data-count="4">4 Teams</button>
+            </div>
             <div class="difficulty-select">
                 <button class="diff-btn einfach selected" data-diff="einfach">🟢 Einfach</button>
                 <button class="diff-btn mittel" data-diff="mittel">🟡 Mittel</button>
                 <button class="diff-btn schwer" data-diff="schwer">🔴 Schwer</button>
             </div>
-            <div class="input-group">
-                <input type="text" id="player-name" placeholder="Dein Name" maxlength="15">
-                <input type="text" id="game-code" class="code-input" placeholder="CODE" maxlength="4">
+            <div class="input-group"><input type="text" id="player-name" placeholder="Dein Name" maxlength="15" autocomplete="off"></div>
+            <div class="team-select-grid" id="team-select-grid">
+                <button class="team-select-btn t1" data-team="1">🔴 Team 1</button>
+                <button class="team-select-btn t2" data-team="2">🔵 Team 2</button>
+                <button class="team-select-btn t3" data-team="3">🟢 Team 3</button>
+                <button class="team-select-btn t4" data-team="4">🟡 Team 4</button>
             </div>
-            <button class="btn-primary" id="join-btn">🚪 Beitreten</button>
+            <div class="input-group"><input type="text" id="game-code" class="code-input" placeholder="CODE" maxlength="4" autocomplete="off"></div>
+            <button class="btn-primary" id="join-btn">🚪 Spiel beitreten</button>
             <div class="divider"><span>oder</span></div>
             <button class="btn-secondary" id="create-btn">👑 Neues Spiel erstellen</button>
             <div class="error-msg" id="error-msg"></div>
-            <div class="info-box">
-                <h4>💡 Merke:</h4>
-                <p><strong>WEM?</strong> → Dativ (Person)<br>
-                <strong>WAS?</strong> → Akkusativ (Sache)<br><br>
-                Ich gebe <u>dir</u> (Dat) <u>das Buch</u> (Akk).</p>
-            </div>
         </div>
-        
         <div id="lobby-screen" class="screen">
             <div class="lobby-box">
-                <h2>⏳ Warteraum</h2>
-                <div class="lobby-code" id="lobby-code">CODE</div>
-                <div class="diff-badge einfach" id="diff-badge">Einfach</div>
-                <p style="opacity:0.8;font-size:0.9em">❤️❤️❤️ 3 Leben • 25 Fragen • 12 Sekunden</p>
-                <div class="waiting-players" id="waiting-players"></div>
-                <div id="host-controls">
-                    <button class="start-game-btn" id="start-btn" disabled>▶️ START</button>
-                    <p style="color:#55efc4;font-size:0.85em">👑 Du bist der Spielleiter</p>
-                    <button class="small-btn danger" id="reset-btn">🔄 Zurücksetzen</button>
+                <h2>🎮 Warteraum</h2>
+                <div class="lobby-code" id="lobby-code">----</div>
+                <div class="lobby-info"><span class="lobby-badge mode" id="lobby-mode">👤 Einzeln</span><span class="lobby-badge diff" id="lobby-diff">🟢 Einfach</span></div>
+                <div class="players-list" id="players-list"><div class="players-grid" id="players-grid"></div></div>
+                <div class="teams-list" id="teams-list" style="display:none"><div class="teams-grid" id="teams-grid"></div></div>
+                <div class="host-controls" id="host-controls" style="display:none">
+                    <button class="start-btn" id="start-btn" disabled>▶️ Spiel starten</button>
+                    <p class="host-label">👑 Du bist Spielleiter</p>
+                    <button class="reset-btn" id="reset-btn">🔄 Zurücksetzen</button>
                 </div>
-                <div id="player-controls" style="display:none">
-                    <p style="color:#fdcb6e">⏳ Warte auf Spielleiter...</p>
-                </div>
+                <div id="player-controls" style="display:none"><p class="player-wait">⏳ Warte auf Spielleiter...</p></div>
             </div>
         </div>
-        
         <div id="game-screen" class="screen">
+            <div class="scoreboard" id="scoreboard" style="display:none"></div>
             <div class="game-header">
-                <div class="lives" id="display-lives">❤️❤️❤️</div>
-                <div class="timer" id="timer">12</div>
-                <div>
-                    <div id="question-num">1/25</div>
-                    <div class="survivors" id="survivors">👥 0</div>
-                </div>
+                <div class="game-info"><div class="timer" id="timer">12</div><div class="question-counter" id="question-counter">1/20</div></div>
+                <div class="my-score" id="my-score">⭐ 0</div>
+                <div class="my-team-indicator" id="my-team-indicator" style="display:none"></div>
             </div>
             <div class="quiz-section">
-                <div class="category-badge" id="category"></div>
-                <div class="question" id="question"></div>
+                <div class="category" id="category">Kategorie</div>
+                <div class="question" id="question">Frage wird geladen...</div>
+                <div class="case-hint" id="case-hint"></div>
                 <div class="answers" id="answers"></div>
-                <div class="answer-status" id="answer-status"></div>
+                <div class="feedback" id="feedback"></div>
             </div>
-            <div class="players-grid" id="players-grid"></div>
+            <div class="live-players" id="live-players"><h4>👥 Spieler</h4><div class="live-players-grid" id="live-players-grid"></div></div>
         </div>
-        
-        <div id="gameover-screen" class="screen">
+        <div id="result-screen" class="screen">
             <div class="result-icon" id="result-icon">🏆</div>
-            <h2 id="result-title">Spiel beendet!</h2>
-            <div class="winners-list">
-                <h3 style="color:#ffd700;margin-bottom:12px">🏆 Überlebende</h3>
-                <div id="winners-content"></div>
-            </div>
-            <button class="btn-primary" id="back-btn">🏠 Zurück</button>
-        </div>
-        
-        <div id="eliminated-overlay">
-            <div style="font-size:5em">💀</div>
-            <h2>Ausgeschieden!</h2>
-            <p style="color:#aaa">Du kannst weiter zuschauen</p>
-            <button class="btn-secondary" id="watch-btn" style="margin-top:20px">👀 Zuschauen</button>
+            <h2 class="result-title" id="result-title">Spiel beendet!</h2>
+            <div class="final-standings" id="final-standings"></div>
+            <button class="btn-primary" id="back-btn">🏠 Zurück zum Start</button>
         </div>
     </div>
-
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script>
-    var db, gameRef, playersRef;
-    var gameCode, playerId, playerName, isHost, difficulty;
-    var currentQ, myLives, answered, timerInt, eliminated;
-    var allPlayers, gameQuestions;
-    
-    var questions = {
-        einfach: [
-            {cat:"geben",q:"Ich gebe ___ das Buch.",a:["dir","dich","du","deiner"],c:0},
-            {cat:"geben",q:"Er gibt ___ einen Kuss.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"geben",q:"Wir geben ___ die Schlüssel.",a:["euch","euer","eure","euren"],c:0},
-            {cat:"schenken",q:"Sie schenkt ___ eine Blume.",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"schenken",q:"Ich schenke ___ ein Geschenk.",a:["ihm","ihn","sein","seinen"],c:0},
-            {cat:"zeigen",q:"Zeigst du ___ das Foto?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"zeigen",q:"Er zeigt ___ den Weg.",a:["uns","wir","unser","unseren"],c:0},
-            {cat:"bringen",q:"Bringst du ___ den Kaffee?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"bringen",q:"Sie bringt ___ das Essen.",a:["ihm","ihn","sein","seinen"],c:0},
-            {cat:"kaufen",q:"Ich kaufe ___ ein Eis.",a:["dir","dich","du","dein"],c:0},
-            {cat:"kaufen",q:"Er kauft ___ einen Ring.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"leihen",q:"Kannst du ___ das Buch leihen?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"leihen",q:"Ich leihe ___ mein Auto.",a:["dir","dich","du","dein"],c:0},
-            {cat:"schicken",q:"Wir schicken ___ eine Karte.",a:["euch","ihr","euer","eure"],c:0},
-            {cat:"schicken",q:"Er schickt ___ eine E-Mail.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"erklären",q:"Der Lehrer erklärt ___ die Grammatik.",a:["uns","wir","unser","unsere"],c:0},
-            {cat:"erklären",q:"Erklärst du ___ das Problem?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"sagen",q:"Ich sage ___ die Wahrheit.",a:["dir","dich","du","dein"],c:0},
-            {cat:"sagen",q:"Er sagt ___ seinen Namen.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"schreiben",q:"Sie schreibt ___ einen Brief.",a:["ihm","ihn","sein","seinen"],c:0},
-            {cat:"schreiben",q:"Ich schreibe ___ eine Nachricht.",a:["dir","dich","du","dein"],c:0},
-            {cat:"erzählen",q:"Er erzählt ___ eine Geschichte.",a:["uns","wir","unser","unsere"],c:0},
-            {cat:"erzählen",q:"Erzählst du ___ was passiert ist?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"empfehlen",q:"Ich empfehle ___ dieses Restaurant.",a:["dir","dich","du","dein"],c:0},
-            {cat:"empfehlen",q:"Sie empfiehlt ___ den Film.",a:["ihm","ihn","sein","seinen"],c:0}
-        ],
-        mittel: [
-            {cat:"geben",q:"Gibst du es ___?",a:["mir","mich","ich","mein"],c:0},
-            {cat:"geben",q:"Er hat ___ das Geld gegeben.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"schenken",q:"Was schenkst du ___?",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"leihen",q:"Wem leihst du ___ Fahrrad?",a:["dein","dir","dich","du"],c:0},
-            {cat:"leihen",q:"Ich habe ___ mein Buch geliehen.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"bringen",q:"Bringst du ___ bitte Wasser?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"holen",q:"Holst du ___ einen Kaffee?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"holen",q:"Ich hole ___ das Buch.",a:["dir","dich","du","dein"],c:0},
-            {cat:"bestellen",q:"Ich bestelle ___ eine Pizza.",a:["dir","dich","du","dein"],c:0},
-            {cat:"kochen",q:"Sie kocht ___ das Essen.",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"machen",q:"Machst du ___ einen Tee?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"vorlesen",q:"Er liest ___ das Märchen vor.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"mitbringen",q:"Bringst du ___ etwas mit?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"wegnehmen",q:"Er nimmt ___ das Spielzeug weg.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"wünschen",q:"Ich wünsche ___ alles Gute!",a:["dir","dich","du","dein"],c:0},
-            {cat:"anbieten",q:"Er bietet ___ Hilfe an.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"versprechen",q:"Ich verspreche ___ nichts.",a:["dir","dich","du","dein"],c:0},
-            {cat:"beibringen",q:"Wer bringt ___ Deutsch bei?",a:["dir","dich","du","dein"],c:0},
-            {cat:"stehlen",q:"Jemand hat ___ die Tasche gestohlen.",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"verbieten",q:"Der Arzt verbietet ___ das Rauchen.",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"erlauben",q:"Meine Eltern erlauben ___ alles.",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"zurückgeben",q:"Gibst du ___ das Buch zurück?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"überlassen",q:"Ich überlasse ___ die Entscheidung.",a:["dir","dich","du","dein"],c:0},
-            {cat:"beweisen",q:"Er beweist ___ seine Unschuld.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"schulden",q:"Du schuldest ___ noch Geld.",a:["mir","mich","mein","meinen"],c:0}
-        ],
-        schwer: [
-            {cat:"verweigern",q:"Sie verweigert ___ die Auskunft.",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"entziehen",q:"Man entzieht ___ den Führerschein.",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"vorenthalten",q:"Er enthält ___ die Wahrheit vor.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"zutrauen",q:"Ich traue ___ das zu.",a:["dir","dich","du","dein"],c:0},
-            {cat:"zugestehen",q:"Man gesteht ___ das Recht zu.",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"übermitteln",q:"Ich übermittle ___ die Nachricht.",a:["Ihnen","Sie","Ihr","Ihre"],c:0},
-            {cat:"unterbreiten",q:"Er unterbreitet ___ einen Vorschlag.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"verschweigen",q:"Warum verschweigst du ___ das?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"neiden",q:"Sie neidet ___ den Erfolg.",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"gönnen",q:"Ich gönne ___ den Urlaub.",a:["dir","dich","du","dein"],c:0},
-            {cat:"verheimlichen",q:"Er verheimlicht ___ etwas.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"aufdrängen",q:"Dräng ___ nichts auf!",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"abnehmen",q:"Der Polizist nimmt ___ den Ausweis ab.",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"abgewöhnen",q:"Ich gewöhne ___ das Rauchen ab.",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"beibringen",q:"Wer hat ___ das Schwimmen beigebracht?",a:["dir","dich","du","dein"],c:0},
-            {cat:"einreden",q:"Lass ___ nichts einreden!",a:["dir","dich","du","dein"],c:0},
-            {cat:"vorwerfen",q:"Was wirfst du ___ vor?",a:["mir","mich","mein","meinen"],c:0},
-            {cat:"ausreden",q:"Lass ___ nicht ausreden!",a:["ihn","ihm","er","sein"],c:0},
-            {cat:"nachsagen",q:"Was sagt man ___ nach?",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"zumuten",q:"Das kann ich ___ nicht zumuten.",a:["dir","dich","du","dein"],c:0},
-            {cat:"anvertrauen",q:"Ich vertraue ___ mein Geheimnis an.",a:["dir","dich","du","dein"],c:0},
-            {cat:"aufbürden",q:"Bürde ___ nicht zu viel auf!",a:["dir","dich","du","dein"],c:0},
-            {cat:"zusprechen",q:"Das Gericht spricht ___ das Kind zu.",a:["ihr","sie","ihre","ihren"],c:0},
-            {cat:"aberkennen",q:"Man erkennt ___ den Titel ab.",a:["ihm","ihn","er","sein"],c:0},
-            {cat:"zuschreiben",q:"Man schreibt ___ den Erfolg zu.",a:["ihr","sie","ihre","ihren"],c:0}
-        ]
-    };
-    
-    function init() {
-        isHost = false; difficulty = 'einfach'; currentQ = -1; myLives = 3; answered = false; eliminated = false; timerInt = null; allPlayers = []; gameQuestions = [];
-        firebase.initializeApp({apiKey:"AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",authDomain:"lern-deutsch-arash.firebaseapp.com",databaseURL:"https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",projectId:"lern-deutsch-arash"});
-        db = firebase.database();
-        db.ref(".info/connected").on("value", function(s) { var el = document.getElementById("connection-status"); if (s.val()) { el.textContent = "🟢 Online"; el.className = "connection-status connected"; } else { el.textContent = "🔴 Offline"; el.className = "connection-status"; } });
-        setupButtons();
-    }
-    
-    function setupButtons() {
-        var diffBtns = document.querySelectorAll('.diff-btn');
-        for (var i = 0; i < diffBtns.length; i++) { diffBtns[i].onclick = function() { for (var j = 0; j < diffBtns.length; j++) { diffBtns[j].classList.remove('selected'); } this.classList.add('selected'); difficulty = this.getAttribute('data-diff'); }; }
-        document.getElementById("create-btn").onclick = createGame;
-        document.getElementById("join-btn").onclick = joinGame;
-        document.getElementById("start-btn").onclick = startGame;
-        document.getElementById("reset-btn").onclick = resetGame;
-        document.getElementById("back-btn").onclick = backToHome;
-        document.getElementById("watch-btn").onclick = function() { document.getElementById("eliminated-overlay").classList.remove("show"); };
-        document.getElementById("game-code").onkeypress = function(e) { if (e.key === "Enter") joinGame(); };
-    }
-    
-    function genCode() { var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; var code = ""; for (var i = 0; i < 4; i++) { code += chars.charAt(Math.floor(Math.random() * chars.length)); } return code; }
-    function showError(msg) { var el = document.getElementById("error-msg"); el.textContent = msg; el.style.display = "block"; setTimeout(function() { el.style.display = "none"; }, 3000); }
-    function showScreen(id) { var screens = document.querySelectorAll('.screen'); for (var i = 0; i < screens.length; i++) { screens[i].classList.remove('active'); } document.getElementById(id).classList.add('active'); }
-    function shuffle(arr) { var newArr = arr.slice(); for (var i = newArr.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var temp = newArr[i]; newArr[i] = newArr[j]; newArr[j] = temp; } return newArr; }
-    
-    function createGame() {
-        playerName = document.getElementById("player-name").value.trim();
-        if (!playerName) { showError("Name eingeben!"); return; }
-        gameCode = genCode(); playerId = "host_" + Date.now(); isHost = true;
-        gameQuestions = shuffle(questions[difficulty]).slice(0, 25);
-        gameRef = db.ref("akkdat/" + gameCode);
-        playersRef = db.ref("akkdat/" + gameCode + "/players");
-        gameRef.remove().then(function() { return gameRef.set({ status: "lobby", difficulty: difficulty, currentQuestion: -1, questionStart: null, questions: gameQuestions, host: playerId }); })
-        .then(function() { return playersRef.child(playerId).set({ name: playerName, lives: 3, isHost: true, answered: false }); })
-        .then(function() { playersRef.child(playerId).onDisconnect().remove(); showLobby(); setupListeners(); });
-    }
-    
-    function joinGame() {
-        playerName = document.getElementById("player-name").value.trim();
-        gameCode = document.getElementById("game-code").value.trim().toUpperCase();
-        if (!playerName) { showError("Name eingeben!"); return; }
-        if (!gameCode || gameCode.length !== 4) { showError("4-stelliger Code!"); return; }
-        playerId = "p_" + Date.now() + "_" + Math.random().toString(36).substr(2, 4); isHost = false;
-        gameRef = db.ref("akkdat/" + gameCode);
-        playersRef = db.ref("akkdat/" + gameCode + "/players");
-        gameRef.once("value").then(function(s) {
-            if (!s.exists()) { showError("Spiel nicht gefunden!"); return Promise.reject("not found"); }
-            if (s.val().status !== "lobby") { showError("Spiel läuft bereits!"); return Promise.reject("running"); }
-            difficulty = s.val().difficulty; gameQuestions = s.val().questions;
-            return playersRef.child(playerId).set({ name: playerName, lives: 3, isHost: false, answered: false });
-        }).then(function() { playersRef.child(playerId).onDisconnect().remove(); showLobby(); setupListeners(); }).catch(function(e) { console.log(e); });
-    }
-    
-    function showLobby() {
-        showScreen("lobby-screen");
-        document.getElementById("lobby-code").textContent = gameCode;
-        var badge = document.getElementById("diff-badge"); badge.textContent = difficulty.charAt(0).toUpperCase() + difficulty.slice(1); badge.className = "diff-badge " + difficulty;
-        document.getElementById("host-controls").style.display = isHost ? "block" : "none";
-        document.getElementById("player-controls").style.display = isHost ? "none" : "block";
-    }
-    
-    function setupListeners() {
-        playersRef.on("value", function(snap) { var players = []; snap.forEach(function(c) { var d = c.val(); if (d && d.name) { d.id = c.key; players.push(d); } }); allPlayers = players; updateUI(); });
-        gameRef.on("value", function(snap) {
-            var game = snap.val(); if (!game) { backToHome(); return; }
-            if (game.status === "playing") { showScreen("game-screen"); if (game.currentQuestion !== currentQ) { currentQ = game.currentQuestion; answered = false; hideStatus(); showQuestion(game.questionStart); } }
-            else if (game.status === "finished") { showResults(); }
-        });
-    }
-    
-    function updateUI() {
-        var w = document.getElementById("waiting-players");
-        if (allPlayers.length === 0) { w.innerHTML = '<p style="opacity:0.6">Warte auf Spieler...</p>'; }
-        else { var html = ""; for (var i = 0; i < allPlayers.length; i++) { var p = allPlayers[i]; html += '<div class="waiting-player">' + p.name + (p.isHost ? ' 👑' : '') + '</div>'; } w.innerHTML = html; }
-        var nonHostCount = 0; for (var i = 0; i < allPlayers.length; i++) { if (!allPlayers[i].isHost) nonHostCount++; }
-        document.getElementById("start-btn").disabled = nonHostCount === 0;
-        var me = null; for (var i = 0; i < allPlayers.length; i++) { if (allPlayers[i].id === playerId) { me = allPlayers[i]; break; } }
-        if (me) { myLives = me.lives; var hearts = ""; for (var i = 0; i < me.lives; i++) hearts += "❤️"; for (var i = me.lives; i < 3; i++) hearts += "🖤"; document.getElementById("display-lives").textContent = hearts; }
-        var alive = 0; for (var i = 0; i < allPlayers.length; i++) { if (allPlayers[i].lives > 0) alive++; }
-        document.getElementById("survivors").textContent = "👥 " + alive;
-        var grid = ""; for (var i = 0; i < allPlayers.length; i++) { var p = allPlayers[i]; var elim = p.lives <= 0 ? ' eliminated' : ''; var h = ""; for (var j = 0; j < p.lives; j++) h += "❤️"; grid += '<div class="player-chip' + elim + '">' + p.name + ' ' + h + '</div>'; }
-        document.getElementById("players-grid").innerHTML = grid;
-    }
-    
-    function hideStatus() { var st = document.getElementById("answer-status"); st.className = "answer-status"; st.textContent = ""; }
-    
-    function startGame() {
-        if (!isHost) return;
-        playersRef.once("value", function(s) { s.forEach(function(c) { playersRef.child(c.key).update({ answered: false, lives: 3 }); }); gameRef.update({ status: "playing", currentQuestion: 0, questionStart: Date.now() }); });
-    }
-    
-    function resetGame() {
-        if (!confirm("Zurücksetzen?")) return;
-        gameRef.update({ status: "lobby", currentQuestion: -1, questionStart: null });
-        playersRef.once("value", function(s) { s.forEach(function(c) { playersRef.child(c.key).update({ lives: 3, answered: false }); }); });
-        myLives = 3; currentQ = -1; eliminated = false; document.getElementById("eliminated-overlay").classList.remove("show"); showScreen("lobby-screen");
-    }
-    
-    function showQuestion(startTime) {
-        if (currentQ >= gameQuestions.length) { gameRef.update({ status: "finished" }); return; }
-        var q = gameQuestions[currentQ];
-        document.getElementById("question-num").textContent = (currentQ + 1) + "/" + gameQuestions.length;
-        document.getElementById("category").textContent = q.cat;
-        document.getElementById("question").textContent = q.q;
-        var idx = shuffle([0, 1, 2, 3]);
-        var ans = document.getElementById("answers"); ans.innerHTML = "";
-        for (var i = 0; i < idx.length; i++) {
-            var origIdx = idx[i];
-            var btn = document.createElement("button"); btn.className = "answer-btn"; btn.textContent = q.a[origIdx]; btn.setAttribute("data-idx", origIdx);
-            btn.disabled = myLives <= 0;
-            btn.onclick = (function(b, oi) { return function() { selectAnswer(b, oi); }; })(btn, origIdx);
-            ans.appendChild(btn);
-        }
-        startTimer(startTime);
-    }
-    
-    function selectAnswer(btn, idx) {
-        if (answered || myLives <= 0) return;
-        answered = true;
-        var q = gameQuestions[currentQ]; var isCorrect = idx === q.c;
-        var btns = document.querySelectorAll(".answer-btn");
-        for (var i = 0; i < btns.length; i++) { btns[i].disabled = true; if (parseInt(btns[i].getAttribute("data-idx")) === q.c) { btns[i].classList.add("correct"); } }
-        var st = document.getElementById("answer-status");
-        if (isCorrect) { st.textContent = "✅ Richtig!"; st.className = "answer-status correct show"; playersRef.child(playerId).update({ answered: true }); }
-        else { btn.classList.add("wrong"); myLives--; st.textContent = "❌ Falsch! -1 ❤️"; st.className = "answer-status wrong show"; playersRef.child(playerId).update({ answered: true, lives: myLives });
-            if (myLives <= 0 && !eliminated) { eliminated = true; setTimeout(function() { document.getElementById("eliminated-overlay").classList.add("show"); }, 500); }
-        }
-    }
-    
-    function startTimer(startTime) {
-        if (timerInt) clearInterval(timerInt);
-        var el = document.getElementById("timer");
-        function tick() {
-            var elapsed = Math.floor((Date.now() - startTime) / 1000); var rem = Math.max(0, 12 - elapsed);
-            el.textContent = rem;
-            if (rem <= 3) { el.className = "timer danger"; } else if (rem <= 5) { el.className = "timer warning"; } else { el.className = "timer"; }
-            if (rem === 0) {
-                clearInterval(timerInt);
-                if (!answered && myLives > 0) {
-                    answered = true; myLives--;
-                    var q = gameQuestions[currentQ];
-                    var btns = document.querySelectorAll(".answer-btn");
-                    for (var i = 0; i < btns.length; i++) { btns[i].disabled = true; if (parseInt(btns[i].getAttribute("data-idx")) === q.c) { btns[i].classList.add("correct"); } }
-                    var st = document.getElementById("answer-status"); st.textContent = "⏰ Zeit abgelaufen! -1 ❤️"; st.className = "answer-status timeout show";
-                    playersRef.child(playerId).update({ answered: true, lives: myLives });
-                    if (myLives <= 0 && !eliminated) { eliminated = true; setTimeout(function() { document.getElementById("eliminated-overlay").classList.add("show"); }, 500); }
-                }
-                if (isHost) {
-                    setTimeout(function() {
-                        var allAlive = 0; for (var i = 0; i < allPlayers.length; i++) { if (allPlayers[i].lives > 0) allAlive++; }
-                        if (allAlive === 0 || currentQ + 1 >= gameQuestions.length) { gameRef.update({ status: "finished" }); }
-                        else { playersRef.once("value", function(s) { s.forEach(function(c) { playersRef.child(c.key).update({ answered: false }); }); gameRef.update({ currentQuestion: currentQ + 1, questionStart: Date.now() }); }); }
-                    }, 2500);
-                }
-            }
-        }
-        tick(); timerInt = setInterval(tick, 100);
-    }
-    
-    function showResults() {
-        if (timerInt) clearInterval(timerInt);
-        showScreen("gameover-screen");
-        document.getElementById("eliminated-overlay").classList.remove("show");
-        var survivors = []; for (var i = 0; i < allPlayers.length; i++) { if (allPlayers[i].lives > 0) survivors.push(allPlayers[i]); }
-        var iAmSurvivor = false; for (var i = 0; i < survivors.length; i++) { if (survivors[i].id === playerId) { iAmSurvivor = true; break; } }
-        document.getElementById("result-icon").textContent = survivors.length > 0 ? "🏆" : "💀";
-        document.getElementById("result-title").textContent = iAmSurvivor ? "Du hast überlebt!" : (survivors.length > 0 ? "Spiel beendet!" : "Alle ausgeschieden!");
-        var html = "";
-        if (survivors.length > 0) { survivors.sort(function(a, b) { return b.lives - a.lives; }); for (var i = 0; i < survivors.length; i++) { var p = survivors[i]; var h = ""; for (var j = 0; j < p.lives; j++) h += "❤️"; html += '<div class="winner-item"><span>' + p.name + '</span><span>' + h + '</span></div>'; } }
-        else { html = '<p style="color:#aaa">Niemand hat überlebt 💀</p>'; }
-        document.getElementById("winners-content").innerHTML = html;
-    }
-    
-    function backToHome() {
-        if (timerInt) clearInterval(timerInt);
-        if (gameRef) gameRef.off();
-        if (playersRef) { playersRef.off(); if (playerId) playersRef.child(playerId).remove(); }
-        gameCode = null; playerId = null; isHost = false; myLives = 3; currentQ = -1; eliminated = false;
-        document.getElementById("eliminated-overlay").classList.remove("show");
-        showScreen("login-screen"); document.getElementById("game-code").value = "";
-    }
-    
-    window.onload = init;
+    (function(){
+        'use strict';
+        var CONFIG={TIMER_SECONDS:12,QUESTIONS_COUNT:20,TRANSITION_DELAY:2500,FIREBASE:{apiKey:"AIzaSyBDChXlm34Kr7Gg0Dw458GiiwoLnWJAnxM",authDomain:"lern-deutsch-arash.firebaseapp.com",databaseURL:"https://lern-deutsch-arash-default-rtdb.europe-west1.firebasedatabase.app",projectId:"lern-deutsch-arash"},DB_PATH:"akkdat2"};
+        var QUESTIONS={einfach:[{cat:"geben",q:"Ich gebe ___ das Buch.",a:["dir","dich","du","dein"],c:0,h:"WEM gebe ich?"},{cat:"geben",q:"Er gibt ___ einen Stift.",a:["mir","mich","ich","mein"],c:0,h:"WEM gibt er?"},{cat:"schenken",q:"Sie schenkt ___ eine Blume.",a:["ihm","ihn","er","sein"],c:0,h:"WEM schenkt sie?"},{cat:"schenken",q:"Wir schenken ___ ein Buch.",a:["ihr","sie","es","sein"],c:0,h:"WEM schenken wir?"},{cat:"zeigen",q:"Ich zeige ___ den Weg.",a:["Ihnen","Sie","Ihr","Ihren"],c:0,h:"WEM zeige ich?"},{cat:"zeigen",q:"Er zeigt ___ das Foto.",a:["uns","wir","unser","unsere"],c:0,h:"WEM zeigt er?"},{cat:"bringen",q:"Sie bringt ___ das Essen.",a:["dem Kind","das Kind","den Kind","des Kindes"],c:0,h:"WEM bringt sie?"},{cat:"bringen",q:"Ich bringe ___ die Tasche.",a:["der Frau","die Frau","den Frau","des Frau"],c:0,h:"WEM bringe ich?"},{cat:"kaufen",q:"Er kauft ___ ein Geschenk.",a:["seiner Mutter","seine Mutter","seinen Mutter","seines Mutter"],c:0,h:"WEM kauft er?"},{cat:"kaufen",q:"Sie kauft ___ einen Ball.",a:["dem Jungen","den Jungen","der Junge","des Jungen"],c:0,h:"WEM kauft sie?"},{cat:"leihen",q:"Ich leihe ___ mein Auto.",a:["meinem Freund","meinen Freund","mein Freund","meines Freundes"],c:0,h:"WEM leihe ich?"},{cat:"leihen",q:"Er leiht ___ das Buch.",a:["mir","mich","ich","mein"],c:0,h:"WEM leiht er?"},{cat:"schicken",q:"Wir schicken ___ eine Karte.",a:["euch","euer","ihr","euren"],c:0,h:"WEM schicken wir?"},{cat:"schicken",q:"Sie schickt ___ ein Paket.",a:["ihrem Bruder","ihren Bruder","ihr Bruder","ihres Bruders"],c:0,h:"WEM schickt sie?"},{cat:"erklären",q:"Der Lehrer erklärt ___ die Aufgabe.",a:["den Schülern","die Schüler","der Schüler","des Schülers"],c:0,h:"WEM erklärt er?"},{cat:"erklären",q:"Ich erkläre ___ das Problem.",a:["dir","dich","du","dein"],c:0,h:"WEM erkläre ich?"},{cat:"sagen",q:"Er sagt ___ die Wahrheit.",a:["ihr","sie","ihre","ihren"],c:0,h:"WEM sagt er?"},{cat:"sagen",q:"Sie sagt ___ den Namen.",a:["uns","wir","unser","unseren"],c:0,h:"WEM sagt sie?"},{cat:"schreiben",q:"Ich schreibe ___ einen Brief.",a:["meiner Oma","meine Oma","meinen Oma","meines Oma"],c:0,h:"WEM schreibe ich?"},{cat:"schreiben",q:"Er schreibt ___ eine Nachricht.",a:["seinem Chef","seinen Chef","sein Chef","seines Chefs"],c:0,h:"WEM schreibt er?"}],mittel:[{cat:"erzählen",q:"Sie erzählt ___ eine Geschichte.",a:["den Kindern","die Kinder","der Kinder","des Kindern"],c:0,h:"WEM erzählt sie?"},{cat:"empfehlen",q:"Ich empfehle ___ das Restaurant.",a:["Ihnen","Sie","Ihr","Ihren"],c:0,h:"WEM empfehle ich?"},{cat:"holen",q:"Er holt ___ einen Kaffee.",a:["seiner Kollegin","seine Kollegin","seinen Kollegin","seines Kollegin"],c:0,h:"WEM holt er?"},{cat:"bestellen",q:"Sie bestellt ___ ein Taxi.",a:["dem Gast","den Gast","der Gast","des Gastes"],c:0,h:"WEM bestellt sie?"},{cat:"kochen",q:"Ich koche ___ das Abendessen.",a:["meiner Familie","meine Familie","meinen Familie","meines Familie"],c:0,h:"WEM koche ich?"},{cat:"vorlesen",q:"Die Mutter liest ___ ein Märchen vor.",a:["dem Kind","das Kind","den Kind","des Kindes"],c:0,h:"WEM liest sie vor?"},{cat:"mitbringen",q:"Er bringt ___ Blumen mit.",a:["seiner Freundin","seine Freundin","seinen Freundin","seines Freundin"],c:0,h:"WEM bringt er mit?"},{cat:"wegnehmen",q:"Sie nimmt ___ das Spielzeug weg.",a:["dem Bruder","den Bruder","der Bruder","des Bruders"],c:0,h:"WEM nimmt sie weg?"},{cat:"wünschen",q:"Ich wünsche ___ alles Gute.",a:["dir","dich","du","dein"],c:0,h:"WEM wünsche ich?"},{cat:"anbieten",q:"Er bietet ___ einen Platz an.",a:["der Dame","die Dame","den Dame","des Dame"],c:0,h:"WEM bietet er an?"},{cat:"versprechen",q:"Sie verspricht ___ eine Belohnung.",a:["den Mitarbeitern","die Mitarbeiter","der Mitarbeiter","des Mitarbeitern"],c:0,h:"WEM verspricht sie?"},{cat:"beibringen",q:"Der Trainer bringt ___ die Technik bei.",a:["dem Spieler","den Spieler","der Spieler","des Spielers"],c:0,h:"WEM bringt er bei?"},{cat:"stehlen",q:"Der Dieb stiehlt ___ die Handtasche.",a:["der Touristin","die Touristin","den Touristin","des Touristin"],c:0,h:"WEM stiehlt er?"},{cat:"verbieten",q:"Die Eltern verbieten ___ das Handy.",a:["dem Sohn","den Sohn","der Sohn","des Sohnes"],c:0,h:"WEM verbieten sie?"},{cat:"erlauben",q:"Der Chef erlaubt ___ den Urlaub.",a:["dem Angestellten","den Angestellten","der Angestellte","des Angestellten"],c:0,h:"WEM erlaubt er?"},{cat:"zurückgeben",q:"Ich gebe ___ das Geld zurück.",a:["ihm","ihn","er","sein"],c:0,h:"WEM gebe ich zurück?"},{cat:"überlassen",q:"Er überlässt ___ die Entscheidung.",a:["ihr","sie","ihre","ihren"],c:0,h:"WEM überlässt er?"},{cat:"beweisen",q:"Der Anwalt beweist ___ die Unschuld.",a:["dem Richter","den Richter","der Richter","des Richters"],c:0,h:"WEM beweist er?"},{cat:"schulden",q:"Ich schulde ___ 50 Euro.",a:["meinem Nachbarn","meinen Nachbarn","mein Nachbar","meines Nachbarn"],c:0,h:"WEM schulde ich?"},{cat:"verweigern",q:"Sie verweigert ___ die Auskunft.",a:["dem Beamten","den Beamten","der Beamte","des Beamten"],c:0,h:"WEM verweigert sie?"}],schwer:[{cat:"entziehen",q:"Der Arzt entzieht ___ die Lizenz.",a:["dem Kollegen","den Kollegen","der Kollege","des Kollegen"],c:0,h:"WEM entzieht er?"},{cat:"vorenthalten",q:"Sie enthält ___ die Information vor.",a:["den Partnern","die Partner","der Partner","des Partnern"],c:0,h:"WEM enthält sie vor?"},{cat:"zutrauen",q:"Ich traue ___ das zu.",a:["dir","dich","du","dein"],c:0,h:"WEM traue ich zu?"},{cat:"zugestehen",q:"Der Richter gesteht ___ das Recht zu.",a:["dem Angeklagten","den Angeklagten","der Angeklagte","des Angeklagten"],c:0,h:"WEM gesteht er zu?"},{cat:"übermitteln",q:"Sie übermittelt ___ die Grüße.",a:["der Delegation","die Delegation","den Delegation","des Delegation"],c:0,h:"WEM übermittelt sie?"},{cat:"unterbreiten",q:"Er unterbreitet ___ einen Vorschlag.",a:["dem Vorstand","den Vorstand","der Vorstand","des Vorstands"],c:0,h:"WEM unterbreitet er?"},{cat:"verschweigen",q:"Sie verschweigt ___ die Wahrheit.",a:["ihrem Mann","ihren Mann","ihr Mann","ihres Mannes"],c:0,h:"WEM verschweigt sie?"},{cat:"neiden",q:"Er neidet ___ den Erfolg.",a:["seinem Rivalen","seinen Rivalen","sein Rivale","seines Rivalen"],c:0,h:"WEM neidet er?"},{cat:"gönnen",q:"Ich gönne ___ den Urlaub.",a:["dir","dich","du","dein"],c:0,h:"WEM gönne ich?"},{cat:"verheimlichen",q:"Sie verheimlicht ___ das Problem.",a:["den Eltern","die Eltern","der Eltern","des Eltern"],c:0,h:"WEM verheimlicht sie?"},{cat:"aufdrängen",q:"Er drängt ___ seine Meinung auf.",a:["den Kollegen","die Kollegen","der Kollegen","des Kollegen"],c:0,h:"WEM drängt er auf?"},{cat:"abnehmen",q:"Der Arzt nimmt ___ Blut ab.",a:["dem Patienten","den Patienten","der Patient","des Patienten"],c:0,h:"WEM nimmt er ab?"},{cat:"abgewöhnen",q:"Sie gewöhnt ___ das Rauchen ab.",a:["ihrem Sohn","ihren Sohn","ihr Sohn","ihres Sohnes"],c:0,h:"WEM gewöhnt sie ab?"},{cat:"einreden",q:"Er redet ___ Unsinn ein.",a:["den Leuten","die Leute","der Leute","des Leuten"],c:0,h:"WEM redet er ein?"},{cat:"vorwerfen",q:"Sie wirft ___ Betrug vor.",a:["dem Geschäftsführer","den Geschäftsführer","der Geschäftsführer","des Geschäftsführers"],c:0,h:"WEM wirft sie vor?"},{cat:"ausreden",q:"Ich rede ___ den Plan aus.",a:["ihm","ihn","er","sein"],c:0,h:"WEM rede ich aus?"},{cat:"nachsagen",q:"Man sagt ___ Bestechung nach.",a:["dem Politiker","den Politiker","der Politiker","des Politikers"],c:0,h:"WEM sagt man nach?"},{cat:"zumuten",q:"Der Chef mutet ___ viel zu.",a:["den Mitarbeitern","die Mitarbeiter","der Mitarbeiter","des Mitarbeitern"],c:0,h:"WEM mutet er zu?"},{cat:"anvertrauen",q:"Sie vertraut ___ ein Geheimnis an.",a:["ihrer Freundin","ihre Freundin","ihren Freundin","ihres Freundin"],c:0,h:"WEM vertraut sie an?"},{cat:"aufbürden",q:"Er bürdet ___ die Arbeit auf.",a:["seinem Assistenten","seinen Assistenten","sein Assistent","seines Assistenten"],c:0,h:"WEM bürdet er auf?"}]};
+        var state={db:null,gameRef:null,playersRef:null,scoresRef:null,gameCode:null,playerId:null,playerName:'',isHost:false,mode:'einzeln',teamCount:2,myTeam:null,difficulty:'einfach',currentQuestion:-1,questions:[],myScore:0,teamScores:{},answered:false,timerInterval:null,players:[],connected:false};
+        function $(id){return document.getElementById(id)}function $$(sel){return document.querySelectorAll(sel)}
+        function shuffle(arr){var a=arr.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+        function generateCode(){var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';var code='';for(var i=0;i<4;i++)code+=chars.charAt(Math.floor(Math.random()*chars.length));return code}
+        function showScreen(id){var screens=$$('.screen');for(var i=0;i<screens.length;i++)screens[i].classList.remove('active');$(id).classList.add('active')}
+        function showError(msg){var el=$('error-msg');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show')},4000)}
+        function updateConnection(status){var el=$('connection');el.className='connection '+status;el.textContent=status==='online'?'🟢 Verbunden':'🔴 Offline'}
+        function setupUI(){var modeBtns=$$('.mode-btn');for(var i=0;i<modeBtns.length;i++){modeBtns[i].onclick=function(){for(var j=0;j<modeBtns.length;j++)modeBtns[j].classList.remove('selected');this.classList.add('selected');state.mode=this.getAttribute('data-mode');updateModeUI()}}var teamCountBtns=$$('.team-count-btn');for(var i=0;i<teamCountBtns.length;i++){teamCountBtns[i].onclick=function(){for(var j=0;j<teamCountBtns.length;j++)teamCountBtns[j].classList.remove('selected');this.classList.add('selected');state.teamCount=parseInt(this.getAttribute('data-count'));updateTeamSelectUI()}}var teamBtns=$$('.team-select-btn');for(var i=0;i<teamBtns.length;i++){teamBtns[i].onclick=function(){for(var j=0;j<teamBtns.length;j++)teamBtns[j].classList.remove('selected');this.classList.add('selected');state.myTeam=parseInt(this.getAttribute('data-team'))}}var diffBtns=$$('.diff-btn');for(var i=0;i<diffBtns.length;i++){diffBtns[i].onclick=function(){for(var j=0;j<diffBtns.length;j++)diffBtns[j].classList.remove('selected');this.classList.add('selected');state.difficulty=this.getAttribute('data-diff')}}$('create-btn').onclick=createGame;$('join-btn').onclick=joinGame;$('start-btn').onclick=startGame;$('reset-btn').onclick=resetGame;$('back-btn').onclick=backToHome;$('game-code').onkeypress=function(e){if(e.key==='Enter')joinGame()};updateModeUI()}
+        function updateModeUI(){var isTeam=state.mode==='team';$('team-count-select').classList.toggle('show',isTeam);$('team-select-grid').classList.toggle('show',isTeam);if(isTeam){updateTeamSelectUI();if(!state.myTeam)state.myTeam=1}}
+        function updateTeamSelectUI(){var btns=$$('.team-select-btn');for(var i=0;i<btns.length;i++){var teamNum=parseInt(btns[i].getAttribute('data-team'));btns[i].style.display=teamNum<=state.teamCount?'block':'none'}}
+        function initFirebase(){firebase.initializeApp(CONFIG.FIREBASE);state.db=firebase.database();state.db.ref('.info/connected').on('value',function(snap){state.connected=snap.val()===true;updateConnection(state.connected?'online':'offline')})}
+        function createGame(){state.playerName=$('player-name').value.trim();if(!state.playerName){showError('Bitte Namen eingeben!');return}if(state.mode==='team'&&!state.myTeam){showError('Bitte Team wählen!');return}state.gameCode=generateCode();state.playerId='host_'+Date.now();state.isHost=true;state.myScore=0;state.questions=shuffle(QUESTIONS[state.difficulty]).slice(0,CONFIG.QUESTIONS_COUNT);state.teamScores={};if(state.mode==='team'){for(var i=1;i<=state.teamCount;i++)state.teamScores[i]=0}var gameData={status:'lobby',mode:state.mode,teamCount:state.teamCount,difficulty:state.difficulty,questions:state.questions,currentQuestion:-1,questionStart:null,host:state.playerId,created:Date.now()};state.gameRef=state.db.ref(CONFIG.DB_PATH+'/'+state.gameCode);state.playersRef=state.db.ref(CONFIG.DB_PATH+'/'+state.gameCode+'/players');state.scoresRef=state.db.ref(CONFIG.DB_PATH+'/'+state.gameCode+'/teamScores');state.gameRef.remove().then(function(){return state.gameRef.set(gameData)}).then(function(){if(state.mode==='team')return state.scoresRef.set(state.teamScores)}).then(function(){var playerData={name:state.playerName,score:0,isHost:true,answered:false,online:true};if(state.mode==='team')playerData.team=state.myTeam;return state.playersRef.child(state.playerId).set(playerData)}).then(function(){state.playersRef.child(state.playerId).onDisconnect().update({online:false});setupGameListeners();showLobby()}).catch(function(err){console.error(err);showError('Fehler beim Erstellen!')})}
+        function joinGame(){state.playerName=$('player-name').value.trim();state.gameCode=$('game-code').value.trim().toUpperCase();if(!state.playerName){showError('Bitte Namen eingeben!');return}if(!state.gameCode||state.gameCode.length!==4){showError('Bitte 4-stelligen Code eingeben!');return}state.playerId='p_'+Date.now()+'_'+Math.random().toString(36).substr(2,4);state.isHost=false;state.myScore=0;state.gameRef=state.db.ref(CONFIG.DB_PATH+'/'+state.gameCode);state.playersRef=state.db.ref(CONFIG.DB_PATH+'/'+state.gameCode+'/players');state.scoresRef=state.db.ref(CONFIG.DB_PATH+'/'+state.gameCode+'/teamScores');state.gameRef.once('value').then(function(snap){if(!snap.exists()){showError('Spiel nicht gefunden!');return Promise.reject('not_found')}var game=snap.val();if(game.status!=='lobby'){showError('Spiel läuft bereits!');return Promise.reject('already_started')}state.mode=game.mode;state.teamCount=game.teamCount||2;state.difficulty=game.difficulty;state.questions=game.questions;if(state.mode==='team'&&(!state.myTeam||state.myTeam>state.teamCount))state.myTeam=1;var playerData={name:state.playerName,score:0,isHost:false,answered:false,online:true};if(state.mode==='team')playerData.team=state.myTeam;return state.playersRef.child(state.playerId).set(playerData)}).then(function(){state.playersRef.child(state.playerId).onDisconnect().update({online:false});setupGameListeners();showLobby()}).catch(function(err){if(err!=='not_found'&&err!=='already_started')showError('Fehler beim Beitreten!')})}
+        function setupGameListeners(){state.playersRef.on('value',function(snap){var players=[];snap.forEach(function(child){var p=child.val();if(p&&p.name){p.id=child.key;players.push(p)}});state.players=players;updatePlayersUI()});if(state.mode==='team')state.scoresRef.on('value',function(snap){var scores=snap.val();if(scores){state.teamScores=scores;updateScoreboardUI()}});state.gameRef.on('value',function(snap){var game=snap.val();if(!game){backToHome();return}if(game.status==='playing'){showScreen('game-screen');if(game.currentQuestion!==state.currentQuestion){state.currentQuestion=game.currentQuestion;state.answered=false;showQuestion(game.questionStart)}}else if(game.status==='finished'){showResults()}})}
+        function cleanupListeners(){if(state.gameRef)state.gameRef.off();if(state.playersRef)state.playersRef.off();if(state.scoresRef)state.scoresRef.off();if(state.timerInterval)clearInterval(state.timerInterval)}
+        function showLobby(){showScreen('lobby-screen');$('lobby-code').textContent=state.gameCode;$('lobby-mode').textContent=state.mode==='team'?'👥 '+state.teamCount+' Teams':'👤 Einzeln';var diffText={einfach:'🟢 Einfach',mittel:'🟡 Mittel',schwer:'🔴 Schwer'};$('lobby-diff').textContent=diffText[state.difficulty];$('host-controls').style.display=state.isHost?'block':'none';$('player-controls').style.display=state.isHost?'none':'block';$('players-list').style.display=state.mode==='einzeln'?'block':'none';$('teams-list').style.display=state.mode==='team'?'block':'none'}
+        function updatePlayersUI(){if(state.mode==='einzeln'){var html='';for(var i=0;i<state.players.length;i++){var p=state.players[i];if(p.online===false)continue;html+='<div class="player-chip'+(p.isHost?' host':'')+'">'+p.name+(p.isHost?' 👑':'')+'</div>'}$('players-grid').innerHTML=html||'<span style="opacity:0.5">Warte auf Spieler...</span>'}else{var grid=$('teams-grid');grid.className='teams-grid t'+state.teamCount;var html='';for(var t=1;t<=state.teamCount;t++){html+='<div class="team-box t'+t+'"><h4><span class="dot"></span>Team '+t+'</h4><div class="team-players">';var teamPlayers=[];for(var i=0;i<state.players.length;i++){if(state.players[i].team===t&&state.players[i].online!==false)teamPlayers.push(state.players[i])}if(teamPlayers.length>0){for(var j=0;j<teamPlayers.length;j++)html+='<span class="team-player">'+teamPlayers[j].name+(teamPlayers[j].isHost?' 👑':'')+'</span>'}else{html+='<span style="opacity:0.4;font-size:0.8em">Leer</span>'}html+='</div></div>'}grid.innerHTML=html}var nonHostCount=0;for(var i=0;i<state.players.length;i++){if(!state.players[i].isHost&&state.players[i].online!==false)nonHostCount++}$('start-btn').disabled=nonHostCount===0;var liveHtml='';for(var i=0;i<state.players.length;i++){var p=state.players[i];if(p.online===false)continue;var classes='live-player';if(p.answered)classes+=' answered';if(p.id===state.playerId)classes+=' me';liveHtml+='<span class="'+classes+'">'+p.name+'</span>'}$('live-players-grid').innerHTML=liveHtml}
+        function updateScoreboardUI(){if(state.mode!=='team')return;var sb=$('scoreboard');sb.style.display='flex';var html='';for(var t=1;t<=state.teamCount;t++){html+='<div class="score-item t'+t+'"><div class="team-name">Team '+t+'</div><div class="team-score">'+(state.teamScores[t]||0)+'</div></div>'}sb.innerHTML=html}
+        function startGame(){if(!state.isHost)return;state.playersRef.once('value').then(function(snap){var updates={};snap.forEach(function(child){updates[child.key+'/answered']=false;updates[child.key+'/score']=0});return state.playersRef.update(updates)}).then(function(){if(state.mode==='team'){var scores={};for(var i=1;i<=state.teamCount;i++)scores[i]=0;return state.scoresRef.set(scores)}}).then(function(){return state.gameRef.update({status:'playing',currentQuestion:0,questionStart:Date.now()})})}
+        function resetGame(){if(!state.isHost||!confirm('Spiel wirklich zurücksetzen?'))return;state.currentQuestion=-1;state.myScore=0;$('feedback').className='feedback';state.gameRef.update({status:'lobby',currentQuestion:-1,questionStart:null});state.playersRef.once('value').then(function(snap){var updates={};snap.forEach(function(child){updates[child.key+'/answered']=false;updates[child.key+'/score']=0});return state.playersRef.update(updates)});if(state.mode==='team'){var scores={};for(var i=1;i<=state.teamCount;i++)scores[i]=0;state.scoresRef.set(scores)}showScreen('lobby-screen')}
+        function showQuestion(startTime){if(state.currentQuestion>=state.questions.length){state.gameRef.update({status:'finished'});return}var q=state.questions[state.currentQuestion];$('question-counter').textContent=(state.currentQuestion+1)+'/'+state.questions.length;$('category').textContent=q.cat;$('question').textContent=q.q;$('case-hint').textContent=q.h||'';$('my-score').textContent='⭐ '+state.myScore;if(state.mode==='team'){var ti=$('my-team-indicator');ti.style.display='inline-block';ti.className='my-team-indicator t'+state.myTeam;ti.textContent='Team '+state.myTeam}var indices=shuffle([0,1,2,3]);var answersHtml='';for(var i=0;i<indices.length;i++){answersHtml+='<button class="answer-btn" data-idx="'+indices[i]+'">'+q.a[indices[i]]+'</button>'}$('answers').innerHTML=answersHtml;var btns=$$('.answer-btn');for(var i=0;i<btns.length;i++){btns[i].onclick=function(){selectAnswer(this,parseInt(this.getAttribute('data-idx')))}}$('feedback').className='feedback';startTimer(startTime)}
+        function selectAnswer(btn,idx){if(state.answered)return;state.answered=true;var q=state.questions[state.currentQuestion];var isCorrect=idx===q.c;var btns=$$('.answer-btn');for(var i=0;i<btns.length;i++){btns[i].disabled=true;if(parseInt(btns[i].getAttribute('data-idx'))===q.c)btns[i].classList.add('correct')}if(!isCorrect)btn.classList.add('wrong');var fb=$('feedback');if(isCorrect){var points=Math.max(1,parseInt($('timer').textContent));state.myScore+=points;$('my-score').textContent='⭐ '+state.myScore;fb.textContent='✅ Richtig! +'+points+' Punkte';fb.className='feedback correct show';state.playersRef.child(state.playerId).update({score:state.myScore,answered:true});if(state.mode==='team')state.scoresRef.child(state.myTeam).transaction(function(c){return(c||0)+1})}else{fb.textContent='❌ Falsch! Richtig: '+q.a[q.c];fb.className='feedback wrong show';state.playersRef.child(state.playerId).update({answered:true})}}
+        function startTimer(startTime){if(state.timerInterval)clearInterval(state.timerInterval);var timerEl=$('timer');function tick(){var elapsed=Math.floor((Date.now()-startTime)/1000);var remaining=Math.max(0,CONFIG.TIMER_SECONDS-elapsed);timerEl.textContent=remaining;timerEl.className='timer';if(remaining<=3)timerEl.classList.add('danger');else if(remaining<=5)timerEl.classList.add('warning');if(remaining===0){clearInterval(state.timerInterval);handleTimeout()}}tick();state.timerInterval=setInterval(tick,200)}
+        function handleTimeout(){if(!state.answered){state.answered=true;var q=state.questions[state.currentQuestion];var btns=$$('.answer-btn');for(var i=0;i<btns.length;i++){btns[i].disabled=true;if(parseInt(btns[i].getAttribute('data-idx'))===q.c)btns[i].classList.add('correct')}var fb=$('feedback');fb.textContent='⏰ Zeit abgelaufen! Richtig: '+q.a[q.c];fb.className='feedback timeout show';state.playersRef.child(state.playerId).update({answered:true})}if(state.isHost){setTimeout(function(){if(state.currentQuestion+1>=state.questions.length){state.gameRef.update({status:'finished'})}else{state.playersRef.once('value').then(function(snap){var updates={};snap.forEach(function(child){updates[child.key+'/answered']=false});return state.playersRef.update(updates)}).then(function(){state.gameRef.update({currentQuestion:state.currentQuestion+1,questionStart:Date.now()})})}},CONFIG.TRANSITION_DELAY)}}
+        function showResults(){if(state.timerInterval)clearInterval(state.timerInterval);showScreen('result-screen');if(state.mode==='einzeln'){var sorted=state.players.slice().sort(function(a,b){return(b.score||0)-(a.score||0)});var myRank=1;for(var i=0;i<sorted.length;i++){if(sorted[i].id===state.playerId){myRank=i+1;break}}var icons=['🥇','🥈','🥉'];$('result-icon').textContent=icons[myRank-1]||'🏁';$('result-title').textContent=myRank===1?'Du hast gewonnen!':'Platz '+myRank+'!';var html='';for(var i=0;i<sorted.length;i++){var p=sorted[i];var classes='standing-row';if(i===0)classes+=' winner';if(p.id===state.playerId)classes+=' me';html+='<div class="'+classes+'"><span class="standing-rank">'+(icons[i]||(i+1)+'.')+'</span><span class="standing-name">'+p.name+'</span><span class="standing-score">⭐ '+(p.score||0)+'</span></div>'}$('final-standings').innerHTML=html}else{var teams=[];for(var t=1;t<=state.teamCount;t++){teams.push({team:t,score:state.teamScores[t]||0})}teams.sort(function(a,b){return b.score-a.score});var winnerTeam=teams[0].team;var iWon=state.myTeam===winnerTeam;var icons=['🥇','🥈','🥉'];$('result-icon').textContent=iWon?'🏆':'🏁';$('result-title').textContent=iWon?'Dein Team hat gewonnen!':'Team '+winnerTeam+' gewinnt!';var html='';for(var i=0;i<teams.length;i++){var t=teams[i];var classes='standing-row';if(i===0)classes+=' winner';if(t.team===state.myTeam)classes+=' me';html+='<div class="'+classes+'"><span class="standing-rank">'+(icons[i]||(i+1)+'.')+'</span><span class="standing-name">Team '+t.team+'</span><span class="standing-score">'+t.score+' Punkte</span></div>'}$('final-standings').innerHTML=html}}
+        function backToHome(){cleanupListeners();if(state.playersRef&&state.playerId)state.playersRef.child(state.playerId).remove();state.gameCode=null;state.playerId=null;state.isHost=false;state.currentQuestion=-1;state.myScore=0;state.players=[];state.teamScores={};$('game-code').value='';showScreen('login-screen')}
+        function init(){initFirebase();setupUI()}
+        window.onload=init
+    })();
     </script>
     <script data-goatcounter="https://aguitoo.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
