@@ -695,6 +695,7 @@
         let timerInterval;
         let timeLeft = 15;
         let hasAnswered = false;
+        let playerGameStarted = false;
 
         // Rooms Definition
         const rooms = [
@@ -1109,6 +1110,9 @@
                 gameCode = code;
                 playerName = name;
                 playerId = 'player_' + Date.now();
+                playerGameStarted = false;
+                currentQuestionIndex = -1;
+                playerScore = 0;
 
                 database.ref('games-escape/' + gameCode + '/players/' + playerId).set({
                     name: playerName,
@@ -1153,6 +1157,11 @@
                 if (!game) return;
 
                 if (game.status === 'playing' && gameMode === 'player') {
+                    if (!playerGameStarted) {
+                        // Erstes Mal - Spiel startet jetzt
+                        playerGameStarted = true;
+                        currentQuestionIndex = -1; // Reset damit erste Frage angezeigt wird
+                    }
                     showQuestionPlayer(game);
                 } else if (game.status === 'finished') {
                     showResults();
